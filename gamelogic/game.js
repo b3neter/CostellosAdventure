@@ -1,0 +1,255 @@
+//global variables #####################################################################################
+    //canvas related
+    var gameCanvas = document.getElementById('gameCanvas');
+    var ctx = gameCanvas.getContext("2d");
+    var glWidth = window.innerWidth
+    var glHeight = window.innerHeight;
+
+    gameCanvas.width = glWidth;
+    gameCanvas.height = glHeight;
+
+    //Gamestate
+    const GAMESTATE = Object.freeze({ "INITIAL": 0, "RUNNING": 1, "PAUSE": 2, "GAMEOVER": 3, "VICTORY": 4 })
+    var glGamestate;
+
+        function setGamestatus(GAMESTATE){
+            glGamestate = GAMESTATE;
+        }
+    
+    //Level & Element related
+    const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "ITEM": 4, "ENEMY": 5, "BOSS": 6})
+    var glElements = [];
+    var glMainpaddle;
+    
+    var mouse = {
+        x: undefined,
+        y: undefined
+    }
+        //Bricktypes
+        const BRICKTYPE = Object.freeze({ "FOREST": {x:1,y:3},
+                                    "SNOW": 2});
+
+    //Keycodes (https://keycode.info/)
+    const KEYCODE = Object.freeze({ "ESC": 27, "P": 80, "SPACE": 32, "Enter": 13,
+                                    "UP": 38, "W": 87,
+                                    "LEFT": 37, "A":65,
+                                    "DOWN": 40, "S": 83,
+                                    "RIGHT": 39, "D": 68,
+                                    "PLUS": 187, "MINUS": 189});
+
+    //useful Variables and functions(TODO needs to change on resize)
+    var glCenterX = glWidth / 2;
+    var glCenterY = glHeight/ 2;
+
+    function percentageGlWidth(percent){
+        return glWidth * (percent / 100);
+    }
+
+    function percentageGlHeight(percent){
+        return glHeight * (percent / 100);
+    }
+
+    var glDefaultPaddleWidth = 100;
+    var glDefaultPaddleHeight = 20;
+    var glDefaultBallRadius = 20;
+
+//Classes ##############################################################################################
+
+class AbstractElement {
+    constructor(ELEMENTTYPE, x, y, color ="#000") {
+        if (new.target === AbstractElement) {
+            throw new TypeError("Cannot construct an Abstract instance directly");
+        }
+        if (this.update === undefined) {
+            throw new TypeError("Must override method update() in Class");
+        }
+        if (this.draw === undefined) {
+            throw new TypeError("Must override method draw() in Class");
+        }
+        if (this.pause === undefined) {
+            throw new TypeError("Must override method pause() in Class");
+        }
+        this.type = ELEMENTTYPE;
+        this.x = x;
+        this.y = y;
+        this.color = color;
+    }
+}
+
+class Paddle extends AbstractElement {
+    constructor(x, y, width, height, color) {
+        super(ELEMENTTYPE.PADDLE, x - (width/2), y - (height/2), color);
+        this.width = width;
+        this.height = height;
+    }
+
+    update() {
+        this.draw();
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.rect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    pause(p) {
+
+    }
+}
+
+class Brick extends AbstractElement {
+    constructor(x, y, width, height, lifes, mass) {
+        super(ELEMENTTYPE.BRICK, x, y);
+        this.width = width;
+        this.height = height;
+        this.mass = mass;
+        this.lifes = lifes;
+    }
+
+    update() {
+        this.draw();
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.rect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    pause(p) {
+
+    }
+}
+
+class Ball extends AbstractElement {
+    constructor(x, y, dx, dy, radius, lifes, mass) {
+        super(ELEMENTTYPE.BALL, x, y);
+        this.dx = dx;
+        this.dy = dy;
+        this.radius = radius;
+        this.mass = mass;
+        this.lifes = lifes;
+    }
+
+    angle() {
+        //angle of ball with the x axis
+        return Math.atan2(this.dy, this.dx);
+    };
+
+    velocity() {
+        // magnitude of velocity vector
+        return Math.sqrt(this.dx * this.dx + this.dy * this.dy);
+    };
+
+    update() {
+        this.draw();
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    pause(p) {
+
+    }
+}
+
+
+//Helperfunctionen #####################################################################################
+    //Image & sprite loading 
+
+    //Music Loading, pause, restart
+
+//Collision ############################################################################################
+
+//PauseMenu related things #############################################################################
+
+//Eventlistener ########################################################################################
+    //mousemove (für die Position der glMouse zu ändern)
+    function onMousemove(event){
+        mouse.x = event.x;
+        mouse.y = event.y;
+        console.log(mouse);
+    }
+
+    //resize
+    function onResize(){
+        glWidth = window.innerWidth;
+        glHeight = window.innerHeight;
+
+        gameCanvas.width = glWidth;
+        gameCanvas.height = glHeight;
+        
+        //TODO (Art der Sklaierung muss implementiert werden, vorerst neuer init())
+        init();
+    }
+
+    //keydown (Pausemenü, Effekte aktivieren)
+    function onKeyDown(){
+
+    }
+
+//LevelBUilder #########################################################################################
+    //JSONreader
+
+//GameHandler ##########################################################################################
+    //initial
+    function init() {
+        glElements = [];
+
+        setGamestatus(GAMESTATE.RUNNING);
+        glElements.push(new Brick(50,50,400,200,3,1));
+
+        //Create Mainpaddle
+        mainpaddle = new Paddle(glCenterX, percentageGlHeight(90), glDefaultPaddleWidth , glDefaultPaddleHeight, "#33BB97" );
+        console.log(mainpaddle);
+        glElements.push(mainpaddle);
+
+        //Create Startball with zero velocity
+        
+        //Create Bricks
+        
+        
+        //Level related
+            //Load Background
+    
+            //Load BackgroundAnimation
+    
+            //Load BackgroundMusic
+
+            //Create Enemys
+
+    }
+    
+    //MAIN-Gameloop
+    
+    function animate() {
+        requestAnimationFrame(animate);
+    
+        //Clear Canvas
+        ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+        //Update each Element
+        glElements.forEach(function (element) {
+            element.update()
+        });
+    }
+    
+init();
+animate();
+
+//ADD Eventlisteners
+window.addEventListener('mousemove', function(event){onMousemove(event)}, false);
+
+window.addEventListener('resize', function(event){onResize(event)}, false);
+
+window.addEventListener("keydown", function(event){onKeyDown(event)}, false);
