@@ -17,17 +17,28 @@
         }
     
     //Level & Element related
-    const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "ITEM": 4, "ENEMY": 5, "BOSS": 6})
+    const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "ENEMY": 5, "BOSS": 6})
     var glElements = [];
     var glMainpaddle;
+    var effect = 1;
     
     var glMouse = {
         x: undefined,
         y: undefined
     }
-        //Bricktypes
-        const BRICKTYPE = Object.freeze({ "FOREST": {x:1,y:3},
-                                    "SNOW": 2});
+    //Bricktypes
+    const BRICKTYPE = Object.freeze({ "FOREST": {x:1,y:3},
+                                        "SNOW": 2});
+
+    //Bricktypes
+    const POWERUPTYPE = Object.freeze({ "GROWINGPADDLE": 1,
+                                   "SHRINKINGPADDLE": 2,
+                                   "FASTERBALL": 3,
+                                   "SLOWERBALL": 4,
+                                   "LIFEGAINED": 5,
+                                   "LIFELOST":6});
+
+
 
     //Keycodes (https://keycode.info/)
     const KEYCODE = Object.freeze({ "ESC": 27, "P": 80, "SPACE": 32, "Enter": 13,
@@ -163,6 +174,34 @@ class Ball extends AbstractElement {
     }
 }
 
+class Powerup extends AbstractElement {
+    constructor(x, y, dy, radius, lifes, POWERUPTYPE) {
+        super(ELEMENTTYPE.POWERUP, x, y);
+     // no dx, always falling down
+        this.dy = dy;
+        this.radius = radius;
+        this.lifes = lifes;
+        this.effect = POWERUPTYPE;
+    }
+
+    update() {
+        this.y += this.dy;
+        this.draw();
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    pause(p) {
+
+    }
+}
+
 //Helperfunctionen #####################################################################################
     //Image & sprite loading 
 
@@ -180,6 +219,19 @@ class Ball extends AbstractElement {
     //resolve Collision Ball & Wall
 
     //resolve Collision Paddle & Powerup
+
+    function resolveCollisionPaddlePowerup(paddle,powerup){
+       if (paddle.y === powerup.y){
+           switch (Powerup.effect){
+               case POWERUPTYPE.FASTERBALL: console.log ("Schneller Ball"); break;
+               case POWERUPTYPE.GROWINGPADDLE: console.log ("Groesseres Paddle"); break;
+               case POWERUPTYPE.LIFEGAINED: console.log ("Groesseres Paddle"); break;
+               case POWERUPTYPE.LIFELOST: console.log ("Leben verloren"); break;
+               case POWERUPTYPE.SHRINKINGPADDLE: console.log ("Kleineres Paddle"); break;
+               case POWERUPTYPE.SLOWERBALL: console.log ("Langsamer Ball"); break;
+            }      
+        }
+    }
 
     //resolve Collision Paddle & Wall
 
@@ -223,7 +275,7 @@ class Ball extends AbstractElement {
         glElements = [];
 
         setGamestatus(GAMESTATE.RUNNING);
-        glElements.push(new Brick(50,50,400,200,3,1));
+        glElements.push(new Brick(50,50,40,20,3,1));
 
         //Create Mainpaddle
         mainpaddle = new Paddle(glCenterX, percentageGlHeight(90), glDefaultPaddleWidth , glDefaultPaddleHeight, "#33BB97" );
@@ -233,7 +285,10 @@ class Ball extends AbstractElement {
         //Create Startball with zero velocity
         
         //Create Bricks
-        
+      
+        //Create PowerUp
+
+        glElements.push(new Powerup(glCenterX,140,1,12,1,POWERUPTYPE.LIFELOST));
         
         //Level related
             //Load Background
