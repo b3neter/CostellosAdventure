@@ -26,9 +26,19 @@
         x: undefined,
         y: undefined
     }
-        //Bricktypes
-        const BRICKTYPE = Object.freeze({ "FOREST": {x:1, y:1, color:"#33bb97"},
-                                    "SNOW": 2});
+    //Bricktypes
+    const BRICKTYPE = Object.freeze({ "FOREST": {x:1,y:3},
+                                        "SNOW": 2});
+
+    //Bricktypes
+    const POWERUPTYPE = Object.freeze({ "GROWINGPADDLE": 1,
+                                   "SHRINKINGPADDLE": 2,
+                                   "FASTERBALL": 3,
+                                   "SLOWERBALL": 4,
+                                   "LIFEGAINED": 5,
+                                   "LIFELOST":6});
+
+
 
     //Keycodes (https://keycode.info/)
     const KEYCODE = Object.freeze({ "ESC": 27, "P": 80, "SPACE": 32, "Enter": 13,
@@ -281,6 +291,7 @@ class Powerup extends AbstractElement {
 
         //Change Gamestate
         setGamestatus(GAMESTATE.RUNNING);
+        glElements.push(new Brick(50,50,40,20,3,1));
 
         //Create Mainpaddle
         mainpaddle = new Paddle(glCenterX, percentageGlHeight(90), glDefaultPaddleWidth, glDefaultPaddleHeight, "#33BB97" );
