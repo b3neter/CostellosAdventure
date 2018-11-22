@@ -301,7 +301,7 @@ class Powerup extends AbstractElement {
         //Create Startball with zero velocity
         
         //Create Bricks
-      
+      createBricks();
         //Create PowerUp
 
         glElements.push(new Powerup(glCenterX,140,1,12,1,POWERUPTYPE.LIFELOST));
@@ -317,8 +317,18 @@ class Powerup extends AbstractElement {
 
     }
 
-
+        function createBricks(){
+            let brickcount = 0;
+            let brickposx  = 0;
+            let brickposy = 0;
+            for (brickcount; brickcount <= 10; brickcount++){
+                glElements.push(new Brick(brickposx,brickposy,30,10,1,1))
+            brickposx += 30;
+            brickposy += 10; 
+            }
+        }
     
+        
     //MAIN-Gameloop
     
     function animate() {
