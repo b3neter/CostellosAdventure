@@ -28,7 +28,7 @@
     }
 
     //Bricktypes
-    const BRICKTYPE = Object.freeze({ "FOREST": {x:1,y:3},
+    const BRICKTYPE = Object.freeze({   "FOREST": {x:1,y:3},
                                         "SNOW": 2});
 
     //Bricktypes
@@ -63,11 +63,14 @@
         return glHeight * (percent / 100);
     }
 
-    var glDefaultPaddleWidth = 200;
-    var glDefaultPaddleHeight = 20;
-    var glDefaultPaddleX = glCenterX - (glDefaultPaddleWidth/2);
-    var glDefaultPaddleY= percentageGlHeight(90) - (glDefaultPaddleHeight/2);
-    var glDefaultBallRadius = 20;
+    var glDefault_PaddleWidth = 200;
+    var glDefault_PaddleHeight = 20;
+    var glDefault_PaddleX = glCenterX - (glDefault_PaddleWidth/2);
+
+    var glDefault_PaddleY= percentageGlHeight(90) - (glDefault_PaddleHeight/2);
+    var glDefault_BallDx = 0.78;
+    var glDefault_BallDy = 2.89;
+    var glDefault_BallRadius = 20;
 
 //Classes ##############################################################################################
 
@@ -145,7 +148,7 @@ class Ball extends AbstractElement {
         this.lifes = lifes;
     }
 
-    angle() {
+    angle(){
         //angle of ball with the x axis
         return Math.atan2(this.dy, this.dx);
     };
@@ -193,40 +196,130 @@ class Powerup extends AbstractElement {
 }
 
 //Helperfunctionen #####################################################################################
+
     //Image & sprite loading 
 
     //Music Loading, pause, restart
 
 //Collision ############################################################################################
+    //Generals
+        //distance between two balls
+        function distanceBall(a, b) {
+            return Math.sqrt((a.x + a.dx - b.x - b.dx) ** 2 + (a.y + a.dy - b.y - b.dy) ** 2) - a.radius - b.radius;
+        }
+
+        function checkCircleInRectangle(circle, rect){
+            //https://stackoverflow.com/questions/21089959/detecting-collision-of-rectangle-with-circle
+            var distX = Math.abs(circle.x - rect.x-rect.width/2);
+            var distY = Math.abs(circle.y - rect.y-rect.height/2);
+            
+            //don't collide if distance is more than the sum of rects x and 
+            if (distX > (rect.width/2 + circle.radius)) { ;return false; }
+            if (distY > (rect.height/2 + circle.radius)) { ;return false; }
+            
+            //Collide if distance between Centers are less the rects inner distance
+            if (distX <= (rect.width/2)) { ;return true; } 
+            if (distY <= (rect.height/2)) { ;return true; }
+            
+            //Collide on rect Corner
+            var dx=distX-rect.width/2;
+            var dy=distY-rect.height/2;
+            return (dx*dx+dy*dy<=(circle.r*circle.r));
+        }
+
     //Check Collision general
     function checkCollision(element, other){
-        if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BALL){
+        if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BALL && element !== other){
             resolveCollision_BallBall(element,other);
+        }
+        if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BRICK){
+            if(checkCircleInRectangle(element,other)){
+                resolveCollision_BallBrick(element,other);
+            }
+        }
+        if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.PADDLE){
+            if(checkCircleInRectangle(element,other)){
+                resolveCollision_BallPaddle(element,other);
+            }
         }
     }
 
     function checkWallCollision(ball){
-
+        if (ball.x - ball.radius + ball.dx < 0 ||
+            ball.x + ball.radius + ball.dx > glWidth) {
+            //left and right
+            ball.dx *= -1;
+        }
+        if (ball.y - ball.radius + ball.dy < 0) {
+            //top
+            ball.dy *= -1;
+        }
+        if (ball.y + ball.radius > glHeight) {
+            //bottom
+            ball.lives = 0;
+        }
+        if (ball.y - ball.radius < 0) {
+            //top set ballposition in canvas
+            ball.y = ball.radius;
+        }
+        if (ball.x + ball.radius > glWidth) {
+            //right set ballposition in canvas
+            ball.x = ball.width - ball.radius;
+        }
+        if (ball.x - ball.radius < 0) {
+            //left set ballposition in canvas
+            ball.x = ball.radius;
+        }
     }
 
     //resolve Collision Ball & Ball
     function resolveCollision_BallBall(ball, other){
+        var theta1 = ball.angle();
+        var theta2 = other.angle();
+        var phi = Math.atan2(other.y - ball.y, other.x - ball.x);
+        var m1 = ball.mass;
+        var m2 = other.mass;
+        var v1 = ball.velocity();
+        var v2 = other.velocity();
 
+        var dx1F = (v1 * Math.cos(theta1 - phi) * (m1 - m2) + 2 * m2 * v2 * Math.cos(theta2 - phi)) / (m1 + m2) * Math.cos(phi) + v1 * Math.sin(theta1 - phi) * Math.cos(phi + Math.PI / 2);
+        var dy1F = (v1 * Math.cos(theta1 - phi) * (m1 - m2) + 2 * m2 * v2 * Math.cos(theta2 - phi)) / (m1 + m2) * Math.sin(phi) + v1 * Math.sin(theta1 - phi) * Math.sin(phi + Math.PI / 2);
+        var dx2F = (v2 * Math.cos(theta2 - phi) * (m2 - m1) + 2 * m1 * v1 * Math.cos(theta1 - phi)) / (m1 + m2) * Math.cos(phi) + v2 * Math.sin(theta2 - phi) * Math.cos(phi + Math.PI / 2);
+        var dy2F = (v2 * Math.cos(theta2 - phi) * (m2 - m1) + 2 * m1 * v1 * Math.cos(theta1 - phi)) / (m1 + m2) * Math.sin(phi) + v2 * Math.sin(theta2 - phi) * Math.sin(phi + Math.PI / 2);
+
+        ball.dx = dx1F; 
+        ball.dy = dy1F;
+        other.dx = dx2F;
+        other.dy = dy2F;
     }
     
     //resolve Collision Ball & Brick
     function resolveCollision_BallBrick(ball, brick){
-
+        var distX = Math.abs(ball.x - brick.x-brick.width/2);
+        var distY = Math.abs(ball.y - brick.y-brick.height/2);
+        
+        if (distX > (brick.width/2 + ball.radius)) { 
+            brick.lifes--;
+            ball.dx *= -1;
+        }
+        if (distY > (brick.height/2 + ball.radius)) {
+            brick.lifes--;
+            ball.dy *= -1;
+        }
     }
 
     //resolve Collision Ball & Paddle
     function resolveCollision_BallPaddle(ball, paddle){
-
-    }
-
-    //resolve Collision Ball & Wall
-    function resolveCollision_BallWall(ball){
-
+        //TODO
+        var distX = Math.abs(ball.x - paddle.x-paddle.width/2);
+        var distY = Math.abs(ball.y - paddle.y-paddle.height/2);
+        
+        if (distX > (paddle.width/2 + ball.radius)) { 
+            ball.dx *= -1;
+        }
+        if (distY > (paddle.height/2 + ball.radius)) {
+            ball.dy *= -1;
+        }
     }
 
     //resolve Collision Paddle & Powerup
@@ -242,8 +335,6 @@ class Powerup extends AbstractElement {
             }      
         }
     }
-
-    //resolve Collision Paddle & Wall
 
 //PauseMenu related things #############################################################################
     function pause(){
@@ -295,17 +386,22 @@ class Powerup extends AbstractElement {
 
         //Change Gamestate
         setGamestatus(GAMESTATE.RUNNING);
-        glElements.push(new Brick(50,50,40,20,3,1));
 
         //Create Mainpaddle
-        mainpaddle = new Paddle(glDefaultPaddleX, glDefaultPaddleY, glDefaultPaddleWidth, glDefaultPaddleHeight, "#33BB97" );
+        mainpaddle = new Paddle(glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleWidth, glDefault_PaddleHeight, "#33BB97" );
         console.log(mainpaddle);
         glElements.push(mainpaddle);
-
+        
         //Create Startball with zero velocity
         
-        //Create Bricks
-      createBricks();
+        //TODO Create Bricks
+        bricks = createBricks();
+        bricks.forEach(function (brickArr) {
+            brickArr.forEach(function (brick) {
+                glElements.push(brick);
+            })
+        });
+
         //Create PowerUp
 
         //Create PowerUp
@@ -322,15 +418,25 @@ class Powerup extends AbstractElement {
 
     }
 
-    function createBricks(){
-        let brickcount = 0;
-        let brickposx  = 0;
-        let brickposy = 0;
-        for (brickcount; brickcount <= 10; brickcount++){
-            glElements.push(new Brick(brickposx,brickposy,30,10,1,1))
-        brickposx += 30;
-        brickposy += 10; 
+    //TODO überarbeiten
+    function createBricks() {
+        let brickColumnCount = 12;
+        let brickRowCount = 8;
+        let winwidth = glWidth / brickColumnCount;
+        let width = winwidth * 0.9;
+        let xstart = winwidth * 0.05;
+        let winheight = (glHeight * 4) / (7 * brickRowCount);
+        let height = winheight * 0.8;
+        let ystart = winheight * 0.1;
+    
+        var bricks = [];
+        for (var c = 0; c < brickColumnCount; c++) {
+            bricks[c] = [];
+            for (var r = 0; r < brickRowCount; r++) {
+                bricks[c][r] = new Brick(c * winwidth + xstart, r * winheight + ystart, width, height);
+            }
         }
+        return bricks;
     }
     
         
@@ -355,8 +461,8 @@ class Powerup extends AbstractElement {
                     mainpaddle.x = glMouse.x;
                 }
             }else{
-                mainpaddle.x = glDefaultPaddleX;
-                mainpaddle.y = glDefaultPaddleY;
+                mainpaddle.x = glDefault_PaddleX;
+                mainpaddle.y = glDefault_PaddleY;
             }
             
             
@@ -365,7 +471,7 @@ class Powerup extends AbstractElement {
                 glElements.forEach(function (other){
                     checkCollision(element, other);
                 })
-                if(element.type = ELEMENTTYPE.BALL){
+                if(element.type === ELEMENTTYPE.BALL){
                     checkWallCollision(element);
                 }
             });
