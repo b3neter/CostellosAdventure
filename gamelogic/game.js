@@ -163,13 +163,25 @@ class Ball extends AbstractElement {
     }
 }
 
-
 //Helperfunctionen #####################################################################################
     //Image & sprite loading 
 
     //Music Loading, pause, restart
 
 //Collision ############################################################################################
+    //Check Collision general
+
+    //resolve Collision Ball & Ball
+
+    //resolve Collision Ball& Brick
+
+    //resolve Collision Ball & Paddle
+
+    //resolve Collision Ball & Wall
+
+    //resolve Collision Paddle & Powerup
+
+    //resolve Collision Paddle & Wall
 
 //PauseMenu related things #############################################################################
 
@@ -193,13 +205,17 @@ class Ball extends AbstractElement {
         init();
     }
 
-    //keydown (Pausemenü, Effekte aktivieren)
+    //keydown (Pausemenü, Effekte aktivieren, Throw Ball if Intitial)
     function onKeyDown(){
 
     }
 
 //LevelBUilder #########################################################################################
     //JSONreader
+
+    //Lebensanzeige
+
+    //Score?
 
 //GameHandler ##########################################################################################
     //initial
@@ -229,14 +245,22 @@ class Ball extends AbstractElement {
             //Create Enemys
 
     }
+
+
     
     //MAIN-Gameloop
     
     function animate() {
         requestAnimationFrame(animate);
-    
+        
+        //act on denpending on gameState
+
         //Clear Canvas
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+        //Resolve Collision
+
+        //Check Victory
 
         //Update each Element
         glElements.forEach(function (element) {
