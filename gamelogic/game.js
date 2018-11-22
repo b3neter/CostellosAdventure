@@ -26,6 +26,7 @@
         x: undefined,
         y: undefined
     }
+
     //Bricktypes
     const BRICKTYPE = Object.freeze({ "FOREST": {x:1,y:3},
                                         "SNOW": 2});
@@ -64,6 +65,8 @@
 
     var glDefaultPaddleWidth = 200;
     var glDefaultPaddleHeight = 20;
+    var glDefaultPaddleX = glCenterX - (glDefaultPaddleWidth/2);
+    var glDefaultPaddleY= percentageGlHeight(90) - (glDefaultPaddleHeight/2);
     var glDefaultBallRadius = 20;
 
 //Classes ##############################################################################################
@@ -78,9 +81,6 @@ class AbstractElement {
         }
         if (this.draw === undefined) {
             throw new TypeError("Must override method draw() in Class");
-        }
-        if (this.pause === undefined) {
-            throw new TypeError("Must override method pause() in Class");
         }
         this.type = ELEMENTTYPE;
         this.x = x;
@@ -111,10 +111,6 @@ class Paddle extends AbstractElement {
         ctx.fill();
         ctx.closePath();
     }
-
-    pause(p) {
-
-    }
 }
 
 class Brick extends AbstractElement {
@@ -136,10 +132,6 @@ class Brick extends AbstractElement {
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.closePath();
-    }
-
-    pause(p) {
-
     }
 }
 
@@ -174,10 +166,6 @@ class Ball extends AbstractElement {
         ctx.fill();
         ctx.closePath();
     }
-
-    pause(p) {
-
-    }
 }
 
 class Powerup extends AbstractElement {
@@ -202,10 +190,6 @@ class Powerup extends AbstractElement {
         ctx.fill();
         ctx.closePath();
     }
-
-    pause(p) {
-
-    }
 }
 
 //Helperfunctionen #####################################################################################
@@ -215,18 +199,38 @@ class Powerup extends AbstractElement {
 
 //Collision ############################################################################################
     //Check Collision general
+    function checkCollision(element, other){
+        if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BALL){
+            resolveCollision_BallBall(element,other);
+        }
+    }
+
+    function checkWallCollision(ball){
+
+    }
 
     //resolve Collision Ball & Ball
+    function resolveCollision_BallBall(ball, other){
 
-    //resolve Collision Ball& Brick
+    }
+    
+    //resolve Collision Ball & Brick
+    function resolveCollision_BallBrick(ball, brick){
+
+    }
 
     //resolve Collision Ball & Paddle
+    function resolveCollision_BallPaddle(ball, paddle){
+
+    }
 
     //resolve Collision Ball & Wall
+    function resolveCollision_BallWall(ball){
+
+    }
 
     //resolve Collision Paddle & Powerup
-
-    function resolveCollisionPaddlePowerup(paddle,powerup){
+    function resolveCollision_PaddlePowerup(paddle,powerup){
        if (paddle.y === powerup.y){
            switch (Powerup.effect){
                case POWERUPTYPE.FASTERBALL: console.log ("Schneller Ball"); break;
@@ -294,7 +298,7 @@ class Powerup extends AbstractElement {
         glElements.push(new Brick(50,50,40,20,3,1));
 
         //Create Mainpaddle
-        mainpaddle = new Paddle(glCenterX, percentageGlHeight(90), glDefaultPaddleWidth, glDefaultPaddleHeight, "#33BB97" );
+        mainpaddle = new Paddle(glDefaultPaddleX, glDefaultPaddleY, glDefaultPaddleWidth, glDefaultPaddleHeight, "#33BB97" );
         console.log(mainpaddle);
         glElements.push(mainpaddle);
 
@@ -304,7 +308,8 @@ class Powerup extends AbstractElement {
       createBricks();
         //Create PowerUp
 
-        glElements.push(new Powerup(glCenterX,140,1,12,1,POWERUPTYPE.LIFELOST));
+        //Create PowerUp
+            //glElements.push(new Powerup(glCenterX,140,1,12,1,POWERUPTYPE.LIFELOST));
         
         //Level related
             //Load Background
@@ -317,16 +322,16 @@ class Powerup extends AbstractElement {
 
     }
 
-        function createBricks(){
-            let brickcount = 0;
-            let brickposx  = 0;
-            let brickposy = 0;
-            for (brickcount; brickcount <= 10; brickcount++){
-                glElements.push(new Brick(brickposx,brickposy,30,10,1,1))
-            brickposx += 30;
-            brickposy += 10; 
-            }
+    function createBricks(){
+        let brickcount = 0;
+        let brickposx  = 0;
+        let brickposy = 0;
+        for (brickcount; brickcount <= 10; brickcount++){
+            glElements.push(new Brick(brickposx,brickposy,30,10,1,1))
+        brickposx += 30;
+        brickposy += 10; 
         }
+    }
     
         
     //MAIN-Gameloop
@@ -341,7 +346,7 @@ class Powerup extends AbstractElement {
         if(glGamestate !== GAMESTATE.PAUSE){
 
             //setPaddlelocation (here and not onResize() because of Collision checking)
-            if(glMouse.x !== "undefined" && mainpaddle.getCenterX() !== glMouse.x){
+            if(glMouse.x !== undefined && mainpaddle.getCenterX() !== glMouse.x){
                 if(glMouse.x > glX && glMouse.x <= mainpaddle.getCenterX()){
                     mainpaddle.x = glX;
                 }else if(glMouse.x < glWidth && glMouse.x >= (glWidth - mainpaddle.width)){
@@ -349,10 +354,21 @@ class Powerup extends AbstractElement {
                 }else{
                     mainpaddle.x = glMouse.x;
                 }
+            }else{
+                mainpaddle.x = glDefaultPaddleX;
+                mainpaddle.y = glDefaultPaddleY;
             }
             
             
             //Resolve Collision
+            glElements.forEach(function (element){
+                glElements.forEach(function (other){
+                    checkCollision(element, other);
+                })
+                if(element.type = ELEMENTTYPE.BALL){
+                    checkWallCollision(element);
+                }
+            });
         }
             
             //Check Victory
