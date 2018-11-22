@@ -21,7 +21,7 @@
     var glElements = [];
     var glMainpaddle;
     
-    var mouse = {
+    var glMouse = {
         x: undefined,
         y: undefined
     }
@@ -188,8 +188,8 @@ class Ball extends AbstractElement {
 //Eventlistener ########################################################################################
     //mousemove (für die Position der glMouse zu ändern)
     function onMousemove(event){
-        mouse.x = event.x;
-        mouse.y = event.y;
+        glMouse.x = event.x;
+        glMouse.y = event.y;
         console.log(mouse);
     }
 
