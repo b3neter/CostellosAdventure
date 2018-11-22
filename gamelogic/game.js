@@ -26,7 +26,7 @@
         y: undefined
     }
         //Bricktypes
-        const BRICKTYPE = Object.freeze({ "FOREST": {x:1,y:3},
+        const BRICKTYPE = Object.freeze({ "FOREST": {x:1, y:1, color:"#33bb97"},
                                     "SNOW": 2});
 
     //Keycodes (https://keycode.info/)
@@ -38,6 +38,8 @@
                                     "PLUS": 187, "MINUS": 189});
 
     //useful Variables and functions(TODO needs to change on resize)
+    var glX = gameCanvas.x;
+    var glY = gameCanvas.y;
     var glCenterX = glWidth / 2;
     var glCenterY = glHeight/ 2;
 
@@ -49,7 +51,7 @@
         return glHeight * (percent / 100);
     }
 
-    var glDefaultPaddleWidth = 100;
+    var glDefaultPaddleWidth = 200;
     var glDefaultPaddleHeight = 20;
     var glDefaultBallRadius = 20;
 
@@ -85,6 +87,10 @@ class Paddle extends AbstractElement {
 
     update() {
         this.draw();
+    }
+
+    getCenterX(){
+        return this.x + (this.width/2);
     }
 
     draw() {
@@ -184,17 +190,23 @@ class Ball extends AbstractElement {
     //resolve Collision Paddle & Wall
 
 //PauseMenu related things #############################################################################
+    function pause(){
+        if(glGamestate !== GAMESTATE.PAUSE){
+            glGamestate = GAMESTATE.PAUSE;
+        }else{
+            glGamestate = GAMESTATE.RUNNING;
+        }
+    }
 
 //Eventlistener ########################################################################################
     //mousemove (für die Position der glMouse zu ändern)
     function onMousemove(event){
-        glMouse.x = event.x;
-        glMouse.y = event.y;
-        console.log(mouse);
+        glMouse.x = event.clientX;
+        glMouse.y = event.clientY;
     }
 
     //resize
-    function onResize(){
+    function onResize(event){
         glWidth = window.innerWidth;
         glHeight = window.innerHeight;
 
@@ -206,8 +218,11 @@ class Ball extends AbstractElement {
     }
 
     //keydown (Pausemenü, Effekte aktivieren, Throw Ball if Intitial)
-    function onKeyDown(){
-
+    function onKeyDown(event){
+        switch (event.keyCode) {
+            case KEYCODE.P: pause(); break;
+            default: break;
+        }
     }
 
 //LevelBUilder #########################################################################################
@@ -222,11 +237,11 @@ class Ball extends AbstractElement {
     function init() {
         glElements = [];
 
+        //Change Gamestate
         setGamestatus(GAMESTATE.RUNNING);
-        glElements.push(new Brick(50,50,400,200,3,1));
 
         //Create Mainpaddle
-        mainpaddle = new Paddle(glCenterX, percentageGlHeight(90), glDefaultPaddleWidth , glDefaultPaddleHeight, "#33BB97" );
+        mainpaddle = new Paddle(glCenterX, percentageGlHeight(90), glDefaultPaddleWidth, glDefaultPaddleHeight, "#33BB97" );
         console.log(mainpaddle);
         glElements.push(mainpaddle);
 
@@ -253,19 +268,33 @@ class Ball extends AbstractElement {
     function animate() {
         requestAnimationFrame(animate);
         
-        //act on denpending on gameState
-
         //Clear Canvas
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+        
+        //act depending on gameState
+        if(glGamestate !== GAMESTATE.PAUSE){
 
-        //Resolve Collision
-
-        //Check Victory
-
-        //Update each Element
-        glElements.forEach(function (element) {
-            element.update()
-        });
+            //setPaddlelocation (here and not onResize() because of Collision checking)
+            if(glMouse.x !== "undefined" && mainpaddle.getCenterX() !== glMouse.x){
+                if(glMouse.x > glX && glMouse.x <= mainpaddle.getCenterX()){
+                    mainpaddle.x = glX;
+                }else if(glMouse.x < glWidth && glMouse.x >= (glWidth - mainpaddle.width)){
+                    mainpaddle.x = glWidth - mainpaddle.width;
+                }else{
+                    mainpaddle.x = glMouse.x;
+                }
+            }
+            
+            
+            //Resolve Collision
+        }
+            
+            //Check Victory
+            
+            //Update each Element
+            glElements.forEach(function (element) {
+                element.update()
+            });
     }
     
 init();
