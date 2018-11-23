@@ -27,19 +27,17 @@
         y: undefined
     }
 
-    //Bricktypes
-    const BRICKTYPE = Object.freeze({   "FOREST": {x:1,y:3},
-                                        "SNOW": 2});
+        //Bricktypes
+        const BRICKTYPE = Object.freeze({   "FOREST": {x:1,y:3},
+                                            "SNOW": 2});
 
-    //Bricktypes
-    const POWERUPTYPE = Object.freeze({ "GROWINGPADDLE": 1,
-                                   "SHRINKINGPADDLE": 2,
-                                   "FASTERBALL": 3,
-                                   "SLOWERBALL": 4,
-                                   "LIFEGAINED": 5,
-                                   "LIFELOST":6});
-
-
+        //Bricktypes
+        const POWERUPTYPE = Object.freeze({ "GROWINGPADDLE": 1,
+                                    "SHRINKINGPADDLE": 2,
+                                    "FASTERBALL": 3,
+                                    "SLOWERBALL": 4,
+                                    "LIFEGAINED": 5,
+                                    "LIFELOST":6});
 
     //Keycodes (https://keycode.info/)
     const KEYCODE = Object.freeze({ "ESC": 27, "P": 80, "SPACE": 32, "Enter": 13,
@@ -50,6 +48,10 @@
                                     "PLUS": 187, "MINUS": 189});
 
     //useful Variables and functions(TODO needs to change on resize)
+    const DIRECTION = Object.freeze({   "NW":11.5,    "N":12,   "NO":1.5, 
+                                        "W":9,                  "O":3, 
+                                        "SW":7.5,     "S":6,    "SO":4.5})
+
     var glX = gameCanvas.x;
     var glY = gameCanvas.y;
     var glCenterX = glWidth / 2;
@@ -66,11 +68,10 @@
     var glDefault_PaddleWidth = 200;
     var glDefault_PaddleHeight = 20;
     var glDefault_PaddleX = glCenterX - (glDefault_PaddleWidth/2);
-
     var glDefault_PaddleY= percentageGlHeight(90) - (glDefault_PaddleHeight/2);
     var glDefault_BallDx = 0.78;
     var glDefault_BallDy = 2.89;
-    var glDefault_BallRadius = 20;
+    var glDefault_BallRadius = 15;
 
 //Classes ##############################################################################################
 
@@ -139,8 +140,8 @@ class Brick extends AbstractElement {
 }
 
 class Ball extends AbstractElement {
-    constructor(x, y, dx, dy, radius, lifes, mass) {
-        super(ELEMENTTYPE.BALL, x, y);
+    constructor(x, y, dx, dy, radius, lifes, mass, color ="#33BB97") {
+        super(ELEMENTTYPE.BALL, x, y), color;
         this.dx = dx;
         this.dy = dy;
         this.radius = radius;
@@ -159,6 +160,10 @@ class Ball extends AbstractElement {
     };
 
     update() {
+        if(glGamestate !== GAMESTATE.INITIAL && glGamestate != GAMESTATE.PAUSE){
+            this.x += this.dx;
+            this.y += this.dy;
+        }
         this.draw();
     }
 
@@ -204,42 +209,122 @@ class Powerup extends AbstractElement {
 //Collision ############################################################################################
     //Generals
         //distance between two balls
-        function distanceBall(a, b) {
-            return Math.sqrt((a.x + a.dx - b.x - b.dx) ** 2 + (a.y + a.dy - b.y - b.dy) ** 2) - a.radius - b.radius;
+        function hypothenuse(cathetus1, cathetus2) {
+            return Math.sqrt(cathetus1 ** 2 + cathetus2 ** 2);
+        }
+
+        function distancePoints(a, b) {
+            return hypothenuse((a.x + a.dx - b.x - b.dx),(a.y + a.dy - b.y - b.dy));
         }
 
         function checkCircleInRectangle(circle, rect){
-            //https://stackoverflow.com/questions/21089959/detecting-collision-of-rectangle-with-circle
-            var distX = Math.abs(circle.x - rect.x-rect.width/2);
-            var distY = Math.abs(circle.y - rect.y-rect.height/2);
-            
-            //don't collide if distance is more than the sum of rects x and 
-            if (distX > (rect.width/2 + circle.radius)) { ;return false; }
-            if (distY > (rect.height/2 + circle.radius)) { ;return false; }
-            
-            //Collide if distance between Centers are less the rects inner distance
-            if (distX <= (rect.width/2)) { ;return true; } 
-            if (distY <= (rect.height/2)) { ;return true; }
-            
-            //Collide on rect Corner
-            var dx=distX-rect.width/2;
-            var dy=distY-rect.height/2;
-            return (dx*dx+dy*dy<=(circle.r*circle.r));
+            let rectCenterX = rect.x+(rect.width/2);
+            let rectCenterY = rect.y+(rect.height/2);
+            let distX = Math.abs(rectCenterX- circle.x);
+            let distY = Math.abs(rectCenterY - circle.y);  
+
+            /*
+                         _______
+                ( )     |       |       
+                        |_______|       ( ) 
+
+            */
+            if(distX > (rect.width/2)+circle.radius){
+                return false;
+            }
+
+            /*
+                ( )
+                 _______
+                |       |       
+                |_______| 
+
+                    ( )
+            */
+            if(distY > (rect.height/2)+circle.radius){
+                return false;
+            }
+
+            /*
+                     _______
+                  ( )       |       
+                    |_______( ) 
+
+            */
+            if(distX <= (rect.width/2)+circle.radius && circle.y >= rect.y && circle.y <= rect.y + rect.height){
+                //Hit Left
+                if(circle.x < rectCenterX){
+                    return DIRECTION.W;
+                }
+                //Hit Right
+                if(circle.x > rectCenterX){
+                    return DIRECTION.O;
+                }
+            }
+
+            /*
+                (_)_____
+                |       |       
+                |_______|
+                    ( )
+            */
+            if(distY <= (rect.height/2)+circle.radius && circle.x >= rect.x && circle.x <= rect.x + rect.width){
+                //Hit TOP
+                if(circle.y < rectCenterY){
+                    return DIRECTION.N;
+                }
+                //Hit BOTTOM
+                if(circle.y > rectCenterY){
+                    return DIRECTION.S;
+                }
+            }
+
+            /*
+              ( )_______( )
+                |       |       
+                |_______| 
+              ( )       ( )
+            */
+            var dx=distX-rect.w/2;
+            var dy=distY-rect.h/2;
+            if(dx*dx+dy*dy<=(circle.r*circle.r)){
+                if(circle.y < rectCenterY){
+                    if(circle.x < rectCenterX){
+                        //Hit CORNER TOP - LEFT
+                        return DIRECTION.NW;
+                    }else{
+                        //Hit CORNER TOP - RIGHT
+                        return DIRECTION.NO;
+                    }
+                }else{
+                    if(circle.x < rectCenterX){
+                        //Hit CORNER BOTTOM - LEFT
+                        return DIRECTION.SW;
+                    }else{
+                        //Hit CORNER BOTTOM - RIGHT
+                        return DIRECTION.SO;
+                    }
+                }
+            }
         }
 
     //Check Collision general
     function checkCollision(element, other){
         if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BALL && element !== other){
-            resolveCollision_BallBall(element,other);
+            if(distancePoints(element, other) <= element.radius +other.radius){
+                resolveCollision_BallBall(element,other);
+            }
         }
         if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BRICK){
-            if(checkCircleInRectangle(element,other)){
-                resolveCollision_BallBrick(element,other);
+            let direction = checkCircleInRectangle(element,other)
+            if(direction !== false){
+                resolveCollision_BallBrick(element,other,direction);
             }
         }
         if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.PADDLE){
-            if(checkCircleInRectangle(element,other)){
-                resolveCollision_BallPaddle(element,other);
+            let direction = checkCircleInRectangle(element,other)
+            if(direction !== false){
+                resolveCollision_BallPaddle(element,other,direction);
             }
         }
     }
@@ -254,9 +339,11 @@ class Powerup extends AbstractElement {
             //top
             ball.dy *= -1;
         }
-        if (ball.y + ball.radius > glHeight) {
+        if (ball.y - ball.radius > glHeight) {
             //bottom
             ball.lives = 0;
+            console.log("GAME OVER");
+            window.alert("ENDE");
         }
         if (ball.y - ball.radius < 0) {
             //top set ballposition in canvas
@@ -294,37 +381,37 @@ class Powerup extends AbstractElement {
     }
     
     //resolve Collision Ball & Brick
-    function resolveCollision_BallBrick(ball, brick){
-        var distX = Math.abs(ball.x - brick.x-brick.width/2);
-        var distY = Math.abs(ball.y - brick.y-brick.height/2);
-        
-        if (distX > (brick.width/2 + ball.radius)) { 
-            brick.lifes--;
-            ball.dx *= -1;
-        }
-        if (distY > (brick.height/2 + ball.radius)) {
-            brick.lifes--;
-            ball.dy *= -1;
+    function resolveCollision_BallBrick(ball, brick, direction){
+        console.log("resolve BRICK");
+        switch(direction){
+            case DIRECTION.N : ball.dy *= -1; break;
+            case DIRECTION.S : ball.dy *= -1; break;
+            case DIRECTION.O : ball.dx *= -1; break;
+            case DIRECTION.W : ball.dx *= -1; break;
+            case DIRECTION.NO: ball.dx *= -1; ball.dy *= -1; break; 
+            case DIRECTION.SO: ball.dx *= -1; ball.dy *= -1; break;
+            case DIRECTION.SW: ball.dx *= -1; ball.dy *= -1; break;
+            case DIRECTION.NW: ball.dx *= -1; ball.dy *= -1; break;
+            default: break;
         }
     }
 
     //resolve Collision Ball & Paddle
-    function resolveCollision_BallPaddle(ball, paddle){
-        //TODO
-        var distX = Math.abs(ball.x - paddle.x-paddle.width/2);
-        var distY = Math.abs(ball.y - paddle.y-paddle.height/2);
-        
-        if (distX > (paddle.width/2 + ball.radius)) { 
-            ball.dx *= -1;
-        }
-        if (distY > (paddle.height/2 + ball.radius)) {
-            ball.dy *= -1;
+    function resolveCollision_BallPaddle(ball, paddle, direction){
+        console.log("resolve");
+        switch(direction){
+            case DIRECTION.NW: ball.y = paddle.y - ball.radius; ball.dy *= -1; break;
+            case DIRECTION.N : ball.y = paddle.y - ball.radius; ball.dy *= -1; break;
+            case DIRECTION.NO: ball.y = paddle.y - ball.radius; ball.dy *= -1; break; 
+            case DIRECTION.O : ball.x = paddle.x + paddle.width + ball.radius; ball.dx *= -1; ball.dy *= -1; break;
+            case DIRECTION.W : ball.x = paddle.x - ball.radius; ball.dx *= -1; ball.dy *= -1; break;
+            default: break;
         }
     }
 
     //resolve Collision Paddle & Powerup
     function resolveCollision_PaddlePowerup(paddle,powerup){
-       if (paddle.y === powerup.y){
+       if (powerup.y > paddle.y){
            switch (Powerup.effect){
                case POWERUPTYPE.FASTERBALL: console.log ("Schneller Ball"); break;
                case POWERUPTYPE.GROWINGPADDLE: console.log ("Groesseres Paddle"); break;
@@ -368,6 +455,7 @@ class Powerup extends AbstractElement {
     function onKeyDown(event){
         switch (event.keyCode) {
             case KEYCODE.P: pause(); break;
+            case KEYCODE.SPACE: setGamestatus(GAMESTATE.RUNNING);
             default: break;
         }
     }
@@ -385,7 +473,7 @@ class Powerup extends AbstractElement {
         glElements = [];
 
         //Change Gamestate
-        setGamestatus(GAMESTATE.RUNNING);
+        setGamestatus(GAMESTATE.INITIAL);
 
         //Create Mainpaddle
         mainpaddle = new Paddle(glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleWidth, glDefault_PaddleHeight, "#33BB97" );
@@ -393,7 +481,8 @@ class Powerup extends AbstractElement {
         glElements.push(mainpaddle);
         
         //Create Startball with zero velocity
-        
+        createBallAbovePaddle();
+
         //TODO Create Bricks
         bricks = createBricks();
         bricks.forEach(function (brickArr) {
@@ -437,6 +526,15 @@ class Powerup extends AbstractElement {
             }
         }
         return bricks;
+    }
+
+    function createBallAbovePaddle(){
+        if(mainpaddle !== undefined){
+            setGamestatus(GAMESTATE.INITIAL);
+
+            glElements.push(new Ball(glDefault_PaddleX + (glDefault_PaddleWidth/2), (glDefault_PaddleY - glDefault_PaddleHeight - glDefault_BallRadius),
+                                    glDefault_BallDx,glDefault_BallDy,glDefault_BallRadius,1,1));
+        }
     }
     
         
