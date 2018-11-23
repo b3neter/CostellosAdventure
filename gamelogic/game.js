@@ -69,8 +69,9 @@
     var glDefault_PaddleHeight = 20;
     var glDefault_PaddleX = glCenterX - (glDefault_PaddleWidth/2);
     var glDefault_PaddleY= percentageGlHeight(90) - (glDefault_PaddleHeight/2);
-    var glDefault_BallDx = 0.78;
-    var glDefault_BallDy = 2.89;
+    var glDefault_PaddleDistractionMax = 2;
+    var glDefault_BallDx = 0.78 * 2;
+    var glDefault_BallDy = 2.89 * 2;
     var glDefault_BallRadius = 15;
 
 //Classes ##############################################################################################
@@ -398,13 +399,39 @@ class Powerup extends AbstractElement {
 
     //resolve Collision Ball & Paddle
     function resolveCollision_BallPaddle(ball, paddle, direction){
-        console.log("resolve");
+        console.log("resolve: "+direction);
+        let percentOfPaddleWhichReflects = 30;
+        let paddleCenterX = paddle.x + (paddle.width/2);
+        let distBallxToPaddleCenter = Math.abs(paddleCenterX-ball.x);
+        let simpleXDistraction = glDefault_PaddleDistractionMax*(distBallxToPaddleCenter/((paddle.width/2)+ball.radius));
+
         switch(direction){
-            case DIRECTION.NW: ball.y = paddle.y - ball.radius; ball.dy *= -1; break;
-            case DIRECTION.N : ball.y = paddle.y - ball.radius; ball.dy *= -1; break;
-            case DIRECTION.NO: ball.y = paddle.y - ball.radius; ball.dy *= -1; break; 
-            case DIRECTION.O : ball.x = paddle.x + paddle.width + ball.radius; ball.dx *= -1; ball.dy *= -1; break;
-            case DIRECTION.W : ball.x = paddle.x - ball.radius; ball.dx *= -1; ball.dy *= -1; break;
+            case DIRECTION.NW:  //Max distraction of the ball with direction to the left
+                                ball.y = paddle.y - ball.radius; 
+                                ball.dx = (glDefault_BallDx + glDefault_PaddleDistractionMax)*-1 ;
+                                ball.dy *= -1; break;
+            case DIRECTION.N :  //CertainPercentage doesnt just reflect and acts like NW or NO with less distraction visual: [#####_reflective middle_######]
+                                ball.y = paddle.y - ball.radius;
+                                if(ball.x <= paddleCenterX - paddle.width * (percentOfPaddleWhichReflects/2)){
+                                    ball.dx= (glDefault_BallDx + simpleXDistraction)*-1 ;
+                                }else if(ball.x > paddleCenterX + paddle.width * (percentOfPaddleWhichReflects/2)){
+                                    ball.dx=(glDefault_BallDx + simpleXDistraction);
+                                }
+                                ball.dy *= -1; break;
+            case DIRECTION.NO:  //Max distraction of the ball with direction to the right
+                                ball.y = paddle.y - ball.radius;
+                                ball.dx = (glDefault_BallDx + glDefault_PaddleDistractionMax);
+                                ball.dy *= -1; break; 
+            case DIRECTION.O :  //Max distraction of the ball with direction to the right
+                                ball.y = paddle.y - ball.radius;
+                                ball.x = paddle.x + paddle.width + ball.radius;
+                                ball.dx = (Math.abs(ball.dx) + glDefault_PaddleDistractionMax);
+                                ball.dy *= -1; break;
+            case DIRECTION.W :  //Max distraction of the ball with direction to the left
+                                ball.y = paddle.y - ball.radius;
+                                ball.x = paddle.x - ball.radius;
+                                ball.dx = (Math.abs(ball.dx) + glDefault_PaddleDistractionMax)*-1;
+                                ball.dy *= -1; break;
             default: break;
         }
     }
