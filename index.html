@@ -1,12 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
+    <title>Costellos Adventure</title>
 
+</head>
+
+<body style="margin: 0;">
+
+    <canvas id="indexCanvas" canvas.style.border="red 1px solid" width="1000" height="1000"></canvas>
+
+    <script>
+
+        //Basierend auf
+        //https://www.quora.com/JavaScript-Can-I-put-a-button-inside-a-canvas
+        //Demo aus der Vorlesung
+        var indexCanvas = document.getElementById('indexCanvas');
+        var ctx = indexCanvas.getContext("2d");
+        var bird;
+        var startbutton;
+        var levelbutton;
+        var creditsbutton;
+        var manualsbutton;
+        var glWidth = window.innerWidth;
+        var glHeight = window.innerHeight;
+
+
+
+        preloadAssets();
+        // Preload
+        function preloadAssets() {
+            var _toPreload = 0;
+
+            var addImage = function (src) {
+
+                var img = new Image();
+                img.src = src;
+                _toPreload++;
+
+                img.addEventListener('load', function () {
+                    _toPreload--;
+                }, false);
+                return img;
+            }
+
+            bird = addImage("assets/bird.png");
+            startbutton = addImage("assets/startbutton.png");
+            levelbutton = addImage("assets/levelbutton.png");
+            creditsbutton = addImage("assets/creditsbutton.png");
+            manualbutton = addImage("assets/manualbutton.png");
+
+
+            var checkResources = function () {
+                if (_toPreload == 0)
+                    draw(); //6
+                else
+                    setTimeout(checkResources, 200);
+            }
+            checkResources();
+        }
+
+
+        // Get canvas element and its context
+        var canvas = document.getElementById('indexCanvas')
+        var ctx = canvas.getContext('2d');
+
+        // Button position and dimensions hard coded, to be resizeable
+        var startbuttonX = 250;
+        var startbuttonY = 250;
+        var startbuttonW = 200;
+        var startbuttonH = 90;
+
+        // Render button
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // drawBackground();
+            drawButtons();
+            setTimeout(draw, 40);
+        }
+
+        function drawButtons() {
+            //   ctx.fillRect(startbuttonX, startbuttonY, startbuttonW, startbuttonH); // test rechteck
+            ctx.drawImage(startbutton, startbuttonX, startbuttonY, startbuttonW, startbuttonH);
+            ctx.drawImage(levelbutton, startbuttonX, startbuttonY + 100, startbuttonW, startbuttonH);
+            ctx.drawImage(creditsbutton, startbuttonX, startbuttonY + 290, startbuttonW, startbuttonH);
+            ctx.drawImage(manualbutton, startbuttonX, startbuttonY + 480, startbuttonW, startbuttonH);
+        }
+
+        draw();
+        //resize
+        function onResize(event) {
+            glWidth = window.innerWidth;
+            glHeight = window.innerHeight;
+
+            indexCanvas.width = glWidth;
+            indexCanvas.height = glHeight;
+        }
+        // Add event listener to canvas element
+        canvas.addEventListener('click', function (event) {
+            // Control that click event occurred within position of button
+            // NOTE: This assumes canvas is positioned at top left corner 
+            if (
+                event.x > startbuttonX &&
+                event.x < startbuttonX + startbuttonW &&
+                event.y > startbuttonY &&
+                event.y < startbuttonY + startbuttonH
+            ) {
+                // Executes if button was clicked!
+                alert('Start-Button was clicked!');
+            }
+        });
+    </script>
 </body>
+
 </html>
