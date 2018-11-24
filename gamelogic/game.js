@@ -20,7 +20,7 @@
     const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "ENEMY": 5, "BOSS": 6})
     var glElements = [];
     var glMainpaddle;
-    var glPlayerLifes = 3;
+    var glPlayerLifes;
     
     var glMouse = {
         x: undefined,
@@ -41,7 +41,7 @@
 
     //Images
     var glBolImagesLoaded = false;
-    var imgBird = new Image();
+    var imgCostelloBall = new Image();
     var imgHeart = new Image();
 
     //Keycodes (https://keycode.info/)
@@ -52,16 +52,20 @@
                                     "RIGHT": 39, "D": 68,
                                     "PLUS": 187, "MINUS": 189});
 
-    //useful Variables and functions(TODO needs to change on resize)
+    //Default Variables and functions(TODO needs to change on resize)
     const DIRECTION = Object.freeze({   "NW":11.5,    "N":12,   "NO":1.5, 
                                         "W":9,                  "O":3, 
                                         "SW":7.5,     "S":6,    "SO":4.5})
 
-    var glX = gameCanvas.x;
-    var glY = gameCanvas.y;
-    var glCenterX = glWidth / 2;
-    var glCenterY = glHeight/ 2;
-
+                                        
+    var glX, glY, glCenterX, glCenterY, 
+        glDefault_PaddleWidth, glDefault_PaddleHeight, glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleDistractionMax, 
+        glDefault_BallDx, glDefault_BallDy, glDefault_BallRadius,
+        glDefault_PlayerLifes,
+        glDefault_BrickColumnCount,glDefault_BrickRowCount, glDefault_BrickWidth, glDefault_BrickHeight, 
+        glDefault_BrickSegementWidth, glDefault_BrickSegementStartX, glDefault_BrickSegementHeight, glDefault_BrickSegementStartY,
+        glDefault_BrickLifes, glDefaultBrickMass;
+    
     function percentageGlWidth(percent){
         return glWidth * (percent / 100);
     }
@@ -70,14 +74,33 @@
         return glHeight * (percent / 100);
     }
 
-    var glDefault_PaddleWidth = 200;
-    var glDefault_PaddleHeight = 20;
-    var glDefault_PaddleX = glCenterX - (glDefault_PaddleWidth/2);
-    var glDefault_PaddleY= percentageGlHeight(90) - (glDefault_PaddleHeight/2);
-    var glDefault_PaddleDistractionMax = 2;
-    var glDefault_BallDx = 0.78 * 2;
-    var glDefault_BallDy = 2.89 * 2;
-    var glDefault_BallRadius = 15;
+    function recalculateDefaults(){
+        glX = gameCanvas.x;
+        glY = gameCanvas.y;
+        glCenterX = glWidth / 2;
+        glCenterY = glHeight/ 2;
+        glDefault_PaddleWidth = 200;
+        glDefault_PaddleHeight = 20;
+        glDefault_PaddleX = glCenterX - (glDefault_PaddleWidth/2);
+        glDefault_PaddleY= percentageGlHeight(90) - (glDefault_PaddleHeight/2);
+        glDefault_PaddleDistractionMax = 2;
+        glDefault_BallDx = 0.78 * 2;
+        glDefault_BallDy = 2.89 * 2;
+        glDefault_BallRadius = 16;
+        glDefault_PlayerLifes = 3;
+
+        //BrickCreationDefaults
+            glDefault_BrickColumnCount = 12;                                
+            glDefault_BrickRowCount = 8;
+            glDefault_BrickSegementWidth= glWidth / glDefault_BrickColumnCount;
+            glDefault_BrickWidth = glDefault_BrickSegementWidth * 0.9;
+            glDefault_BrickSegementStartX = glDefault_BrickSegementWidth * 0.05;
+            glDefault_BrickSegementHeight = (glHeight * 4) / (7 * glDefault_BrickRowCount);
+            glDefault_BrickHeight = glDefault_BrickSegementHeight * 0.8;
+            glDefault_BrickSegementStartY = glDefault_BrickSegementHeight * 0.1;
+            glDefault_BrickLifes = 1; 
+            glDefaultBrickMass = 1;
+    }
 
 //Classes ##############################################################################################
 
@@ -103,7 +126,7 @@ class AbstractElement {
 class Paddle extends AbstractElement {
     constructor(x, y, width, height, color) {
         let lifes = 1;
-        super(ELEMENTTYPE.PADDLE, x - (width/2), y - (height/2), lifes, color);
+        super(ELEMENTTYPE.PADDLE, x, y, lifes, color);
         this.width = width;
         this.height = height;
     }
@@ -132,8 +155,10 @@ class Paddle extends AbstractElement {
 }
 
 class Brick extends AbstractElement {
-    constructor(x, y, width, height, lifes, mass, color = "#333") {
+    constructor(columnId, rowId, x, y, width, height, lifes, mass, color = "#333") {
         super(ELEMENTTYPE.BRICK, x, y, lifes, color);
+        this.columnId = columnId;
+        this.rowId = rowId;
         this.width = width;
         this.height = height;
         this.mass = mass;
@@ -229,7 +254,7 @@ class Powerup extends AbstractElement {
             return img;
         }
 
-        imgBird = addImage("../assets/bird.png");
+        imgBird = addImage("../assets/costelloball.png");
         imgHeart = addImage("../assets/heart.png");
    
         
@@ -242,6 +267,9 @@ class Powerup extends AbstractElement {
         checkResources();
     }
 
+    //Music Loading, pause, restart
+
+    //Drawing
     function drawPlayersLifes(){
         let imageSize = 32;
         let difY = glHeight - imageSize - 2;
@@ -252,7 +280,39 @@ class Powerup extends AbstractElement {
         }
     }
 
-    //Music Loading, pause, restart
+    function createBricksViaObjects(objects){
+        var bricks = [];
+        objects.forEach(function(object){
+            bricks.push(new Brick(  object.columnId, object.rowId,
+                                    object.columnId * glDefault_BrickSegementWidth + glDefault_BrickSegementStartX,
+                                    object.rowId * glDefault_BrickSegementHeight + glDefault_BrickSegementStartY,
+                                    glDefault_BrickWidth, glDefault_BrickHeight,
+                                    object.lifes, object.mass));
+        });
+        return bricks;
+    }
+
+    function createBricksWholeField() {
+        var bricks = [];
+        for (var c = 0; c < glDefault_BrickColumnCount; c++) {
+            for (var r = 0; r < glDefault_BrickRowCount; r++) {
+                bricks.push(new Brick(  c, r, 
+                                        c * glDefault_BrickSegementWidth + glDefault_BrickSegementStartX,
+                                        r * glDefault_BrickSegementHeight + glDefault_BrickSegementStartY,
+                                        glDefault_BrickWidth, glDefault_BrickHeight,
+                                        glDefault_BrickLifes, glDefaultBrickMass));
+            }
+        }
+        return bricks;
+    }
+
+    function createBallAbovePaddle(){
+        if(mainpaddle !== undefined){
+            return new Ball((mainpaddle.x + (mainpaddle.width/2)), (mainpaddle.y - mainpaddle.height - glDefault_BallRadius),
+                                    glDefault_BallDx,glDefault_BallDy,glDefault_BallRadius,1,1);
+                                    
+        }
+    }
 
 //Collision ############################################################################################
     //Generals
@@ -409,15 +469,7 @@ class Powerup extends AbstractElement {
         if (ball.y - ball.radius > glHeight) {
             //bottom
             ball.lifes = 0;
-            if(glPlayerLifes>1){
-                glPlayerLifes--;
-                init();
-            }else{
-                console.log("GAME OVER");
-                let restart = confirm("Restart");
-                if(restart){ init()};
-                glPlayerLifes = 3;
-            }
+            handleBallLoss(ball);
         }
         if (ball.y - ball.radius < 0) {
             //top set ballposition in canvas
@@ -456,9 +508,7 @@ class Powerup extends AbstractElement {
     
     //resolve Collision Ball & Brick
     function resolveCollision_BallBrick(ball, brick, direction){
-        console.log("resolve BRICK");
         brick.lifes--;
-        console.log(direction);
         switch(direction){
             case DIRECTION.N : ball.dy *= -1; resetBallToTop(ball, brick); break;
             case DIRECTION.S : ball.dy *= -1; resetBallToBottom(ball, brick); break;
@@ -474,7 +524,6 @@ class Powerup extends AbstractElement {
 
     //resolve Collision Ball & Paddle
     function resolveCollision_BallPaddle(ball, paddle, direction){
-        console.log("resolve: "+direction);
         let percentOfPaddleWhichReflects = 30;
         let paddleCenterX = paddle.x + (paddle.width/2);
         let distBallxToPaddleCenter = Math.abs(paddleCenterX-ball.x);
@@ -539,8 +588,10 @@ class Powerup extends AbstractElement {
 //Eventlistener ########################################################################################
     //mousemove (für die Position der glMouse zu ändern)
     function onMousemove(event){
-        glMouse.x = event.clientX;
-        glMouse.y = event.clientY;
+        if(glGamestate !== GAMESTATE.INITIAL){
+            glMouse.x = event.clientX;
+            glMouse.y = event.clientY;
+        }
     }
 
     //resize
@@ -551,8 +602,8 @@ class Powerup extends AbstractElement {
         gameCanvas.width = glWidth;
         gameCanvas.height = glHeight;
         
-        //TODO (Art der Sklaierung muss implementiert werden, vorerst neuer init())
-        init();
+        //TODO (Art der Sklaierung muss implementiert werden, vorerst neuer initOnStartOfLevel())
+        initOnResizeOfLevel();
     }
 
     //keydown (Pausemenü, Effekte aktivieren, Throw Ball if Intitial)
@@ -573,33 +624,16 @@ class Powerup extends AbstractElement {
 
 //GameHandler ##########################################################################################
     //initial
-    function init() {
-        glElements = [];
-        preloadImageAssets();
-
-        //Change Gamestate
+    function initGlElements(){
         setGamestatus(GAMESTATE.INITIAL);
-
-        //Create Mainpaddle
-        mainpaddle = new Paddle(glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleWidth, glDefault_PaddleHeight, "#33BB97" );
-        console.log(mainpaddle);
-        glElements.push(mainpaddle);
-        
-        //Create Startball with zero velocity
-        createBallAbovePaddle();
-
-        //TODO Create Bricks
-        bricks = createBricks();
-        bricks.forEach(function (brickArr) {
-            brickArr.forEach(function (brick) {
-                glElements.push(brick);
-            })
-        });
-
-        //Create PowerUp
-
-        //Create PowerUp
-            //glElements.push(new Powerup(glCenterX,140,1,12,1,POWERUPTYPE.LIFELOST));
+        recalculateDefaults();
+        glElements = [];
+            //Create Mainpaddle
+            mainpaddle = new Paddle(glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleWidth, glDefault_PaddleHeight, "#33BB97" );
+            glElements.push(mainpaddle);
+            
+            //Create Startball
+            glElements.push(createBallAbovePaddle());
         
         //Level related
             //Load Background
@@ -609,36 +643,65 @@ class Powerup extends AbstractElement {
             //Load BackgroundMusic
 
             //Create Enemys
-
     }
 
-    //TODO überarbeiten
-    function createBricks() {
-        let brickColumnCount = 12;
-        let brickRowCount = 8;
-        let winwidth = glWidth / brickColumnCount;
-        let width = winwidth * 0.9;
-        let xstart = winwidth * 0.05;
-        let winheight = (glHeight * 4) / (7 * brickRowCount);
-        let height = winheight * 0.8;
-        let ystart = winheight * 0.1;
-    
-        var bricks = [];
-        for (var c = 0; c < brickColumnCount; c++) {
-            bricks[c] = [];
-            for (var r = 0; r < brickRowCount; r++) {
-                bricks[c][r] = new Brick(c * winwidth + xstart, r * winheight + ystart, width, height);
+    function initOnStartOfLevel() {
+        preloadImageAssets();
+        initGlElements();
+        glPlayerLifes = glDefault_PlayerLifes;
+        
+        //Create Bricks
+        bricks = createBricksWholeField();
+        bricks.forEach(function (brick) {
+            glElements.push(brick);
+        });
+    }
+
+    //Init
+    function initOnResizeOfLevel(){
+        var oldbricks  = glElements.filter(function(value, index, arr){
+            return value.type === ELEMENTTYPE.BRICK;
+        });
+        initGlElements();
+        
+        //Create Bricks
+        bricks = createBricksViaObjects(oldbricks);
+        bricks.forEach(function (brick) {
+            glElements.push(brick);
+        });
+    }
+
+    function initOnZeroBallsLevel(){
+        let balls = glElements.filter(function(value, index, arr){
+            return value.type === ELEMENTTYPE.BALL;
+        });
+        
+        let newBallneeded = true;
+        balls.forEach(function(ball){
+            if(ball.lifes > 0){
+                newBallneeded = false;
             }
-        }
-        return bricks;
-    }
-
-    function createBallAbovePaddle(){
-        if(mainpaddle !== undefined){
+        })
+        
+        //Create a new Ball if there are no existing Balls and decrease the players life by one
+        if(newBallneeded){
+            //Change Gamestate
             setGamestatus(GAMESTATE.INITIAL);
 
-            glElements.push(new Ball(glDefault_PaddleX + (glDefault_PaddleWidth/2), (glDefault_PaddleY - glDefault_PaddleHeight - glDefault_BallRadius),
-                                    glDefault_BallDx,glDefault_BallDy,glDefault_BallRadius,1,1));
+            glPlayerLifes--;
+
+            //Create Startball
+            glElements.push(createBallAbovePaddle());
+        }
+    }
+
+    //Handle Ball Off & GameOver
+    function handleBallLoss(){
+        if(glPlayerLifes>1){
+            initOnZeroBallsLevel();
+        }else{
+            let restart = confirm("Restart");
+            if(restart){ initOnStartOfLevel()};
         }
     }
     
@@ -652,7 +715,7 @@ class Powerup extends AbstractElement {
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         
         //act depending on gameState
-        if(glGamestate !== GAMESTATE.PAUSE){
+        if(glGamestate !== GAMESTATE.PAUSE && glGamestate !== GAMESTATE.INITIAL){
 
             //setPaddlelocation (here and not onResize() because of Collision checking)
             if(glMouse.x !== undefined && mainpaddle.getCenterX() !== glMouse.x){
@@ -683,10 +746,10 @@ class Powerup extends AbstractElement {
             //Remove Elements {Brick, Ball, Powerup} with zero or less life
             let victory = true;
             
-            var test = glElements.filter(function(value, index, arr){
+            var existingElements = glElements.filter(function(value, index, arr){
                 return value.lifes > 0;
             });
-            glElements = test;
+            glElements = existingElements;
 
             //Check Victory
             if(victory){
@@ -704,7 +767,7 @@ class Powerup extends AbstractElement {
             }
     }
     
-init();
+initOnStartOfLevel();
 animate();
 
 //ADD Eventlisteners
