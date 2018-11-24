@@ -20,7 +20,7 @@
     const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "ENEMY": 5, "BOSS": 6})
     var glElements = [];
     var glMainpaddle;
-    var effect = 1;
+    var glPlayerLifes = 3;
     
     var glMouse = {
         x: undefined,
@@ -38,6 +38,11 @@
                                     "SLOWERBALL": 4,
                                     "LIFEGAINED": 5,
                                     "LIFELOST":6});
+
+    //Images
+    var glBolImagesLoaded = false;
+    var imgBird = new Image();
+    var imgHeart = new Image();
 
     //Keycodes (https://keycode.info/)
     const KEYCODE = Object.freeze({ "ESC": 27, "P": 80, "SPACE": 32, "Enter": 13,
@@ -209,6 +214,43 @@ class Powerup extends AbstractElement {
 //Helperfunctionen #####################################################################################
 
     //Image & sprite loading 
+    function preloadImageAssets() {
+        var _toPreload = 0;
+
+        var addImage = function (src) {
+
+            var img = new Image();
+            img.src = src;
+            _toPreload++;
+
+            img.addEventListener('load', function () {
+                _toPreload--;
+            }, false);
+            return img;
+        }
+
+        imgBird = addImage("../assets/bird.png");
+        imgHeart = addImage("../assets/heart.png");
+   
+        
+        var checkResources = function () {
+            if (_toPreload == 0)
+                glBolImagesLoaded = true;
+            else
+                setTimeout(checkResources, 200);
+        }
+        checkResources();
+    }
+
+    function drawPlayersLifes(){
+        let imageSize = 32;
+        let difY = glHeight - imageSize - 2;
+        let difX = 2;
+
+        for(var i = 0; i<glPlayerLifes; i++){
+            ctx.drawImage(imgHeart,i*(difX+imageSize)+2 ,difY);
+        }
+    }
 
     //Music Loading, pause, restart
 
@@ -367,9 +409,15 @@ class Powerup extends AbstractElement {
         if (ball.y - ball.radius > glHeight) {
             //bottom
             ball.lifes = 0;
-            console.log("GAME OVER");
-            let restart = confirm("Restart");
-            if(restart){ init()};
+            if(glPlayerLifes>1){
+                glPlayerLifes--;
+                init();
+            }else{
+                console.log("GAME OVER");
+                let restart = confirm("Restart");
+                if(restart){ init()};
+                glPlayerLifes = 3;
+            }
         }
         if (ball.y - ball.radius < 0) {
             //top set ballposition in canvas
@@ -527,6 +575,7 @@ class Powerup extends AbstractElement {
     //initial
     function init() {
         glElements = [];
+        preloadImageAssets();
 
         //Change Gamestate
         setGamestatus(GAMESTATE.INITIAL);
@@ -648,6 +697,11 @@ class Powerup extends AbstractElement {
             glElements.forEach(function (element) {
                 element.update()
             });
+
+            //Draw lifes of the player
+            if(glBolImagesLoaded){
+                drawPlayersLifes();
+            }
     }
     
 init();
