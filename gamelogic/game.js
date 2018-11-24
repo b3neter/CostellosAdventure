@@ -77,7 +77,7 @@
 //Classes ##############################################################################################
 
 class AbstractElement {
-    constructor(ELEMENTTYPE, x, y, color ="#000") {
+    constructor(ELEMENTTYPE, x, y, lifes = 1, color ="#000") {
         if (new.target === AbstractElement) {
             throw new TypeError("Cannot construct an Abstract instance directly");
         }
@@ -90,13 +90,15 @@ class AbstractElement {
         this.type = ELEMENTTYPE;
         this.x = x;
         this.y = y;
+        this.lifes = lifes;
         this.color = color;
     }
 }
 
 class Paddle extends AbstractElement {
     constructor(x, y, width, height, color) {
-        super(ELEMENTTYPE.PADDLE, x - (width/2), y - (height/2), color);
+        let lifes = 1;
+        super(ELEMENTTYPE.PADDLE, x - (width/2), y - (height/2), lifes, color);
         this.width = width;
         this.height = height;
     }
@@ -115,16 +117,21 @@ class Paddle extends AbstractElement {
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.closePath();
+        ctx.beginPath();
+        ctx.moveTo(this.x+this.width/2,this.y);
+        ctx.lineTo(this.x+this.width/2,this.y+this.height);
+        ctx.strokeStyle="#FF0000";
+        ctx.stroke();
+        ctx.closePath();
     }
 }
 
 class Brick extends AbstractElement {
-    constructor(x, y, width, height, lifes, mass) {
-        super(ELEMENTTYPE.BRICK, x, y);
+    constructor(x, y, width, height, lifes, mass, color = "#333") {
+        super(ELEMENTTYPE.BRICK, x, y, lifes, color);
         this.width = width;
         this.height = height;
         this.mass = mass;
-        this.lifes = lifes;
     }
 
     update() {
@@ -141,13 +148,12 @@ class Brick extends AbstractElement {
 }
 
 class Ball extends AbstractElement {
-    constructor(x, y, dx, dy, radius, lifes, mass, color ="#33BB97") {
-        super(ELEMENTTYPE.BALL, x, y), color;
+    constructor(x, y, dx, dy, radius, lifes, mass, color ="orange") {
+        super(ELEMENTTYPE.BALL, x, y, lifes, color);
         this.dx = dx;
         this.dy = dy;
         this.radius = radius;
         this.mass = mass;
-        this.lifes = lifes;
     }
 
     angle(){
@@ -179,11 +185,10 @@ class Ball extends AbstractElement {
 
 class Powerup extends AbstractElement {
     constructor(x, y, dy, radius, lifes, POWERUPTYPE) {
-        super(ELEMENTTYPE.POWERUP, x, y);
+        super(ELEMENTTYPE.POWERUP, x, y, lifes);
      // no dx, always falling down
         this.dy = dy;
         this.radius = radius;
-        this.lifes = lifes;
         this.effect = POWERUPTYPE;
     }
 
@@ -209,7 +214,7 @@ class Powerup extends AbstractElement {
 
 //Collision ############################################################################################
     //Generals
-        //distance between two balls
+        //distance
         function hypothenuse(cathetus1, cathetus2) {
             return Math.sqrt(cathetus1 ** 2 + cathetus2 ** 2);
         }
@@ -217,7 +222,8 @@ class Powerup extends AbstractElement {
         function distancePoints(a, b) {
             return hypothenuse((a.x + a.dx - b.x - b.dx),(a.y + a.dy - b.y - b.dy));
         }
-
+        
+        //Check collision between a circle-shaped object and a rectangular object 
         function checkCircleInRectangle(circle, rect){
             let rectCenterX = rect.x+(rect.width/2);
             let rectCenterY = rect.y+(rect.height/2);
@@ -309,6 +315,24 @@ class Powerup extends AbstractElement {
             }
         }
 
+        
+        //Resets for Ball when collided to avoid dizzy behavior
+        function resetBallToTop(ball, rect){
+            ball.y = rect.y - ball.radius;
+        }
+        
+        function resetBallToLeft(ball, rect){
+            ball.x = rect.x - ball.radius;
+        }
+        
+        function resetBallToRight(ball, rect){
+            ball.x = rect.x + rect.width + ball.radius;
+        }
+        
+        function resetBallToBottom(ball, rect){
+            ball.y = rect.y + rect.height + ball.radius;
+        }
+
     //Check Collision general
     function checkCollision(element, other){
         if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BALL && element !== other){
@@ -342,9 +366,10 @@ class Powerup extends AbstractElement {
         }
         if (ball.y - ball.radius > glHeight) {
             //bottom
-            ball.lives = 0;
+            ball.lifes = 0;
             console.log("GAME OVER");
-            window.alert("ENDE");
+            let restart = confirm("Restart");
+            if(restart){ init()};
         }
         if (ball.y - ball.radius < 0) {
             //top set ballposition in canvas
@@ -384,15 +409,17 @@ class Powerup extends AbstractElement {
     //resolve Collision Ball & Brick
     function resolveCollision_BallBrick(ball, brick, direction){
         console.log("resolve BRICK");
+        brick.lifes--;
+        console.log(direction);
         switch(direction){
-            case DIRECTION.N : ball.dy *= -1; break;
-            case DIRECTION.S : ball.dy *= -1; break;
-            case DIRECTION.O : ball.dx *= -1; break;
-            case DIRECTION.W : ball.dx *= -1; break;
-            case DIRECTION.NO: ball.dx *= -1; ball.dy *= -1; break; 
-            case DIRECTION.SO: ball.dx *= -1; ball.dy *= -1; break;
-            case DIRECTION.SW: ball.dx *= -1; ball.dy *= -1; break;
-            case DIRECTION.NW: ball.dx *= -1; ball.dy *= -1; break;
+            case DIRECTION.N : ball.dy *= -1; resetBallToTop(ball, brick); break;
+            case DIRECTION.S : ball.dy *= -1; resetBallToBottom(ball, brick); break;
+            case DIRECTION.O : ball.dx *= -1; resetBallToRight(ball, brick); break;
+            case DIRECTION.W : ball.dx *= -1; resetBallToLeft(ball, brick); break;
+            case DIRECTION.NO: ball.dx *= -1; ball.dy *= -1; resetBallToTop(ball, brick); break; 
+            case DIRECTION.SO: ball.dx *= -1; ball.dy *= -1; resetBallToBottom(ball, brick); break;
+            case DIRECTION.SW: ball.dx *= -1; ball.dy *= -1; resetBallToBottom(ball, brick); break;
+            case DIRECTION.NW: ball.dx *= -1; ball.dy *= -1; resetBallToTop(ball, brick); break;
             default: break;
         }
     }
@@ -407,29 +434,31 @@ class Powerup extends AbstractElement {
 
         switch(direction){
             case DIRECTION.NW:  //Max distraction of the ball with direction to the left
-                                ball.y = paddle.y - ball.radius; 
+                                resetBallToTop(ball, paddle); 
                                 ball.dx = (glDefault_BallDx + glDefault_PaddleDistractionMax)*-1 ;
                                 ball.dy *= -1; break;
-            case DIRECTION.N :  //CertainPercentage doesnt just reflect and acts like NW or NO with less distraction visual: [#####_reflective middle_######]
-                                ball.y = paddle.y - ball.radius;
-                                if(ball.x <= paddleCenterX - paddle.width * (percentOfPaddleWhichReflects/2)){
+            case DIRECTION.N :  //CertainPercentage doesnt just reflect with default dx and acts like NW or NO with less distraction visual: [#####_reflective middle_######]
+                                resetBallToTop(ball, paddle);
+                                if(ball.x <= paddleCenterX - paddle.width * (percentOfPaddleWhichReflects/200)){
                                     ball.dx= (glDefault_BallDx + simpleXDistraction)*-1 ;
-                                }else if(ball.x > paddleCenterX + paddle.width * (percentOfPaddleWhichReflects/2)){
+                                }else if(ball.x > paddleCenterX + paddle.width * (percentOfPaddleWhichReflects/200)){
                                     ball.dx=(glDefault_BallDx + simpleXDistraction);
+                                }else{
+                                    ball.dx = (ball.dx < 0)? glDefault_BallDx*-1 :glDefault_BallDx;
                                 }
                                 ball.dy *= -1; break;
             case DIRECTION.NO:  //Max distraction of the ball with direction to the right
-                                ball.y = paddle.y - ball.radius;
+                                resetBallToTop(ball, paddle);
                                 ball.dx = (glDefault_BallDx + glDefault_PaddleDistractionMax);
                                 ball.dy *= -1; break; 
             case DIRECTION.O :  //Max distraction of the ball with direction to the right
-                                ball.y = paddle.y - ball.radius;
-                                ball.x = paddle.x + paddle.width + ball.radius;
+                                resetBallToTop(ball, paddle);
+                                resetBallToRight(ball, paddle);
                                 ball.dx = (Math.abs(ball.dx) + glDefault_PaddleDistractionMax);
                                 ball.dy *= -1; break;
             case DIRECTION.W :  //Max distraction of the ball with direction to the left
-                                ball.y = paddle.y - ball.radius;
-                                ball.x = paddle.x - ball.radius;
+                                resetBallToTop(ball, paddle);
+                                resetBallToLeft(ball, paddle);
                                 ball.dx = (Math.abs(ball.dx) + glDefault_PaddleDistractionMax)*-1;
                                 ball.dy *= -1; break;
             default: break;
@@ -602,8 +631,19 @@ class Powerup extends AbstractElement {
             });
         }
             
-            //Check Victory
+            //Remove Elements {Brick, Ball, Powerup} with zero or less life
+            let victory = true;
             
+            var test = glElements.filter(function(value, index, arr){
+                return value.lifes > 0;
+            });
+            glElements = test;
+
+            //Check Victory
+            if(victory){
+
+            }
+
             //Update each Element
             glElements.forEach(function (element) {
                 element.update()
