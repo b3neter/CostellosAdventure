@@ -59,12 +59,15 @@
 
                                         
     var glX, glY, glCenterX, glCenterY, 
-        glDefault_PaddleWidth, glDefault_PaddleHeight, glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleDistractionMax, 
-        glDefault_BallDx, glDefault_BallDy, glDefault_BallRadius,
+        glDefault_PaddleWidth, glDefault_PaddleHeight, glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleDistractionMax,
+        glDecimalPercentOfPaddleWhichReflects, glPaddleareaReflectColor,
+        glDefault_BallDx, glDefault_BallDy, glDefault_BallRadius, glDefault_BallMass,
         glDefault_PlayerLifes,
         glDefault_BrickColumnCount,glDefault_BrickRowCount, glDefault_BrickWidth, glDefault_BrickHeight, 
         glDefault_BrickSegementWidth, glDefault_BrickSegementStartX, glDefault_BrickSegementHeight, glDefault_BrickSegementStartY,
         glDefault_BrickLifes, glDefaultBrickMass;
+
+    const glDefault_BallLifes = 1, glDefault_PaddleLifes = 1;;
     
     function percentageGlWidth(percent){
         return glWidth * (percent / 100);
@@ -79,27 +82,39 @@
         glY = gameCanvas.y;
         glCenterX = glWidth / 2;
         glCenterY = glHeight/ 2;
-        glDefault_PaddleWidth = 200;
-        glDefault_PaddleHeight = 20;
+        
+        //In welchem Anteil des Canvas sollen Bricks erzeugt werden
+        let heightAreaNumerator = 4;
+        let heightAreaDenominator = 7;
+        let heightFraction = heightAreaNumerator/heightAreaDenominator;
+
+        //BrickCreationDefaults
+        glDefault_BrickColumnCount = 12;                                
+        glDefault_BrickRowCount = 8;
+        glDefault_BrickSegementWidth= glWidth / glDefault_BrickColumnCount;
+        glDefault_BrickWidth = glDefault_BrickSegementWidth * 0.9;
+        glDefault_BrickSegementStartX = glDefault_BrickSegementWidth * 0.05;
+        glDefault_BrickSegementHeight = (glHeight/glDefault_BrickRowCount) * heightFraction;
+        glDefault_BrickHeight = glDefault_BrickSegementHeight * 0.8;
+        glDefault_BrickSegementStartY = glDefault_BrickSegementHeight * 0.1;
+        glDefault_BrickLifes = 1; 
+        glDefaultBrickMass = 1;
+
+        //Paddle & Ball
+        glDefault_PaddleWidth = glWidth / 6.5;
+        let suggestedPaddleHeight = 18;
+        glDefault_PaddleHeight = (glHeight * (1-heightFraction)/6 > suggestedPaddleHeight) ? suggestedPaddleHeight: suggestedPaddleHeight * heightFraction;
         glDefault_PaddleX = glCenterX - (glDefault_PaddleWidth/2);
         glDefault_PaddleY= percentageGlHeight(90) - (glDefault_PaddleHeight/2);
         glDefault_PaddleDistractionMax = 2;
-        glDefault_BallDx = 0.78 * 2;
-        glDefault_BallDy = 2.89 * 2;
-        glDefault_BallRadius = 16;
+        glDecimalPercentOfPaddleWhichReflects = 0.3;
+        glPaddleareaReflectColor = "#497F71";
+        glDefault_BallDx = 0.00156 * glWidth; //0.00156 ; 0.00104
+        glDefault_BallDx = (Math.random() >= 0.5) ? -glDefault_BallDx : glDefault_BallDx;
+        glDefault_BallDy = 0.0068 * glHeight * - 1; //0.0068 ; 0.00454
+        glDefault_BallMass = 1;
+        glDefault_BallRadius = ((glDefault_PaddleWidth * 0.08) > 14) ? glDefault_PaddleWidth * 0.08 : 14;
         glDefault_PlayerLifes = 3;
-
-        //BrickCreationDefaults
-            glDefault_BrickColumnCount = 12;                                
-            glDefault_BrickRowCount = 8;
-            glDefault_BrickSegementWidth= glWidth / glDefault_BrickColumnCount;
-            glDefault_BrickWidth = glDefault_BrickSegementWidth * 0.9;
-            glDefault_BrickSegementStartX = glDefault_BrickSegementWidth * 0.05;
-            glDefault_BrickSegementHeight = (glHeight * 4) / (7 * glDefault_BrickRowCount);
-            glDefault_BrickHeight = glDefault_BrickSegementHeight * 0.8;
-            glDefault_BrickSegementStartY = glDefault_BrickSegementHeight * 0.1;
-            glDefault_BrickLifes = 1; 
-            glDefaultBrickMass = 1;
     }
 
 //Classes ##############################################################################################
@@ -125,8 +140,7 @@ class AbstractElement {
 
 class Paddle extends AbstractElement {
     constructor(x, y, width, height, color) {
-        let lifes = 1;
-        super(ELEMENTTYPE.PADDLE, x, y, lifes, color);
+        super(ELEMENTTYPE.PADDLE, x, y, glDefault_PaddleLifes, color);
         this.width = width;
         this.height = height;
     }
@@ -146,10 +160,9 @@ class Paddle extends AbstractElement {
         ctx.fill();
         ctx.closePath();
         ctx.beginPath();
-        ctx.moveTo(this.x+this.width/2,this.y);
-        ctx.lineTo(this.x+this.width/2,this.y+this.height);
-        ctx.strokeStyle="#FF0000";
-        ctx.stroke();
+        ctx.rect(this.x+(this.width*(1-glDecimalPercentOfPaddleWhichReflects))/2, this.y, this.width*glDecimalPercentOfPaddleWhichReflects,this.height);
+        ctx.fillStyle = glPaddleareaReflectColor;
+        ctx.fill();
         ctx.closePath();
     }
 }
@@ -178,8 +191,8 @@ class Brick extends AbstractElement {
 }
 
 class Ball extends AbstractElement {
-    constructor(x, y, dx, dy, radius, lifes, mass, color ="orange") {
-        super(ELEMENTTYPE.BALL, x, y, lifes, color);
+    constructor(x, y, dx, dy, radius, mass) {
+        super(ELEMENTTYPE.BALL, x, y, glDefault_BallLifes);
         this.dx = dx;
         this.dy = dy;
         this.radius = radius;
@@ -205,11 +218,18 @@ class Ball extends AbstractElement {
     }
 
     draw() {
-        ctx.beginPath();
+        if(glGamestate !== GAMESTATE.INITIAL){
+            rotateAndDrawImage(imgCostelloBall,this.x,this.y, this.radius,this.radius,this.angle() + Math.PI/2, this.radius * 2, this.radius * 2);   
+        }else{
+            ctx.drawImage(imgCostelloBall,this.x-this.radius,this.y-this.radius, this.radius * 2,this.radius * 2);
+        }
+        
+        //For a colored Ball
+        /*ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.closePath();
+        ctx.closePath();*/
     }
 }
 
@@ -238,34 +258,47 @@ class Powerup extends AbstractElement {
 
 //Helperfunctionen #####################################################################################
 
-    //Image & sprite loading 
-    function preloadImageAssets() {
-        var _toPreload = 0;
-
-        var addImage = function (src) {
-
-            var img = new Image();
-            img.src = src;
-            _toPreload++;
-
-            img.addEventListener('load', function () {
-                _toPreload--;
-            }, false);
-            return img;
+    //Images
+        //RotateImage Angle in Degrees
+        function rotateAndDrawImage(image, xCanvas, yCanvas, xImage, yImage, angle, dw = undefined, dh = undefined){
+            ctx.setTransform(1, 0, 0, 1, xCanvas, yCanvas);
+            ctx.rotate(angle);
+            if(dw !== undefined && dh !== undefined){
+                ctx.drawImage(image, -xImage, -yImage, dw, dh); 
+            }else{
+                ctx.drawImage(image, -xImage, -yImage);
+            }
+            ctx.setTransform(1,0,0,1,0,0);
         }
 
-        imgBird = addImage("../assets/costelloball.png");
-        imgHeart = addImage("../assets/heart.png");
-   
-        
-        var checkResources = function () {
-            if (_toPreload == 0)
-                glBolImagesLoaded = true;
-            else
-                setTimeout(checkResources, 200);
+        //sprite loading 
+        function preloadImageAssets() {
+            var _toPreload = 0;
+
+            var addImage = function (src) {
+
+                var img = new Image();
+                img.src = src;
+                _toPreload++;
+
+                img.addEventListener('load', function () {
+                    _toPreload--;
+                }, false);
+                return img;
+            }
+
+            imgCostelloBall = addImage("../assets/costelloball.png");
+            imgHeart = addImage("../assets/heart.png");
+    
+            
+            var checkResources = function () {
+                if (_toPreload == 0)
+                    glBolImagesLoaded = true;
+                else
+                    setTimeout(checkResources, 200);
+            }
+            checkResources();
         }
-        checkResources();
-    }
 
     //Music Loading, pause, restart
 
@@ -309,7 +342,7 @@ class Powerup extends AbstractElement {
     function createBallAbovePaddle(){
         if(mainpaddle !== undefined){
             return new Ball((mainpaddle.x + (mainpaddle.width/2)), (mainpaddle.y - mainpaddle.height - glDefault_BallRadius),
-                                    glDefault_BallDx,glDefault_BallDy,glDefault_BallRadius,1,1);
+                                    glDefault_BallDx,glDefault_BallDy,glDefault_BallRadius,glDefault_BallMass);
                                     
         }
     }
@@ -394,9 +427,14 @@ class Powerup extends AbstractElement {
                 |_______| 
               ( )       ( )
             */
-            var dx=distX-rect.w/2;
-            var dy=distY-rect.h/2;
-            if(dx*dx+dy*dy<=(circle.r*circle.r)){
+
+           
+            /*distX = Math.abs(circle.x - rect.x - rect.width / 2);
+            distY = Math.abs(circle.y - rect.y - rect.height / 2);
+            var dx = distX - rect.width / 2;
+            var dy = distY - rect.height / 2;
+            console.log("hi");
+            if(dx * dx + dy * dy <= (circle.radius * circle.radius)){*/
                 if(circle.y < rectCenterY){
                     if(circle.x < rectCenterX){
                         //Hit CORNER TOP - LEFT
@@ -414,7 +452,7 @@ class Powerup extends AbstractElement {
                         return DIRECTION.SO;
                     }
                 }
-            }
+            //}
         }
 
         
@@ -514,17 +552,16 @@ class Powerup extends AbstractElement {
             case DIRECTION.S : ball.dy *= -1; resetBallToBottom(ball, brick); break;
             case DIRECTION.O : ball.dx *= -1; resetBallToRight(ball, brick); break;
             case DIRECTION.W : ball.dx *= -1; resetBallToLeft(ball, brick); break;
-            case DIRECTION.NO: ball.dx *= -1; ball.dy *= -1; resetBallToTop(ball, brick); break; 
-            case DIRECTION.SO: ball.dx *= -1; ball.dy *= -1; resetBallToBottom(ball, brick); break;
-            case DIRECTION.SW: ball.dx *= -1; ball.dy *= -1; resetBallToBottom(ball, brick); break;
-            case DIRECTION.NW: ball.dx *= -1; ball.dy *= -1; resetBallToTop(ball, brick); break;
+            case DIRECTION.NW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy)*-1; resetBallToLeft(ball, brick); resetBallToTop(ball, brick); console.log(direction); break; 
+            case DIRECTION.SW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy); resetBallToLeft(ball, brick); resetBallToBottom(ball, brick); console.log(direction);break;
+            case DIRECTION.SO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy); resetBallToRight(ball, brick); resetBallToBottom(ball, brick); console.log(direction);break;
+            case DIRECTION.NO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy)*-1; resetBallToRight(ball, brick); resetBallToTop(ball, brick); console.log(direction);break;
             default: break;
         }
     }
 
     //resolve Collision Ball & Paddle
     function resolveCollision_BallPaddle(ball, paddle, direction){
-        let percentOfPaddleWhichReflects = 30;
         let paddleCenterX = paddle.x + (paddle.width/2);
         let distBallxToPaddleCenter = Math.abs(paddleCenterX-ball.x);
         let simpleXDistraction = glDefault_PaddleDistractionMax*(distBallxToPaddleCenter/((paddle.width/2)+ball.radius));
@@ -536,9 +573,9 @@ class Powerup extends AbstractElement {
                                 ball.dy *= -1; break;
             case DIRECTION.N :  //CertainPercentage doesnt just reflect with default dx and acts like NW or NO with less distraction visual: [#####_reflective middle_######]
                                 resetBallToTop(ball, paddle);
-                                if(ball.x <= paddleCenterX - paddle.width * (percentOfPaddleWhichReflects/200)){
+                                if(ball.x <= paddleCenterX - paddle.width * (glDecimalPercentOfPaddleWhichReflects/2)){
                                     ball.dx= (glDefault_BallDx + simpleXDistraction)*-1 ;
-                                }else if(ball.x > paddleCenterX + paddle.width * (percentOfPaddleWhichReflects/200)){
+                                }else if(ball.x > paddleCenterX + paddle.width * (glDecimalPercentOfPaddleWhichReflects/2)){
                                     ball.dx=(glDefault_BallDx + simpleXDistraction);
                                 }else{
                                     ball.dx = (ball.dx < 0)? glDefault_BallDx*-1 :glDefault_BallDx;
@@ -578,10 +615,12 @@ class Powerup extends AbstractElement {
 
 //PauseMenu related things #############################################################################
     function pause(){
-        if(glGamestate !== GAMESTATE.PAUSE){
-            glGamestate = GAMESTATE.PAUSE;
-        }else{
-            glGamestate = GAMESTATE.RUNNING;
+        if(GAMESTATE !== GAMESTATE.INITIAL){
+            if(glGamestate !== GAMESTATE.PAUSE){
+                glGamestate = GAMESTATE.PAUSE;
+            }else{
+                glGamestate = GAMESTATE.RUNNING;
+            }
         }
     }
 
