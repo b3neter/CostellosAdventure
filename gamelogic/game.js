@@ -27,7 +27,7 @@
         y: undefined
     }
 
-        //Bricktypes
+        //TODO Bricktypes
         const BRICKTYPE = Object.freeze({   "FOREST": {x:1,y:3},
                                             "SNOW": 2});
 
@@ -38,6 +38,9 @@
                                     "SLOWERBALL": 4,
                                     "LIFEGAINED": 5,
                                     "LIFELOST":6});
+
+    //TODO Music
+    var backgroundLeveltheme;
 
     //Images
     var glBolImagesLoaded = false;
@@ -214,22 +217,24 @@ class Ball extends AbstractElement {
             this.x += this.dx;
             this.y += this.dy;
         }
-        this.draw();
+        this.drawCostello();
     }
 
-    draw() {
+    drawCostello(){
         if(glGamestate !== GAMESTATE.INITIAL){
             rotateAndDrawImage(imgCostelloBall,this.x,this.y, this.radius,this.radius,this.angle() + Math.PI/2, this.radius * 2, this.radius * 2);   
         }else{
             ctx.drawImage(imgCostelloBall,this.x-this.radius,this.y-this.radius, this.radius * 2,this.radius * 2);
         }
-        
+    }
+
+    draw() {
         //For a colored Ball
-        /*ctx.beginPath();
+        ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.closePath();*/
+        ctx.closePath();
     }
 }
 
@@ -301,6 +306,7 @@ class Powerup extends AbstractElement {
         }
 
     //Music Loading, pause, restart
+    //TODO
 
     //Drawing
     function drawPlayersLifes(){
@@ -354,7 +360,11 @@ class Powerup extends AbstractElement {
             return Math.sqrt(cathetus1 ** 2 + cathetus2 ** 2);
         }
 
-        function distancePoints(a, b) {
+        function distancePoints(ax,ay,bx,by) {
+            return hypothenuse((ax - bx),(ay - by));
+        }
+
+        function distanceBalls(a, b) {
             return hypothenuse((a.x + a.dx - b.x - b.dx),(a.y + a.dy - b.y - b.dy));
         }
         
@@ -458,25 +468,25 @@ class Powerup extends AbstractElement {
         
         //Resets for Ball when collided to avoid dizzy behavior
         function resetBallToTop(ball, rect){
-            ball.y = rect.y - ball.radius;
+            ball.y = rect.y - ball.radius - 0.01;
         }
         
         function resetBallToLeft(ball, rect){
-            ball.x = rect.x - ball.radius;
+            ball.x = rect.x - ball.radius - 0.01;
         }
         
         function resetBallToRight(ball, rect){
-            ball.x = rect.x + rect.width + ball.radius;
+            ball.x = rect.x + rect.width + ball.radius + 0.01;
         }
         
         function resetBallToBottom(ball, rect){
-            ball.y = rect.y + rect.height + ball.radius;
+            ball.y = rect.y + rect.height + ball.radius + 0.01;
         }
 
     //Check Collision general
     function checkCollision(element, other){
         if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BALL && element !== other){
-            if(distancePoints(element, other) <= element.radius +other.radius){
+            if(distanceBalls(element, other) <= element.radius +other.radius){
                 resolveCollision_BallBall(element,other);
             }
         }
@@ -552,10 +562,10 @@ class Powerup extends AbstractElement {
             case DIRECTION.S : ball.dy *= -1; resetBallToBottom(ball, brick); break;
             case DIRECTION.O : ball.dx *= -1; resetBallToRight(ball, brick); break;
             case DIRECTION.W : ball.dx *= -1; resetBallToLeft(ball, brick); break;
-            case DIRECTION.NW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy)*-1; resetBallToLeft(ball, brick); resetBallToTop(ball, brick); console.log(direction); break; 
-            case DIRECTION.SW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy); resetBallToLeft(ball, brick); resetBallToBottom(ball, brick); console.log(direction);break;
-            case DIRECTION.SO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy); resetBallToRight(ball, brick); resetBallToBottom(ball, brick); console.log(direction);break;
-            case DIRECTION.NO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy)*-1; resetBallToRight(ball, brick); resetBallToTop(ball, brick); console.log(direction);break;
+            case DIRECTION.NW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy)*-1; resetBallToLeft(ball, brick); resetBallToTop(ball, brick); break; 
+            case DIRECTION.SW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy); resetBallToLeft(ball, brick); resetBallToBottom(ball, brick); break;
+            case DIRECTION.SO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy); resetBallToRight(ball, brick); resetBallToBottom(ball, brick); break;
+            case DIRECTION.NO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy)*-1; resetBallToRight(ball, brick); resetBallToTop(ball, brick); break;
             default: break;
         }
     }
@@ -633,6 +643,10 @@ class Powerup extends AbstractElement {
         }
     }
 
+    function onMouseDown(event){
+        setGamestatus(GAMESTATE.RUNNING);
+    }
+
     //resize
     function onResize(event){
         glWidth = window.innerWidth;
@@ -656,8 +670,6 @@ class Powerup extends AbstractElement {
 
 //LevelBUilder #########################################################################################
     //JSONreader
-
-    //Lebensanzeige
 
     //Score?
 
@@ -686,6 +698,7 @@ class Powerup extends AbstractElement {
 
     function initOnStartOfLevel() {
         preloadImageAssets();
+        
         initGlElements();
         glPlayerLifes = glDefault_PlayerLifes;
         
@@ -811,6 +824,8 @@ animate();
 
 //ADD Eventlisteners
 window.addEventListener('mousemove', function(event){onMousemove(event)}, false);
+
+window.addEventListener("mousedown", function(event){onMouseDown(event)},false);
 
 window.addEventListener('resize', function(event){onResize(event)}, false);
 
