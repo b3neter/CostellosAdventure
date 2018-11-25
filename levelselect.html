@@ -7,13 +7,25 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Costellos Adventure Level select</title>
 
+    <style>
+        #levelSelectorCanvas{
+            margin:0; padding:0; 
+            position:absolute; 
+            top:0; left:0;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            border: "red 1px solid";
+        }
+    </style>
 </head>
 
-<body style="margin: 0;">
+<body>
 
-    <canvas id="indexCanvas" canvas.style.border="red 1px solid" width="1000" height="1000"></canvas>
+    <canvas id="levelSelectorCanvas"></canvas>
     <audio autoplay loop>
-        <source src="./assets/audio/Visager_-_05_-_Windy_Bluffs.mp3" type="audio/mpeg">
+        <source src="./assets/audio/music/a05_windbluffs.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
@@ -22,14 +34,16 @@
         //Basierend auf
         //https://www.quora.com/JavaScript-Can-I-put-a-button-inside-a-canvas
         //Demo aus der Vorlesung
-        var indexCanvas = document.getElementById('indexCanvas');
-        var ctx = indexCanvas.getContext("2d");
+        var levelSelectorCanvas = document.getElementById('levelSelectorCanvas');
+        var ctx = levelSelectorCanvas.getContext("2d");
         var bg;
         var bird;
         var returnbutton;
         var level;
         var glWidth = window.innerWidth;
         var glHeight = window.innerHeight;
+        levelSelectorCanvas.width = glWidth;
+        levelSelectorCanvas.height = glHeight;
         var canvasPos = getPosition(canvas);
         var mouseX = 0;
         var mouseY = 0;
@@ -85,7 +99,7 @@
 
 
         // Get canvas element and its context
-        var canvas = document.getElementById('indexCanvas')
+        var canvas = document.getElementById('levelSelectorCanvas')
         var ctx = canvas.getContext('2d');
 
         // Button position and dimensions hard coded, to be resizeable
@@ -125,8 +139,8 @@
         function onResize(event) {
             glWidth = window.innerWidth;
             glHeight = window.innerHeight;
-            indexCanvas.width = glWidth;
-            indexCanvas.height = glHeight;
+            levelSelectorCanvas.width = glWidth;
+            levelSelectorCanvas.height = glHeight;
 
         }
         // Add event listener to canvas element
