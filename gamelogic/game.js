@@ -20,6 +20,9 @@
     const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "ENEMY": 5, "BOSS": 6})
     var glElements = [];
     var glWorlds;
+    var glCurrentWorld;
+    var glCurrentLevel;
+    const MAXLEVELPROWORLD = 6;
     var glMainpaddle;
     var glPlayerLifes;
     
@@ -657,7 +660,7 @@ class Powerup extends AbstractElement {
         gameCanvas.width = glWidth;
         gameCanvas.height = glHeight;
         
-        //TODO (Art der Sklaierung muss implementiert werden, vorerst neuer initOnStartOfLevel())
+        //TODO (Art der Sklaierung muss implementiert werden, vorerst neuer initOnStartOfGame())
         initOnResizeOfLevel();
     }
 
@@ -699,15 +702,26 @@ class Powerup extends AbstractElement {
     }
 
     //SelectLevel
-    async function selectLevelFromUrl(){
+    async function selectAndInitialiseLevelFromUrl(){
         let worldsjson = await loadJson("level/worlds.json");
         let w = getUrlVariable("world");
         let l = getUrlVariable("level");
+        glWorlds = worldsjson;
+        glCurrentWorld = w;
+        glCurrentLevel = l;
+        document.title = worldsjson.worlds[w] + " LEVEL:" + glCurrentLevel;
         loadLevelFromJson("level/"+worldsjson.worlds[w]+"/level"+l+".json");
     }
 
-    function selectNextLevel(){
-
+    function selectAndInitialiseNextLevel(){
+        glCurrentLevel = parseInt(glCurrentLevel);
+        if(glCurrentLevel + 1 > MAXLEVELPROWORLD){
+            glCurrentWorld = parseInt(glCurrentWorld)+1;
+            glCurrentLevel = 0;
+        }
+        glCurrentLevel = parseInt(glCurrentLevel)+1;
+        document.title = glWorlds.worlds[glCurrentWorld] + " LEVEL:" + glCurrentLevel;
+        loadLevelFromJson("level/"+(glWorlds.worlds[glCurrentWorld])+"/level"+glCurrentLevel+".json");
     }
 
     function getUrlVariable(key){ 
@@ -748,11 +762,17 @@ class Powerup extends AbstractElement {
             //Create Enemys
     }
 
-    function initOnStartOfLevel() {
+    function initOnStartOfGame() {
         preloadImageAssets();
         initGlElements();
         glPlayerLifes = glDefault_PlayerLifes;
-        selectLevelFromUrl();
+        selectAndInitialiseLevelFromUrl();
+    }
+
+    function initOnStartOfLevel(){
+        preloadImageAssets();
+        initGlElements();
+        selectAndInitialiseNextLevel();
     }
     
     //Init
@@ -799,7 +819,7 @@ class Powerup extends AbstractElement {
             initOnZeroBallsLevel();
         }else{
             let restart = confirm("Restart");
-            if(restart){ initOnStartOfLevel()};
+            if(restart){ initOnStartOfGame()};
         }
     }
     
@@ -842,30 +862,32 @@ class Powerup extends AbstractElement {
         }
             
             //Remove Elements {Brick, Ball, Powerup} with zero or less life
-            let victory = true;
-            
             var existingElements = glElements.filter(function(value, index, arr){
                 return value.lifes > 0;
             });
             glElements = existingElements;
 
-            //Check Victory
-            if(victory){
-
-            }
-
+            
             //Update each Element
             glElements.forEach(function (element) {
                 element.update()
             });
-
+            
             //Draw lifes of the player
             if(glBolImagesLoaded){
                 drawPlayersLifes();
             }
+            
+            //Check Victory
+            let bricks = glElements.filter(function(value, index, arr){
+                return value.type === ELEMENTTYPE.BRICK;
+            });
+            if((bricks.length === 0 || bricks === undefined) && glGamestate !== GAMESTATE.INITIAL){
+                initOnStartOfLevel();
+            }
     }
     
-initOnStartOfLevel();
+initOnStartOfGame();
 animate();
 
 //ADD Eventlisteners
