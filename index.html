@@ -7,11 +7,24 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Costellos Adventure</title>
 
+    <style>
+        #indexCanvas{
+            margin:0; padding:0; 
+            position:absolute; 
+            top:0; left:0;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            border: "red 1px solid";
+        }
+    </style>
+
 </head>
 
-<body style="margin: 0;">
+<body>
 
-    <canvas id="indexCanvas" canvas.style.border="red 1px solid" width="1000" height="1000"></canvas>
+    <canvas id="indexCanvas"></canvas>
     <audio autoplay loop>
         <source src="./assets/audio/Visager_-_01_-_Title_Theme.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
@@ -32,6 +45,8 @@
         var manualsbutton;
         var glWidth = window.innerWidth;
         var glHeight = window.innerHeight;
+        indexCanvas.width = glWidth;
+        indexCanvas.height = glHeight;
         var canvasPos = getPosition(canvas);
         var mouseX = 0;
         var mouseY = 0;
