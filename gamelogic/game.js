@@ -18,8 +18,8 @@
     
     //Level & Element related
     const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "ENEMY": 5, "BOSS": 6})
-    var glLevelobj;
     var glElements = [];
+    var glWorlds;
     var glMainpaddle;
     var glPlayerLifes;
     
@@ -69,7 +69,8 @@
         glDefault_PlayerLifes,
         glDefault_BrickColumnCount,glDefault_BrickRowCount, glDefault_BrickWidth, glDefault_BrickHeight, 
         glDefault_BrickSegementWidth, glDefault_BrickSegementStartX, glDefault_BrickSegementHeight, glDefault_BrickSegementStartY,
-        glDefault_BrickLifes, glDefaultBrickMass;
+        glDefault_BrickLifes, glDefaultBrickMass,
+        glDefault_imgSize;
 
     const glDefault_BallLifes = 1, glDefault_PaddleLifes = 1;;
     
@@ -118,6 +119,7 @@
         glDefault_BallDy = 0.0068 * glHeight * - 1; //0.0068 ; 0.00454
         glDefault_BallMass = 1;
         glDefault_BallRadius = ((glDefault_PaddleWidth * 0.08) > 14) ? glDefault_PaddleWidth * 0.08 : 14;
+        glDefault_imgSize = ((glDefault_PaddleWidth * 0.08) > 14) ? glDefault_PaddleWidth * 0.08 * 2 : 14 * 2;
         glDefault_PlayerLifes = 3;
     }
 
@@ -311,12 +313,11 @@ class Powerup extends AbstractElement {
 
     //Drawing
     function drawPlayersLifes(){
-        let imageSize = 32;
-        let difY = glHeight - imageSize - 2;
+        let difY = glHeight - glDefault_imgSize - 2;
         let difX = 2;
 
         for(var i = 0; i<glPlayerLifes; i++){
-            ctx.drawImage(imgHeart,i*(difX+imageSize)+2 ,difY);
+            ctx.drawImage(imgHeart,i*(difX+glDefault_imgSize)+2 ,difY, glDefault_imgSize, glDefault_imgSize);
         }
     }
 
@@ -671,16 +672,19 @@ class Powerup extends AbstractElement {
 
 //LevelBUilder #########################################################################################
     //JSONreader
-    async function loadLevelFromJson() {
-        let response = await fetch("level/world1_forest/level1.json");
+    async function loadJson(src){
+        let response = await fetch(src);
         let json = await response.json();
-        let bricks = await getBricksFromJSON(json);
-        await bricks.forEach(function (brick) {
-            glElements.push(brick);
-        });
+        return json;
+    }
+
+    async function loadLevelFromJson(src) {
+        let json = await loadJson(src);
+        createBricksFromJSON(json);
     }
     
-    async function getBricksFromJSON(json){
+    async function createBricksFromJSON(json){
+        let bricks;
         let positions = json.positions;
         let prebricks = [];
         for(var r = 0; r < positions.length; r++){
@@ -688,8 +692,37 @@ class Powerup extends AbstractElement {
                 prebricks.push( new Object ({"rowId": r,"columnId":c,"lifes": positions[r][c], "mass" : 1}));
             }
         }
-        return createBricksViaObjects(prebricks);
+        bricks = createBricksViaObjects(prebricks);
+        await bricks.forEach(function (brick) {
+            glElements.push(brick);
+        });
     }
+
+    //SelectLevel
+    async function selectLevelFromUrl(){
+        let worldsjson = await loadJson("level/worlds.json");
+        let w = getUrlVariable("world");
+        let l = getUrlVariable("level");
+        loadLevelFromJson("level/"+worldsjson.worlds[w]+"/level"+l+".json");
+    }
+
+    function selectNextLevel(){
+
+    }
+
+    function getUrlVariable(key){ 
+        let query = window.location.search.substring(1); 
+        let vars = query.split("&"); 
+        for (let i=0;i<vars.length;i++){ 
+            let pair = vars[i].split("="); 
+            if (pair[0] == key){ 
+                return pair[1]; 
+            } 
+        }
+        return undefined; 
+    }
+
+
     //Score?
 
 //GameHandler ##########################################################################################
@@ -719,14 +752,7 @@ class Powerup extends AbstractElement {
         preloadImageAssets();
         initGlElements();
         glPlayerLifes = glDefault_PlayerLifes;
-        
-        //Create Bricks
-        /*bricks = createBricksWholeField();
-        bricks.forEach(function (brick) {
-            glElements.push(brick);
-        });*/
-        
-        loadLevelFromJson();
+        selectLevelFromUrl();
     }
     
     //Init

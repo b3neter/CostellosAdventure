@@ -1,0 +1,13 @@
+{
+    "worlds": ["world0_garden_customs",  
+        "world1_forest",
+        "world2_desert",
+        "world3_water",
+        "world4_snowy",
+        "world5_mountain",
+        "world6_haeven",
+        "world7_vulcano",
+        "world8_village",
+        "world9_castle",
+        "world10_universe"]   
+}    
