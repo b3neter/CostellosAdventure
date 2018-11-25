@@ -12,6 +12,10 @@
 <body style="margin: 0;">
 
     <canvas id="indexCanvas" canvas.style.border="red 1px solid" width="1000" height="1000"></canvas>
+    <audio autoplay loop>
+        <source src="./assets/audio/Visager_-_01_-_Title_Theme.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 
     <script>
 
@@ -20,6 +24,7 @@
         //Demo aus der Vorlesung
         var indexCanvas = document.getElementById('indexCanvas');
         var ctx = indexCanvas.getContext("2d");
+        var bg;
         var bird;
         var startbutton;
         var levelbutton;
@@ -27,6 +32,11 @@
         var manualsbutton;
         var glWidth = window.innerWidth;
         var glHeight = window.innerHeight;
+        var canvasPos = getPosition(canvas);
+        var mouseX = 0;
+        var mouseY = 0;
+
+
 
 
 
@@ -46,8 +56,8 @@
                 }, false);
                 return img;
             }
-
-            bird = addImage("assets/bird.png");
+            bg = addImage("assets/bg-menu.png");
+            bird = addImage("assets/costelloball.png");
             startbutton = addImage("assets/startbutton.png");
             levelbutton = addImage("assets/levelbutton.png");
             creditsbutton = addImage("assets/creditsbutton.png");
@@ -63,57 +73,122 @@
             checkResources();
         }
 
+        // Get Position https://www.kirupa.com/canvas/follow_mouse_cursor.htm
+        function getPosition(el) {
+            var xPosition = 0;
+            var yPosition = 0;
+
+            while (el) {
+                xPosition += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+                yPosition += (el.offsetTop - el.scrollTop + el.clientTop);
+                el = el.offsetParent;
+            }
+            return {
+                x: xPosition,
+                y: yPosition
+            };
+        }
+
 
         // Get canvas element and its context
         var canvas = document.getElementById('indexCanvas')
         var ctx = canvas.getContext('2d');
 
         // Button position and dimensions hard coded, to be resizeable
-        var startbuttonX = 250;
-        var startbuttonY = 250;
+        var startbuttonX = (glWidth / 2);
+        var startbuttonY = 100;
         var startbuttonW = 200;
         var startbuttonH = 90;
+        var levelbuttonY = startbuttonY+100;
+        var creditsbuttonY = startbuttonY+200;
+        var manualbuttonY = startbuttonY+300;
+        console.log(glHeight, glWidth);
 
-        // Render button
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // drawBackground();
+            drawBackground();
             drawButtons();
-            setTimeout(draw, 40);
+            drawbird();
+            //setTimeout(draw, 40);
+            requestAnimationFrame(draw);
         }
 
         function drawButtons() {
-            //   ctx.fillRect(startbuttonX, startbuttonY, startbuttonW, startbuttonH); // test rechteck
             ctx.drawImage(startbutton, startbuttonX, startbuttonY, startbuttonW, startbuttonH);
-            ctx.drawImage(levelbutton, startbuttonX, startbuttonY + 100, startbuttonW, startbuttonH);
-            ctx.drawImage(creditsbutton, startbuttonX, startbuttonY + 290, startbuttonW, startbuttonH);
-            ctx.drawImage(manualbutton, startbuttonX, startbuttonY + 480, startbuttonW, startbuttonH);
+            ctx.drawImage(levelbutton, startbuttonX, levelbuttonY, startbuttonW, startbuttonH);
+            ctx.drawImage(creditsbutton, startbuttonX,creditsbuttonY, startbuttonW, startbuttonH);
+            ctx.drawImage(manualbutton, startbuttonX, manualbuttonY, startbuttonW, startbuttonH);
         }
 
+        function drawBackground() {
+            ctx.drawImage(bg, 0, 0, glWidth, glHeight);
+        }
+
+        function drawbird() {
+            ctx.drawImage(bird, mouseX-30, mouseY-30, 30, 30);
+            //console.log(mouseX, mouseY);
+        }
+
+
+
+        // Draw
+
         draw();
+
+
         //resize
         function onResize(event) {
             glWidth = window.innerWidth;
             glHeight = window.innerHeight;
-
             indexCanvas.width = glWidth;
             indexCanvas.height = glHeight;
+
         }
         // Add event listener to canvas element
-        canvas.addEventListener('click', function (event) {
-            // Control that click event occurred within position of button
-            // NOTE: This assumes canvas is positioned at top left corner 
-            if (
-                event.x > startbuttonX &&
-                event.x < startbuttonX + startbuttonW &&
-                event.y > startbuttonY &&
-                event.y < startbuttonY + startbuttonH
-            ) {
-                // Executes if button was clicked!
-                alert('Start-Button was clicked!');
-            }
+        canvas.addEventListener("mousemove", function (event) {
+            mouseX = event.clientX - canvasPos.x;
+            mouseY = event.clientY - canvasPos.y;
         });
+        window.addEventListener('resize', function (event) { onResize(event) }, false);
+        canvas.addEventListener('click', function (event) {
+                // Control that click event occurred within position of button
+                // NOTE: This assumes canvas is positioned at top left corner 
+
+                if (  //Start
+                    event.x > startbuttonX &&
+                    event.x < startbuttonX + startbuttonW &&
+                    event.y > startbuttonY &&
+                    event.y < startbuttonY + startbuttonH
+                ) {
+                    window.open("./gamelogic/game.html", "_self");
+                    };
+                if ( //Levelselect
+                    event.x > startbuttonX &&
+                    event.x < startbuttonX + startbuttonW &&
+                    event.y > levelbuttonY &&
+                    event.y < levelbuttonY + startbuttonH
+                ){
+                    window.open("./levelselect.html", "_self");
+                }; 
+                if ( //Manuals
+                    event.x > startbuttonX &&
+                    event.x < startbuttonX + startbuttonW &&
+                    event.y > manualbuttonY &&
+                    event.y < manualbuttonY + startbuttonH
+                ){
+                    window.open("./manual.html", "_self");
+                };
+                if ( //Credits
+                    event.x > startbuttonX &&
+                    event.x < startbuttonX + startbuttonW &&
+                    event.y > creditsbuttonY &&
+                    event.y < creditsbuttonY + startbuttonH
+                ){
+                    window.open("./credits.html", "_self");
+                };   
+            });
+
     </script>
 </body>
 
