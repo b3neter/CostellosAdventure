@@ -38,6 +38,7 @@
         var indexCanvas = document.getElementById('indexCanvas');
         var ctx = indexCanvas.getContext("2d");
         var bg;
+        var blanc;
         var bird;
         var startbutton;
         var levelbutton;
@@ -60,7 +61,7 @@
                 this.height = height;
             }
             draw() {
-                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+                drawImage(this.image, this.x, this.y, this.width, this.height);
             }
         }
 
@@ -82,12 +83,13 @@
                 }, false);
                 return img;
             }
-            bg = addImage("assets/images/mainmenu/bg-menu.png");
-            bird = addImage("assets/images/mainmenu/costelloball.png");
-            startbutton = addImage("assets/images/mainmenu/startbutton.png");
-            levelbutton = addImage("assets/images/mainmenu/levelbutton.png");
-            creditsbutton = addImage("assets/images/mainmenu/creditsbutton.png");
-            manualbutton = addImage("assets/images/mainmenu/manualbutton.png");
+            blanc = addImage("assets/blanc.png")
+            bg = addImage("assets/bg-menu.png");
+            bird = addImage("assets/costelloball.png");
+            startbutton = addImage("assets/startbutton.png");
+            levelbutton = addImage("assets/levelbutton.png");
+            creditsbutton = addImage("assets/creditsbutton.png");
+            manualbutton = addImage("assets/manualbutton.png");
 
 
             var checkResources = function () {
@@ -133,14 +135,12 @@
 
         function drawButtons() {
             var buttons = [];
-            buttons.push(new Button(startbutton,glWidth/3,glHeight/10,glWidth/20,glHeight/10));
-            buttons.push(new Button(levelbutton,glWidth/3,glHeight/5,glWidth/20,glHeight/10));
-            buttons.push(new Button(manualbutton,glWidth/3,glHeight/3.5,glWidth/20,glHeight/10));
-            buttons.push(new Button(creditsbutton,glWidth/3,glHeight/2.6,glWidth/20,glHeight/10));
-            buttons.forEach(function (button) {
+            buttons.push(new Button(startbutton, 50, 50, 60, 60));
+            buttons.forEach(function(button){
                 button.draw();
-               
             })
+            console.log(buttons)
+            return buttons;
         }
 
 
@@ -178,10 +178,10 @@
             // NOTE: This assumes canvas is positioned at top left corner 
 
             if (  //Start
-                event.x > buttons[1].x &&
-                event.x < buttons[1].x + buttons[1].width &&
-                event.y > buttons[1].y &&
-                event.y < buttons[1].y + buttons[1].height
+                event.x > startbuttonX &&
+                event.x < startbuttonX + startbuttonW &&
+                event.y > startbuttonY &&
+                event.y < startbuttonY + startbuttonH
             ) {
                 window.open("./gamelogic/game.html", "_self");
             };

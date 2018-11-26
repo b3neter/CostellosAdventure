@@ -18,15 +18,20 @@
     
     //Level & Element related
     const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "ENEMY": 5, "BOSS": 6})
-    var glLevelobj;
     var glElements = [];
     var glMainpaddle;
-    var glPlayerLifes;
     
     var glMouse = {
         x: undefined,
         y: undefined
     }
+        //Level
+        var glWorlds;
+        var glCurrentWorld;
+        var glCurrentLevel;
+        const MAXLEVELPROWORLD = 6;
+        var glPlayerLifes;
+    
 
         //TODO Bricktypes
         const BRICKTYPE = Object.freeze({   "FOREST": {x:1,y:3},
@@ -40,13 +45,19 @@
                                     "LIFEGAINED": 5,
                                     "LIFELOST":6});
 
-    //TODO Music
-    var backgroundLeveltheme;
+    //GameAssets
+    const ASSETSPATH = "../assets/";
+    const IMAGESPATH = ASSETSPATH+"images/default/";
+    
+        //TODO Music
+        var backgroundLeveltheme;
 
-    //Images
-    var glBolImagesLoaded = false;
-    var imgCostelloBall = new Image();
-    var imgHeart = new Image();
+        //Images
+        var glBolImagesLoaded;
+        const DEFAULTIMAGES = Object.freeze({ "COSTELLO":0, "Heart":1, "STDBACKGROUND":2})
+        var imgCostelloBall = new Image();
+        var imgHeart = new Image();
+        var imgLevelBackground = new Image();
 
     //Keycodes (https://keycode.info/)
     const KEYCODE = Object.freeze({ "ESC": 27, "P": 80, "SPACE": 32, "Enter": 13,
@@ -69,7 +80,8 @@
         glDefault_PlayerLifes,
         glDefault_BrickColumnCount,glDefault_BrickRowCount, glDefault_BrickWidth, glDefault_BrickHeight, 
         glDefault_BrickSegementWidth, glDefault_BrickSegementStartX, glDefault_BrickSegementHeight, glDefault_BrickSegementStartY,
-        glDefault_BrickLifes, glDefaultBrickMass;
+        glDefault_BrickLifes, glDefaultBrickMass,
+        glDefault_imgSize;
 
     const glDefault_BallLifes = 1, glDefault_PaddleLifes = 1;;
     
@@ -86,6 +98,9 @@
         glY = gameCanvas.y;
         glCenterX = glWidth / 2;
         glCenterY = glHeight/ 2;
+        
+        //Images neu laden
+        glBolImagesLoaded=false;
         
         //In welchem Anteil des Canvas sollen Bricks erzeugt werden
         let heightAreaNumerator = 4;
@@ -115,9 +130,12 @@
         glPaddleareaReflectColor = "#497F71";
         glDefault_BallDx = 0.00156 * glWidth; //0.00156 ; 0.00104
         glDefault_BallDx = (Math.random() >= 0.5) ? -glDefault_BallDx : glDefault_BallDx;
+        //TODO
+        glDefault_BallDx = 0;
         glDefault_BallDy = 0.0068 * glHeight * - 1; //0.0068 ; 0.00454
         glDefault_BallMass = 1;
         glDefault_BallRadius = ((glDefault_PaddleWidth * 0.08) > 14) ? glDefault_PaddleWidth * 0.08 : 14;
+        glDefault_imgSize = ((glDefault_PaddleWidth * 0.08) > 14) ? glDefault_PaddleWidth * 0.08 * 2 : 14 * 2;
         glDefault_PlayerLifes = 3;
     }
 
@@ -262,7 +280,7 @@ class Powerup extends AbstractElement {
     }
 }
 
-//Helperfunctionen #####################################################################################
+//Helperfunctions Design #################################################################################
 
     //Images
         //RotateImage Angle in Degrees
@@ -277,14 +295,14 @@ class Powerup extends AbstractElement {
             ctx.setTransform(1,0,0,1,0,0);
         }
 
-        //sprite loading 
+        //Loading of Images
         function preloadImageAssets() {
             var _toPreload = 0;
 
             var addImage = function (src) {
 
                 var img = new Image();
-                img.src = src;
+                img.src = IMAGESPATH + src;
                 _toPreload++;
 
                 img.addEventListener('load', function () {
@@ -293,10 +311,11 @@ class Powerup extends AbstractElement {
                 return img;
             }
 
-            imgCostelloBall = addImage("../assets/costelloball.png");
-            imgHeart = addImage("../assets/heart.png");
+            //Load DefaultImages
+            imgCostelloBall = addImage(glWorlds.defaultImages[DEFAULTIMAGES.COSTELLO]);
+            imgHeart = addImage(glWorlds.defaultImages[DEFAULTIMAGES.Heart]);
+            imgLevelBackground = addImage(glWorlds.defaultImages[DEFAULTIMAGES.STDBACKGROUND]);
     
-            
             var checkResources = function () {
                 if (_toPreload == 0)
                     glBolImagesLoaded = true;
@@ -306,53 +325,60 @@ class Powerup extends AbstractElement {
             checkResources();
         }
 
+        //TODO sprite next frame on framerate
+
     //Music Loading, pause, restart
     //TODO
 
     //Drawing
-    function drawPlayersLifes(){
-        let imageSize = 32;
-        let difY = glHeight - imageSize - 2;
-        let difX = 2;
+        //Lifes
+        function drawPlayersLifes(){
+            let difY = glHeight - glDefault_imgSize - 2;
+            let difX = 2;
 
-        for(var i = 0; i<glPlayerLifes; i++){
-            ctx.drawImage(imgHeart,i*(difX+imageSize)+2 ,difY);
-        }
-    }
-
-    function createBricksViaObjects(objects){
-        var bricks = [];
-        objects.forEach(function(object){
-            bricks.push(new Brick(  object.columnId, object.rowId,
-                                    object.columnId * glDefault_BrickSegementWidth + glDefault_BrickSegementStartX,
-                                    object.rowId * glDefault_BrickSegementHeight + glDefault_BrickSegementStartY,
-                                    glDefault_BrickWidth, glDefault_BrickHeight,
-                                    object.lifes, object.mass));
-        });
-        return bricks;
-    }
-
-    function createBricksWholeField() {
-        var bricks = [];
-        for (var c = 0; c < glDefault_BrickColumnCount; c++) {
-            for (var r = 0; r < glDefault_BrickRowCount; r++) {
-                bricks.push(new Brick(  c, r, 
-                                        c * glDefault_BrickSegementWidth + glDefault_BrickSegementStartX,
-                                        r * glDefault_BrickSegementHeight + glDefault_BrickSegementStartY,
-                                        glDefault_BrickWidth, glDefault_BrickHeight,
-                                        glDefault_BrickLifes, glDefaultBrickMass));
+            for(var i = 0; i<glPlayerLifes; i++){
+                ctx.drawImage(imgHeart,i*(difX+glDefault_imgSize)+2 ,difY, glDefault_imgSize, glDefault_imgSize);
             }
         }
-        return bricks;
-    }
 
-    function createBallAbovePaddle(){
-        if(mainpaddle !== undefined){
-            return new Ball((mainpaddle.x + (mainpaddle.width/2)), (mainpaddle.y - mainpaddle.height - glDefault_BallRadius),
-                                    glDefault_BallDx,glDefault_BallDy,glDefault_BallRadius,glDefault_BallMass);
-                                    
+        //TODOScore?
+
+    //Create Objects 
+        //Bricks
+        function createBricksViaObjects(objects){
+            var bricks = [];
+            objects.forEach(function(object){
+                bricks.push(new Brick(  object.columnId, object.rowId,
+                                        object.columnId * glDefault_BrickSegementWidth + glDefault_BrickSegementStartX,
+                                        object.rowId * glDefault_BrickSegementHeight + glDefault_BrickSegementStartY,
+                                        glDefault_BrickWidth, glDefault_BrickHeight,
+                                        object.lifes, object.mass));
+            });
+            return bricks;
         }
-    }
+
+        function createBricksWholeField() {
+            var bricks = [];
+            for (var c = 0; c < glDefault_BrickColumnCount; c++) {
+                for (var r = 0; r < glDefault_BrickRowCount; r++) {
+                    bricks.push(new Brick(  c, r, 
+                                            c * glDefault_BrickSegementWidth + glDefault_BrickSegementStartX,
+                                            r * glDefault_BrickSegementHeight + glDefault_BrickSegementStartY,
+                                            glDefault_BrickWidth, glDefault_BrickHeight,
+                                            glDefault_BrickLifes, glDefaultBrickMass));
+                }
+            }
+            return bricks;
+        }
+
+        //Balls
+        function createBallAbovePaddle(){
+            if(mainpaddle !== undefined){
+                return new Ball((mainpaddle.x + (mainpaddle.width/2)), (mainpaddle.y - mainpaddle.height - glDefault_BallRadius),
+                                        glDefault_BallDx,glDefault_BallDy,glDefault_BallRadius,glDefault_BallMass);
+                                        
+            }
+        }
 
 //Collision ############################################################################################
     //Generals
@@ -655,8 +681,6 @@ class Powerup extends AbstractElement {
 
         gameCanvas.width = glWidth;
         gameCanvas.height = glHeight;
-        
-        //TODO (Art der Sklaierung muss implementiert werden, vorerst neuer initOnStartOfLevel())
         initOnResizeOfLevel();
     }
 
@@ -671,26 +695,69 @@ class Powerup extends AbstractElement {
 
 //LevelBUilder #########################################################################################
     //JSONreader
-    async function loadLevelFromJson() {
-        let response = await fetch("level/world1_forest/level1.json");
-        let json = await response.json();
-        let bricks = await getBricksFromJSON(json);
-        await bricks.forEach(function (brick) {
-            glElements.push(brick);
-        });
-    }
-    
-    async function getBricksFromJSON(json){
-        let positions = json.positions;
-        let prebricks = [];
-        for(var r = 0; r < positions.length; r++){
-            for(var c = 0; c < positions[0].length; c++){
-                prebricks.push( new Object ({"rowId": r,"columnId":c,"lifes": positions[r][c], "mass" : 1}));
-            }
+
+        //loads a general json
+        async function loadJson(src){
+            let response = await fetch(src);
+            let json = await response.json();
+            return json;
         }
-        return createBricksViaObjects(prebricks);
-    }
-    //Score?
+
+        //loads a level from json and creates it
+        async function loadLevelFromJson(src) {
+            let json = await loadJson(src);
+            createBricksFromJSON(json);
+        }
+        
+        //creates Bricks depending on given json
+        async function createBricksFromJSON(json){
+            let bricks;
+            let positions = json.positions;
+            let prebricks = [];
+            for(var r = 0; r < positions.length; r++){
+                for(var c = 0; c < positions[0].length; c++){
+                    prebricks.push( new Object ({"rowId": r,"columnId":c,"lifes": positions[r][c], "mass" : 1}));
+                }
+            }
+            bricks = createBricksViaObjects(prebricks);
+            await bricks.forEach(function (brick) {
+                glElements.push(brick);
+            });
+        }
+
+        //Load Levels
+        async function loadLevelFromUrl(){
+            if(glWorlds === undefined){
+                glWorlds = await loadJson("level/worlds.json");
+                preloadImageAssets(glCurrentWorld);
+            }else{
+                preloadImageAssets(glCurrentLevel);
+            }
+            document.title = glWorlds.worlds[glCurrentWorld] + " LEVEL:" + glCurrentLevel;
+            loadLevelFromJson("level/"+(glWorlds.worlds[glCurrentWorld])+"/level"+glCurrentLevel+".json");
+        }
+
+        function loadNextLevel(){
+            glCurrentLevel = parseInt(glCurrentLevel);
+            if(glCurrentLevel + 1 > MAXLEVELPROWORLD){
+                glCurrentWorld = parseInt(glCurrentWorld)+1;
+                glCurrentLevel = 0;
+            }
+            glCurrentLevel = parseInt(glCurrentLevel)+1;
+            loadLevelFromUrl();
+        }
+
+        function getUrlVariable(key){ 
+            let query = window.location.search.substring(1); 
+            let vars = query.split("&"); 
+            for (let i=0;i<vars.length;i++){ 
+                let pair = vars[i].split("="); 
+                if (pair[0] == key){ 
+                    return pair[1]; 
+                } 
+            }
+            return undefined; 
+        }
 
 //GameHandler ##########################################################################################
     //initial
@@ -704,29 +771,19 @@ class Powerup extends AbstractElement {
             
             //Create Startball
             glElements.push(createBallAbovePaddle());
-        
-        //Level related
-            //Load Background
-    
-            //Load BackgroundAnimation
-    
-            //Load BackgroundMusic
-
-            //Create Enemys
     }
 
-    function initOnStartOfLevel() {
-        preloadImageAssets();
+    function initOnStartOfGame() {
         initGlElements();
+        glCurrentWorld = getUrlVariable("world");
+        glCurrentLevel = getUrlVariable("level");
         glPlayerLifes = glDefault_PlayerLifes;
-        
-        //Create Bricks
-        /*bricks = createBricksWholeField();
-        bricks.forEach(function (brick) {
-            glElements.push(brick);
-        });*/
-        
-        loadLevelFromJson();
+        loadLevelFromUrl();
+    }
+
+    function initOnStartOfLevel(){
+        initGlElements();
+        loadNextLevel();
     }
     
     //Init
@@ -773,11 +830,14 @@ class Powerup extends AbstractElement {
             initOnZeroBallsLevel();
         }else{
             let restart = confirm("Restart");
-            if(restart){ initOnStartOfLevel()};
+            if(restart){ initOnStartOfGame()};
         }
     }
     
-        
+    function drawBackground() {
+        ctx.drawImage(imgLevelBackground, 0, 0, glWidth, glHeight);
+    }
+
     //MAIN-Gameloop
     
     function animate() {
@@ -785,8 +845,8 @@ class Powerup extends AbstractElement {
         
         //Clear Canvas
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-        
-        //act depending on gameState
+            
+        //Pause /Initial Handling
         if(glGamestate !== GAMESTATE.PAUSE && glGamestate !== GAMESTATE.INITIAL){
 
             //setPaddlelocation (here and not onResize() because of Collision checking)
@@ -814,32 +874,45 @@ class Powerup extends AbstractElement {
                 }
             });
         }
-            
-            //Remove Elements {Brick, Ball, Powerup} with zero or less life
-            let victory = true;
-            
-            var existingElements = glElements.filter(function(value, index, arr){
-                return value.lifes > 0;
-            });
-            glElements = existingElements;
 
-            //Check Victory
-            if(victory){
+            
+        //Remove Elements {Brick, Ball, Powerup} with zero or less life
+        var existingElements = glElements.filter(function(value, index, arr){
+            return value.lifes > 0;
+        });
+        glElements = existingElements;
 
-            }
+        
+        //Drawing
+        if(glBolImagesLoaded){
+            //Draw LevelSpecific Images
+            drawBackground();
+            
+            //Draw lifes of the player
+            drawPlayersLifes();
 
             //Update each Element
             glElements.forEach(function (element) {
                 element.update()
             });
-
-            //Draw lifes of the player
-            if(glBolImagesLoaded){
-                drawPlayersLifes();
-            }
+        }else{
+            ctx.beginPath();
+            ctx.rect(0, 0, gameCanvas.width, gameCanvas.height);
+            ctx.fillStyle = "#333";
+            ctx.fill();
+            ctx.closePath();
+        }    
+            
+        //Check Victory
+        let bricks = glElements.filter(function(value, index, arr){
+            return value.type === ELEMENTTYPE.BRICK;
+        });
+        if((bricks.length === 0 || bricks === undefined) && glGamestate !== GAMESTATE.INITIAL){
+            initOnStartOfLevel();
+        }
     }
     
-initOnStartOfLevel();
+initOnStartOfGame();
 animate();
 
 //ADD Eventlisteners
