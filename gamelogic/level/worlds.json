@@ -9,5 +9,6 @@
         "world7_vulcano",
         "world8_village",
         "world9_castle",
-        "world10_universe"]   
+        "world10_universe"],
+    "defaultImages": ["costelloball.png","heart.png","bg_forrest.png"]
 }    

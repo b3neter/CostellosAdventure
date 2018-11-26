@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Costellos Adventure Level select</title>
+    <title>Costellos Adventure</title>
 
     <style>
-        #levelSelectorCanvas{
+        #indexCanvas{
             margin:0; padding:0; 
             position:absolute; 
             top:0; left:0;
@@ -19,13 +19,14 @@
             border: "red 1px solid";
         }
     </style>
+
 </head>
 
 <body>
 
-    <canvas id="levelSelectorCanvas"></canvas>
+    <canvas id="indexCanvas"></canvas>
     <audio autoplay loop>
-        <source src="./assets/audio/music/a05_windbluffs.mp3" type="audio/mpeg">
+        <source src="./assets/audio/music/a01_titletheme.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
@@ -34,21 +35,35 @@
         //Basierend auf
         //https://www.quora.com/JavaScript-Can-I-put-a-button-inside-a-canvas
         //Demo aus der Vorlesung
-        var levelSelectorCanvas = document.getElementById('levelSelectorCanvas');
-        var ctx = levelSelectorCanvas.getContext("2d");
+        var indexCanvas = document.getElementById('indexCanvas');
+        var ctx = indexCanvas.getContext("2d");
         var bg;
+        var blanc;
         var bird;
-        var returnbutton;
-        var level;
+        var startbutton;
+        var levelbutton;
+        var creditsbutton;
+        var manualsbutton;
         var glWidth = window.innerWidth;
         var glHeight = window.innerHeight;
-        levelSelectorCanvas.width = glWidth;
-        levelSelectorCanvas.height = glHeight;
+        indexCanvas.width = glWidth;
+        indexCanvas.height = glHeight;
         var canvasPos = getPosition(canvas);
         var mouseX = 0;
         var mouseY = 0;
 
-
+        class Button {
+            constructor(image, x, y, width, height) {
+                this.image = image;
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+            }
+            draw() {
+                drawImage(this.image, this.x, this.y, this.width, this.height);
+            }
+        }
 
 
 
@@ -68,9 +83,14 @@
                 }, false);
                 return img;
             }
-            bg = addImage("assets/images/mainmenu/bg-menu.png");
-            bird = addImage("assets/images/mainmenu/costelloball.png");
-            returnbutton = addImage("assets/images/mainmenu/mainmenubutton.png");
+            blanc = addImage("assets/blanc.png")
+            bg = addImage("assets/bg-menu.png");
+            bird = addImage("assets/costelloball.png");
+            startbutton = addImage("assets/startbutton.png");
+            levelbutton = addImage("assets/levelbutton.png");
+            creditsbutton = addImage("assets/creditsbutton.png");
+            manualbutton = addImage("assets/manualbutton.png");
+
 
             var checkResources = function () {
                 if (_toPreload == 0)
@@ -99,14 +119,11 @@
 
 
         // Get canvas element and its context
-        var canvas = document.getElementById('levelSelectorCanvas')
+        var canvas = document.getElementById('indexCanvas')
         var ctx = canvas.getContext('2d');
 
-        // Button position and dimensions hard coded, to be resizeable
-        var returnbuttonX = (glWidth / 2);
-        var returnbuttonY = 100;
-        var returnbuttonW = 200;
-        var returnbuttonH = 90;
+
+
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -117,15 +134,22 @@
         }
 
         function drawButtons() {
-            ctx.drawImage(returnbutton, returnbuttonX, returnbuttonY, returnbuttonW, returnbuttonH);
+            var buttons = [];
+            buttons.push(new Button(startbutton, 50, 50, 60, 60));
+            buttons.forEach(function(button){
+                button.draw();
+            })
+            console.log(buttons)
+            return buttons;
         }
+
 
         function drawBackground() {
             ctx.drawImage(bg, 0, 0, glWidth, glHeight);
         }
 
         function drawbird() {
-            ctx.drawImage(bird, mouseX-30, mouseY-30, 30, 30);
+            ctx.drawImage(bird, mouseX - 30, mouseY - 30, 30, 30);
         }
 
 
@@ -139,8 +163,8 @@
         function onResize(event) {
             glWidth = window.innerWidth;
             glHeight = window.innerHeight;
-            levelSelectorCanvas.width = glWidth;
-            levelSelectorCanvas.height = glHeight;
+            indexCanvas.width = glWidth;
+            indexCanvas.height = glHeight;
 
         }
         // Add event listener to canvas element
@@ -150,27 +174,42 @@
         });
         window.addEventListener('resize', function (event) { onResize(event) }, false);
         canvas.addEventListener('click', function (event) {
-                // Control that click event occurred within position of button
-                // NOTE: This assumes canvas is positioned at top left corner 
+            // Control that click event occurred within position of button
+            // NOTE: This assumes canvas is positioned at top left corner 
 
-                if (  //Return
-                    event.x > returnbuttonX &&
-                    event.x < returnbuttonX + returnbuttonW &&
-                    event.y > returnbuttonY &&
-                    event.y < returnbuttonY + returnbuttonH
-                ) {
-                    window.open("./index.html", "_self");
-                    };
-                if ( //Levelselect
-                    event.x > startbuttonX &&
-                    event.x < startbuttonX + startbuttonW &&
-                    event.y > levelbuttonY &&
-                    event.y < levelbuttonY + startbuttonH
-                ){
-                    window.open("./levelselect.html", "_self");
-                }; 
-                
-            });
+            if (  //Start
+                event.x > startbuttonX &&
+                event.x < startbuttonX + startbuttonW &&
+                event.y > startbuttonY &&
+                event.y < startbuttonY + startbuttonH
+            ) {
+                window.open("./gamelogic/game.html", "_self");
+            };
+            if ( //Levelselect
+                event.x > startbuttonX &&
+                event.x < startbuttonX + startbuttonW &&
+                event.y > levelbuttonY &&
+                event.y < levelbuttonY + startbuttonH
+            ) {
+                window.open("./levelselect.html", "_self");
+            };
+            if ( //Manuals
+                event.x > startbuttonX &&
+                event.x < startbuttonX + startbuttonW &&
+                event.y > manualbuttonY &&
+                event.y < manualbuttonY + startbuttonH
+            ) {
+                window.open("./manual.html", "_self");
+            };
+            if ( //Credits
+                event.x > startbuttonX &&
+                event.x < startbuttonX + startbuttonW &&
+                event.y > creditsbuttonY &&
+                event.y < creditsbuttonY + startbuttonH
+            ) {
+                window.open("./credits.html", "_self");
+            };
+        });
 
     </script>
 </body>
