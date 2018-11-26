@@ -51,7 +51,18 @@
         var mouseX = 0;
         var mouseY = 0;
 
-
+        class Button {
+            constructor(image, x, y, width, height) {
+                this.image = image;
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+            }
+            draw() {
+                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+            }
+        }
 
 
 
@@ -109,15 +120,7 @@
         var canvas = document.getElementById('indexCanvas')
         var ctx = canvas.getContext('2d');
 
-        // Button position and dimensions hard coded, to be resizeable
-        var startbuttonX = (glWidth / 2);
-        var startbuttonY = 100;
-        var startbuttonW = 200;
-        var startbuttonH = 90;
-        var levelbuttonY = startbuttonY+100;
-        var creditsbuttonY = startbuttonY+200;
-        var manualbuttonY = startbuttonY+300;
-        console.log(glHeight, glWidth);
+
 
 
         function draw() {
@@ -125,24 +128,28 @@
             drawBackground();
             drawButtons();
             drawbird();
-            //setTimeout(draw, 40);
             requestAnimationFrame(draw);
         }
 
         function drawButtons() {
-            ctx.drawImage(startbutton, startbuttonX, startbuttonY, startbuttonW, startbuttonH);
-            ctx.drawImage(levelbutton, startbuttonX, levelbuttonY, startbuttonW, startbuttonH);
-            ctx.drawImage(creditsbutton, startbuttonX,creditsbuttonY, startbuttonW, startbuttonH);
-            ctx.drawImage(manualbutton, startbuttonX, manualbuttonY, startbuttonW, startbuttonH);
+            var buttons = [];
+            buttons.push(new Button(startbutton,glWidth/3,glHeight/10,glWidth/20,glHeight/10));
+            buttons.push(new Button(levelbutton,glWidth/3,glHeight/5,glWidth/20,glHeight/10));
+            buttons.push(new Button(manualbutton,glWidth/3,glHeight/3.5,glWidth/20,glHeight/10));
+            buttons.push(new Button(creditsbutton,glWidth/3,glHeight/2.6,glWidth/20,glHeight/10));
+            buttons.forEach(function (button) {
+                button.draw();
+               
+            })
         }
+
 
         function drawBackground() {
             ctx.drawImage(bg, 0, 0, glWidth, glHeight);
         }
 
         function drawbird() {
-            ctx.drawImage(bird, mouseX-30, mouseY-30, 30, 30);
-            //console.log(mouseX, mouseY);
+            ctx.drawImage(bird, mouseX - 30, mouseY - 30, 30, 30);
         }
 
 
@@ -167,42 +174,42 @@
         });
         window.addEventListener('resize', function (event) { onResize(event) }, false);
         canvas.addEventListener('click', function (event) {
-                // Control that click event occurred within position of button
-                // NOTE: This assumes canvas is positioned at top left corner 
+            // Control that click event occurred within position of button
+            // NOTE: This assumes canvas is positioned at top left corner 
 
-                if (  //Start
-                    event.x > startbuttonX &&
-                    event.x < startbuttonX + startbuttonW &&
-                    event.y > startbuttonY &&
-                    event.y < startbuttonY + startbuttonH
-                ) {
-                    window.open("./gamelogic/game.html", "_self");
-                    };
-                if ( //Levelselect
-                    event.x > startbuttonX &&
-                    event.x < startbuttonX + startbuttonW &&
-                    event.y > levelbuttonY &&
-                    event.y < levelbuttonY + startbuttonH
-                ){
-                    window.open("./levelselect.html", "_self");
-                }; 
-                if ( //Manuals
-                    event.x > startbuttonX &&
-                    event.x < startbuttonX + startbuttonW &&
-                    event.y > manualbuttonY &&
-                    event.y < manualbuttonY + startbuttonH
-                ){
-                    window.open("./manual.html", "_self");
-                };
-                if ( //Credits
-                    event.x > startbuttonX &&
-                    event.x < startbuttonX + startbuttonW &&
-                    event.y > creditsbuttonY &&
-                    event.y < creditsbuttonY + startbuttonH
-                ){
-                    window.open("./credits.html", "_self");
-                };   
-            });
+            if (  //Start
+                event.x > buttons[1].x &&
+                event.x < buttons[1].x + buttons[1].width &&
+                event.y > buttons[1].y &&
+                event.y < buttons[1].y + buttons[1].height
+            ) {
+                window.open("./gamelogic/game.html", "_self");
+            };
+            if ( //Levelselect
+                event.x > startbuttonX &&
+                event.x < startbuttonX + startbuttonW &&
+                event.y > levelbuttonY &&
+                event.y < levelbuttonY + startbuttonH
+            ) {
+                window.open("./levelselect.html", "_self");
+            };
+            if ( //Manuals
+                event.x > startbuttonX &&
+                event.x < startbuttonX + startbuttonW &&
+                event.y > manualbuttonY &&
+                event.y < manualbuttonY + startbuttonH
+            ) {
+                window.open("./manual.html", "_self");
+            };
+            if ( //Credits
+                event.x > startbuttonX &&
+                event.x < startbuttonX + startbuttonW &&
+                event.y > creditsbuttonY &&
+                event.y < creditsbuttonY + startbuttonH
+            ) {
+                window.open("./credits.html", "_self");
+            };
+        });
 
     </script>
 </body>
