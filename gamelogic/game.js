@@ -47,16 +47,16 @@
 
     //GameAssets
     const ASSETSPATH = "../assets/";
-    const IMAGESPATH = ASSETSPATH+"images/default/";
+    const IMAGESPATH = ASSETSPATH +"images/default/";
     
         //TODO Music
         var backgroundLeveltheme;
 
         //Images
         var glBolImagesLoaded;
-        const DEFAULTIMAGES = Object.freeze({ "COSTELLO":0, "Heart":1, "STDBACKGROUND":2})
-        var imgCostelloBall = new Image();
-        var imgHeart = new Image();
+        var imgCostelloBall;
+        var imgHeart;
+        var imgRECTAL;
         var imgLevelBackground = new Image();
 
     //Keycodes (https://keycode.info/)
@@ -98,9 +98,6 @@
         glY = gameCanvas.y;
         glCenterX = glWidth / 2;
         glCenterY = glHeight/ 2;
-        
-        //Images neu laden
-        glBolImagesLoaded=false;
         
         //In welchem Anteil des Canvas sollen Bricks erzeugt werden
         let heightAreaNumerator = 4;
@@ -190,7 +187,7 @@ class Paddle extends AbstractElement {
 }
 
 class Brick extends AbstractElement {
-    constructor(columnId, rowId, x, y, width, height, lifes, mass, color = "#333") {
+    constructor(columnId, rowId, x, y, width, height, lifes, mass, color = "#33BB97") {
         super(ELEMENTTYPE.BRICK, x, y, lifes, color);
         this.columnId = columnId;
         this.rowId = rowId;
@@ -209,6 +206,7 @@ class Brick extends AbstractElement {
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.closePath();
+        ctx.drawImage(imgRECTAL,this.x,this.y,this.width,this.height);
     }
 }
 
@@ -312,9 +310,10 @@ class Powerup extends AbstractElement {
             }
 
             //Load DefaultImages
-            imgCostelloBall = addImage(glWorlds.defaultImages[DEFAULTIMAGES.COSTELLO]);
-            imgHeart = addImage(glWorlds.defaultImages[DEFAULTIMAGES.Heart]);
-            imgLevelBackground = addImage(glWorlds.defaultImages[DEFAULTIMAGES.STDBACKGROUND]);
+            imgCostelloBall = addImage("costelloball.png");
+            imgHeart = addImage("heart.png");
+            imgLevelBackground = addImage("bg_forest.png");
+            imgRECTAL = addImage("bricks/brickdefault.png");
     
             var checkResources = function () {
                 if (_toPreload == 0)
@@ -352,7 +351,7 @@ class Powerup extends AbstractElement {
                                         object.columnId * glDefault_BrickSegementWidth + glDefault_BrickSegementStartX,
                                         object.rowId * glDefault_BrickSegementHeight + glDefault_BrickSegementStartY,
                                         glDefault_BrickWidth, glDefault_BrickHeight,
-                                        object.lifes, object.mass));
+                                        object.lifes, object.mass, object.color, object.special));
             });
             return bricks;
         }
@@ -716,7 +715,8 @@ class Powerup extends AbstractElement {
             let prebricks = [];
             for(var r = 0; r < positions.length; r++){
                 for(var c = 0; c < positions[0].length; c++){
-                    prebricks.push( new Object ({"rowId": r,"columnId":c,"lifes": positions[r][c], "mass" : 1}));
+                    let type = positions[r][c];
+                        prebricks.push( new Object ({"rowId": r,"columnId":c,"lifes": type,"mass" : 1, }));
                 }
             }
             bricks = createBricksViaObjects(prebricks);
