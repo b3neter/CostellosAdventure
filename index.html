@@ -43,6 +43,7 @@
         var levelbutton;
         var creditsbutton;
         var manualsbutton;
+        var mainmenubutton;
         var glWidth = window.innerWidth;
         var glHeight = window.innerHeight;
         indexCanvas.width = glWidth;
@@ -52,16 +53,24 @@
         var mouseY = 0;
 
         class Button {
-            constructor(image, x, y, width, height) {
+            constructor(image, x, y, width, height,life) {
                 this.image = image;
                 this.x = x;
                 this.y = y;
                 this.width = width;
                 this.height = height;
+                this.life = life;
             }
             draw() {
                 ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
             }
+            x() {
+               return this.x 
+            }
+            y(){
+               return this.y
+            }    
+            
         }
 
 
@@ -132,15 +141,18 @@
         }
 
         function drawButtons() {
-            var buttons = [];
-            buttons.push(new Button(startbutton,glWidth/3,glHeight/10,glWidth/20,glHeight/10));
-            buttons.push(new Button(levelbutton,glWidth/3,glHeight/5,glWidth/20,glHeight/10));
-            buttons.push(new Button(manualbutton,glWidth/3,glHeight/3.5,glWidth/20,glHeight/10));
-            buttons.push(new Button(creditsbutton,glWidth/3,glHeight/2.6,glWidth/20,glHeight/10));
-            buttons.forEach(function (button) {
-                button.draw();
-               
-            })
+            
+            start = new Button(startbutton,glWidth/3,glHeight/10,glWidth/20,glWidth/20,1);
+            level = new Button(levelbutton,glWidth/3,glHeight/5,glWidth/20,glWidth/20,1);
+            manual = new Button(manualbutton,glWidth/3,glHeight/3.5,glWidth/20,glWidth/20,1);
+            credits = new Button(creditsbutton,glWidth/3,glHeight/2.6,glWidth/20,glWidth/20,1);
+            
+            
+                start.draw();
+                level.draw();
+                manual.draw();
+                credits.draw();
+            
         }
 
 
@@ -176,39 +188,39 @@
         canvas.addEventListener('click', function (event) {
             // Control that click event occurred within position of button
             // NOTE: This assumes canvas is positioned at top left corner 
-
-            if (  //Start
-                event.x > buttons[1].x &&
-                event.x < buttons[1].x + buttons[1].width &&
-                event.y > buttons[1].y &&
-                event.y < buttons[1].y + buttons[1].height
+   
+             if (  //Start
+                event.x > start.x &&
+                event.x < start.x + start.width &&
+                event.y > start.y &&
+                event.y < start.y + start.height
             ) {
                 window.open("./gamelogic/game.html", "_self");
             };
             if ( //Levelselect
-                event.x > startbuttonX &&
-                event.x < startbuttonX + startbuttonW &&
-                event.y > levelbuttonY &&
-                event.y < levelbuttonY + startbuttonH
+                event.x > level.x &&
+                event.x < level.x + level.width &&
+                event.y > level.y &&
+                event.y < level.y + level.height
             ) {
                 window.open("./levelselect.html", "_self");
             };
             if ( //Manuals
-                event.x > startbuttonX &&
-                event.x < startbuttonX + startbuttonW &&
-                event.y > manualbuttonY &&
-                event.y < manualbuttonY + startbuttonH
+                event.x > manual.x &&
+                event.x < manual.x + manual.width &&
+                event.y > manual.y &&
+                event.y < manual.y + manual.height
             ) {
                 window.open("./manual.html", "_self");
             };
             if ( //Credits
-                event.x > startbuttonX &&
-                event.x < startbuttonX + startbuttonW &&
-                event.y > creditsbuttonY &&
-                event.y < creditsbuttonY + startbuttonH
+                event.x > credits.x &&
+                event.x < credits.x + credits.width &&
+                event.y > credits.y &&
+                event.y < credits.y + credits.height
             ) {
                 window.open("./credits.html", "_self");
-            };
+            }; 
         });
 
     </script>
