@@ -48,7 +48,7 @@
     //GameAssets bzw. Pfade
     const ASSETSPATH = "../assets/";
     const IMAGESPATH = ASSETSPATH +"images/";
-    const WORLDJSONPATH = "level/world.json"
+    const WORLDJSONPATH = "level/worlds.json"
     const WORLDBASEPATH = "level/world"
     
         //TODO Music
@@ -189,13 +189,19 @@ class Paddle extends AbstractElement {
 }
 
 class Brick extends AbstractElement {
-    constructor(columnId, rowId, x, y, width, height, lifes, mass, color = "#33BB97") {
+    constructor(columnId, rowId, x, y, width, height, lifes, mass, img, color) {
         super(ELEMENTTYPE.BRICK, x, y, lifes, color);
         this.columnId = columnId;
         this.rowId = rowId;
         this.width = width;
         this.height = height;
         this.mass = mass;
+        this.img = img;
+    }
+
+    resolveBeingHit(){
+        this.lifes -= 1;
+        this.img = glWorlds[glCurrentWorld].getImage(this.lifes);
     }
 
     update() {
@@ -208,7 +214,7 @@ class Brick extends AbstractElement {
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.closePath();
-        ctx.drawImage(imgRECTAL,this.x,this.y,this.width,this.height);
+        ctx.drawImage(this.img, this.x,this.y,this.width,this.height);
     }
 }
 
@@ -281,30 +287,46 @@ class Powerup extends AbstractElement {
 }
 
 class World{
-    constructor(name, rank, levels, colors, images){
+    constructor(name, rank, levels, colors, imageNames){
         this.name = name;
         this.rank = rank;
         this.path = WORLDBASEPATH+this.rank+"_"+this.name +"/";
         this.levels = levels;
         this.colors = colors;
-        this.images = images;
+        this.imageNames = imageNames;
+        this.imageFiles;
         //TODO Boss, Music
+    }
+
+    setImageFiles(arr){
+        this.imageFiles = arr;
     }
 
     countLevel(){
         return this.levels.length;
     }
 
+    countColors(){
+        return this.colors.length;
+    }
+
     countImages(){
-        return this.images.length;
+        return this.imageNames.length;
     }
 
     getLevelPath(level){
+        level -= 1;
         return this.path + this.levels[level] + ".json";
     }
 
-    getImagesPath(BRICKTYPE){
-        return IMAGESPATH + this.images[BRICKTYPE] + "png";
+    getColor(index){
+        index -= 1;
+        return this.colors[index];
+    }
+
+    getImage(index){
+        index -= 1;
+        return this.imageFiles[index];
     }
 }
 
@@ -343,8 +365,15 @@ class World{
             imgCostelloBall = addImage("default/costelloball.png");
             imgHeart = addImage("default/heart.png");
             imgLevelBackground = addImage("default/bg_forest.png");
-            imgRECTAL = addImage("bricks/brickdefault.png");
-    
+            
+            //load Worlds images
+            let worldimages = [];
+            glWorlds[glCurrentWorld].imageNames.forEach(function(img){
+                worldimages.push(addImage("bricks/"+img+".png"));
+            });
+
+            glWorlds[glCurrentWorld].setImageFiles(worldimages);
+            
             var checkResources = function () {
                 if (_toPreload == 0)
                     glBolImagesLoaded = true;
@@ -376,7 +405,7 @@ class World{
         function createWorldsViaObjects(jsonWorlds){
             var worlds = [];
             jsonWorlds.forEach(function(world){
-                worlds.push(new World(world.name, world.rank, world.levels, world.colors, world.images));
+                worlds.push(new World(world.name, world.rank, world.levels, world.colors, world.imageNames));
             })
             return worlds;
         }
@@ -389,7 +418,7 @@ class World{
                                         object.columnId * glDefault_BrickSegementWidth + glDefault_BrickSegementStartX,
                                         object.rowId * glDefault_BrickSegementHeight + glDefault_BrickSegementStartY,
                                         glDefault_BrickWidth, glDefault_BrickHeight,
-                                        object.lifes, object.mass, object.color, object.special));
+                                        object.lifes, object.mass, object.img, object.color));
             });
             return bricks;
         }
@@ -402,7 +431,7 @@ class World{
                                             c * glDefault_BrickSegementWidth + glDefault_BrickSegementStartX,
                                             r * glDefault_BrickSegementHeight + glDefault_BrickSegementStartY,
                                             glDefault_BrickWidth, glDefault_BrickHeight,
-                                            glDefault_BrickLifes, glDefaultBrickMass));
+                                            glDefault_BrickLifes, glDefaultBrickMass, "#33BB97"));
                 }
             }
             return bricks;
@@ -501,32 +530,23 @@ class World{
                 |_______| 
               ( )       ( )
             */
-
-           
-            /*distX = Math.abs(circle.x - rect.x - rect.width / 2);
-            distY = Math.abs(circle.y - rect.y - rect.height / 2);
-            var dx = distX - rect.width / 2;
-            var dy = distY - rect.height / 2;
-            console.log("hi");
-            if(dx * dx + dy * dy <= (circle.radius * circle.radius)){*/
-                if(circle.y < rectCenterY){
-                    if(circle.x < rectCenterX){
-                        //Hit CORNER TOP - LEFT
-                        return DIRECTION.NW;
-                    }else{
-                        //Hit CORNER TOP - RIGHT
-                        return DIRECTION.NO;
-                    }
+            if(circle.y < rectCenterY){
+                if(circle.x < rectCenterX){
+                    //Hit CORNER TOP - LEFT
+                    return DIRECTION.NW;
                 }else{
-                    if(circle.x < rectCenterX){
-                        //Hit CORNER BOTTOM - LEFT
-                        return DIRECTION.SW;
-                    }else{
-                        //Hit CORNER BOTTOM - RIGHT
-                        return DIRECTION.SO;
-                    }
+                    //Hit CORNER TOP - RIGHT
+                    return DIRECTION.NO;
                 }
-            //}
+            }else{
+                if(circle.x < rectCenterX){
+                    //Hit CORNER BOTTOM - LEFT
+                    return DIRECTION.SW;
+                }else{
+                    //Hit CORNER BOTTOM - RIGHT
+                    return DIRECTION.SO;
+                }
+            }
         }
 
         
@@ -620,7 +640,7 @@ class World{
     
     //resolve Collision Ball & Brick
     function resolveCollision_BallBrick(ball, brick, direction){
-        brick.lifes--;
+        brick.resolveBeingHit();
         switch(direction){
             case DIRECTION.N : ball.dy *= -1; resetBallToTop(ball, brick); break;
             case DIRECTION.S : ball.dy *= -1; resetBallToBottom(ball, brick); break;
@@ -754,7 +774,15 @@ class World{
             for(var r = 0; r < positions.length; r++){
                 for(var c = 0; c < positions[0].length; c++){
                     let type = positions[r][c];
-                    prebricks.push( new Object ({"rowId": r,"columnId":c,"lifes": type,"mass" : 1, }));
+                    if(type > 0){
+                        let maxlifes = glWorlds[glCurrentWorld].countImages();
+                        let lifes = (type % maxlifes === 0)? maxlifes : type % maxlifes; 
+                        let color = (glWorlds[glCurrentWorld].countColors() >= type)? 
+                                        glWorlds[glCurrentWorld].getColor(type) 
+                                        : glWorlds[glCurrentWorld].getColor(1);
+                        let img = glWorlds[glCurrentWorld].getImage(lifes);
+                        prebricks.push( new Object ({"rowId": r,"columnId":c, "lifes":lifes, "mass" : 1, "color": color, "img":img }));
+                    }
                 }
             }
             bricks = createBricksViaObjects(prebricks);
