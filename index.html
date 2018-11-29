@@ -53,7 +53,7 @@
         var mouseY = 0;
 
         class Button {
-            constructor(image, x, y, width, height,life) {
+            constructor(image, x, y, width, height, life) {
                 this.image = image;
                 this.x = x;
                 this.y = y;
@@ -65,12 +65,19 @@
                 ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
             }
             x() {
-               return this.x 
+                return this.x
             }
-            y(){
-               return this.y
-            }    
-            
+            y() {
+                return this.y
+            }
+            undraw(){
+                this.x = 0;
+                this.y = 0;
+                this.width = 0;
+                this.height = 0;
+                this.life = 0;
+            }
+
         }
 
 
@@ -97,6 +104,7 @@
             levelbutton = addImage("assets/images/mainmenu/levelbutton.png");
             creditsbutton = addImage("assets/images/mainmenu/creditsbutton.png");
             manualbutton = addImage("assets/images/mainmenu/manualbutton.png");
+            mainmenubutton = addImage("assets(images/mainmenu/mainmenubutton.png");
 
 
             var checkResources = function () {
@@ -142,17 +150,23 @@
 
         function drawButtons() {
             
-            start = new Button(startbutton,glWidth/3,glHeight/10,glWidth/20,glWidth/20,1);
-            level = new Button(levelbutton,glWidth/3,glHeight/5,glWidth/20,glWidth/20,1);
-            manual = new Button(manualbutton,glWidth/3,glHeight/3.5,glWidth/20,glWidth/20,1);
-            credits = new Button(creditsbutton,glWidth/3,glHeight/2.6,glWidth/20,glWidth/20,1);
+                //                  image        x             y              width         height(=width)
+                start = new Button(startbutton, glWidth / 3, glHeight / 10, glWidth / 20, glWidth / 20, 1);
+                level = new Button(levelbutton, glWidth / 3, glHeight / 5, glWidth / 20, glWidth / 20, 1);
+                manual = new Button(manualbutton, glWidth / 3, glHeight / 3.5, glWidth / 20, glWidth / 20, 1);
+                credits = new Button(creditsbutton, glWidth / 3, glHeight / 2.6, glWidth / 20, glWidth / 20, 1);
+                mainmenu  = new Button(mainmenubutton, 0, 0, 0, 0, 0);
+               
             
             
                 start.draw();
                 level.draw();
                 manual.draw();
                 credits.draw();
+                mainmenu.draw();
             
+      
+
         }
 
 
@@ -188,14 +202,15 @@
         canvas.addEventListener('click', function (event) {
             // Control that click event occurred within position of button
             // NOTE: This assumes canvas is positioned at top left corner 
-   
-             if (  //Start
+
+            if (  //Start
                 event.x > start.x &&
                 event.x < start.x + start.width &&
                 event.y > start.y &&
                 event.y < start.y + start.height
             ) {
-                window.open("./gamelogic/game.html", "_self");
+                window.open("./gamelogic/game.html?world=1&level=1", "_self");
+
             };
             if ( //Levelselect
                 event.x > level.x &&
@@ -203,7 +218,15 @@
                 event.y > level.y &&
                 event.y < level.y + level.height
             ) {
-                window.open("./levelselect.html", "_self");
+                //window.open("./levelselect.html", "_self");
+                console.log = (start.x,event.x);
+                start.x = 0;
+                start.y = 0;
+                mainmenu.x = glWidth / 3;
+                mainmenu.y= glHeight / 2.6;
+                mainmenu.width = glWidth / 20;
+                mainmenu.height = glWidth / 20;
+                console.log = (start.x); 
             };
             if ( //Manuals
                 event.x > manual.x &&
@@ -220,7 +243,7 @@
                 event.y < credits.y + credits.height
             ) {
                 window.open("./credits.html", "_self");
-            }; 
+            };
         });
 
     </script>

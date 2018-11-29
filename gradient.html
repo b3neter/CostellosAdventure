@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="main.js"></script>
+</head>
+
+<body>
+    <canvas id="Canvas"></canvas>
+    <script>
+        var Canvas = document.getElementById('Canvas');
+        var ctx = Canvas.getContext("2d");
+        var glWidth = window.innerWidth;
+        var glHeight = window.innerHeight;
+        var rectx = 50;
+        var recty = 50;
+        var rectw = 500;
+        var recth = 250;
+        var color = "#003300";
+        var color_dark;
+
+        Canvas.width = glWidth;
+        Canvas.height = glHeight;
+
+
+        function drawrect() {
+
+            ctx.beginPath();
+            ctx.lineWidth = "4";
+            ctx.strokeStyle = "green";
+            ctx.rect(rectx, recty, rectw, recth);
+            ctx.stroke();
+
+        };
+
+        //  function getRandomColor() {
+        //      return "rgb(" + 0 + "," + 0 + "," + Math.floor(Math.random() * 155 + 100) + ")";
+        //  }
+
+        // HEX and RGB https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+
+
+        function hexToRgb(color) {
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function componentToHex(color) {
+            var hex = color.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+
+
+        //HEX and RGB End
+
+
+        function getlightcolor() {
+            r = hexToRgb(color).r;
+            g = hexToRgb(color).g;
+            b = hexToRgb(color).b;
+
+            return "rgb(" + r + Math.floor(Math.random() * 155 + 10) +
+                "," + g + Math.floor(Math.random() * 155 + 10) +
+                "," + b + Math.floor(Math.random() * 155 + 10) + ")";
+        }
+
+        function getdarkcolor() {
+            r = hexToRgb(color).r;
+            g = hexToRgb(color).g;
+            b = hexToRgb(color).b;
+
+            return "rgb(" + r + Math.floor(Math.random() * 155 - 10) +
+                "," + g + Math.floor(Math.random() * 155 - 10) +
+                "," + b + Math.floor(Math.random() * 155 - 10) + ")";
+        }
+
+
+        function drawrectinrect() {
+
+            var rectrectx = rectx;
+            var rectrecty = recty;
+            var rectrectw = rectw / 10;
+            var rectrecth = recth / 10;
+                       var color;
+
+            for (rectrecty = recty; rectrecty < recty + recth; rectrecty += rectrecth) {
+                for (rectrectx = rectx; rectrectx < rectx + rectw; rectrectx += rectrectw) {
+                    
+                    ctx.beginPath();
+                    ctx.fillStyle = getlightcolor();  // or getdarkcolor();
+                    ctx.rect(rectrectx, rectrecty, rectrectw, rectrecth);
+                    ctx.fill();
+                    
+                }
+            }
+        };
+        function draw() {
+            drawrect();
+            drawrectinrect();
+            }
+
+
+        draw();
+
+
+    </script>
+
+</body>
+
+</html>
