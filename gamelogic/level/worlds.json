@@ -6,7 +6,7 @@
         { "name": "water" , "rank": 3 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#33BB97", "#33BB97"], "imageNames": ["brickdefault"]  },
         { "name": "snowy" , "rank": 4 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#33BB97", "#33BB97"], "imageNames": ["brickdefault"]  },
         { "name": "mountain" , "rank": 5 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#33BB97", "#33BB97"], "imageNames": ["brickdefault"]  },
-        { "name": "haeven" , "rank": 6 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#33BB97", "#33BB97"], "imageNames": ["brickdefault"]  },
+        { "name": "heaven" , "rank": 6 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#33BB97", "#33BB97"], "imageNames": ["brickdefault"]  },
         { "name": "vulcano" , "rank": 7 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#33BB97", "#33BB97"], "imageNames": ["brickdefault"]  },
         { "name": "village" , "rank": 8 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#33BB97", "#33BB97"], "imageNames": ["brickdefault"]  },
         { "name": "castle" , "rank": 9 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#33BB97", "#33BB97"], "imageNames": ["brickdefault"]  },

@@ -17,9 +17,8 @@
         }
     
     //Level & Element related
-    const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "ENEMY": 5, "BOSS": 6})
+    const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "ENEMY": 5, "BOSS": 6, "BUTTON":7})
     var glElements = [];
-    var glMainpaddle;
     
     var glMouse = {
         x: undefined,
@@ -59,7 +58,7 @@
         var imgCostelloBall;
         var imgHeart;
         var imgRECTAL;
-        var imgLevelBackground = new Image();
+        var imgLevelBackground;
 
     //Keycodes (https://keycode.info/)
     const KEYCODE = Object.freeze({ "ESC": 27, "P": 80, "SPACE": 32, "Enter": 13,
@@ -83,7 +82,8 @@
         glDefault_BrickColumnCount,glDefault_BrickRowCount, glDefault_BrickWidth, glDefault_BrickHeight, 
         glDefault_BrickSegementWidth, glDefault_BrickSegementStartX, glDefault_BrickSegementHeight, glDefault_BrickSegementStartY,
         glDefault_BrickLifes, glDefaultBrickMass,
-        glDefault_imgSize;
+        glDefault_imgSize,
+        glDefault_ButtonWidth, glDefault_ButtonHeight, glDefault_PauseButtonX, glDefault_PauseButtonY;
 
     const glDefault_BallLifes = 1, glDefault_PaddleLifes = 1;;
     
@@ -129,13 +129,17 @@
         glPaddleareaReflectColor = "#497F71";
         glDefault_BallDx = 0.00156 * glWidth; //0.00156 ; 0.00104
         glDefault_BallDx = (Math.random() >= 0.5) ? -glDefault_BallDx : glDefault_BallDx;
-        //TODO
-        glDefault_BallDx = 0;
         glDefault_BallDy = 0.0068 * glHeight * - 1; //0.0068 ; 0.00454
         glDefault_BallMass = 1;
         glDefault_BallRadius = ((glDefault_PaddleWidth * 0.08) > 14) ? glDefault_PaddleWidth * 0.08 : 14;
         glDefault_imgSize = ((glDefault_PaddleWidth * 0.08) > 14) ? glDefault_PaddleWidth * 0.08 * 2 : 14 * 2;
         glDefault_PlayerLifes = 3;
+
+        //Buttons
+        glDefault_ButtonWidth = glWidth / 16;
+        glDefault_ButtonHeight= glDefault_PaddleHeight;
+        glDefault_PauseButtonX= glWidth - glDefault_ButtonWidth - 5;
+        glDefault_PauseButtonY= glHeight - glDefault_ButtonHeight - 5;
     }
 
 //Classes ##############################################################################################
@@ -286,6 +290,26 @@ class Powerup extends AbstractElement {
     }
 }
 
+class Button extends AbstractElement {
+    constructor( x, y, width, height, color) {
+        super(ELEMENTTYPE.BUTTON, x, y, 1, color);
+        this.width = width;
+        this.height = height;
+    }
+
+    update() {
+        this.draw();
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.rect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.closePath();
+    }
+}
+
 class World{
     constructor(name, rank, levels, colors, imageNames){
         this.name = name;
@@ -364,7 +388,7 @@ class World{
             //Load DefaultImages
             imgCostelloBall = addImage("default/costelloball.png");
             imgHeart = addImage("default/heart.png");
-            imgLevelBackground = addImage("default/bg_forest.png");
+            imgLevelBackground = addImage("backgrounds/bg_world"+glWorlds[glCurrentWorld].rank+"_"+glWorlds[glCurrentWorld].name+".png");
             
             //load Worlds images
             let worldimages = [];
@@ -729,6 +753,20 @@ class World{
 
     function onMouseDown(event){
         setGamestatus(GAMESTATE.RUNNING);
+        checkButtons(event);
+    }
+
+    function checkButtons(event){
+        let buttons = glElements.filter(function(value, index, arr){
+            return value.type === ELEMENTTYPE.BUTTON;
+        });
+        buttons.forEach(function(button){
+            if(event.clientX < button.x + button.width && event.clientX > button.x &&
+                event.clientY < button.y + button.height && event.clientY > button.y){
+                    pause();
+                    return;
+                }
+        });
     }
 
     //resize
@@ -836,6 +874,9 @@ class World{
             //Create Mainpaddle
             mainpaddle = new Paddle(glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleWidth, glDefault_PaddleHeight, "#33BB97" );
             glElements.push(mainpaddle);
+
+            pausebutton = new Button(glDefault_PauseButtonX, glDefault_PauseButtonY, glDefault_ButtonWidth, glDefault_ButtonHeight, "#4289f4");
+            glElements.push(pausebutton);
             
             //Create Startball
             glElements.push(createBallAbovePaddle());
