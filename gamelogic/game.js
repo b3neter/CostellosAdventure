@@ -759,14 +759,14 @@ class World{
         async function loadLevelFromUrl(){
             if(glWorlds === undefined){
                 //define worlds
-                let jsonWorlds = await loadJson(WORLDJSONPATH);
-                glWorlds = createWorldsViaObjects(jsonWorlds);
+                let json = await loadJson(WORLDJSONPATH);
+                glWorlds = createWorldsViaObjects(json.worlds);
                 preloadImageAssets(glCurrentWorld);
             }else{
                 preloadImageAssets(glCurrentLevel);
             }
-            document.title = glWorlds.worlds[glCurrentWorld].name;
-            loadLevelFromJson(glWorlds.worlds[glCurrentWorld].getLevelPath(glCurrentLevel));
+            document.title = glWorlds[glCurrentWorld].name;
+            loadLevelFromJson(glWorlds[glCurrentWorld].getLevelPath(glCurrentLevel));
         }
 
         function loadNextLevel(){
