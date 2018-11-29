@@ -45,9 +45,11 @@
                                     "LIFEGAINED": 5,
                                     "LIFELOST":6});
 
-    //GameAssets
+    //GameAssets bzw. Pfade
     const ASSETSPATH = "../assets/";
     const IMAGESPATH = ASSETSPATH +"images/default/";
+    const WORLDJSONPATH = "level/world.json"
+    const WORLDBASEPATH = "level/world"
     
         //TODO Music
         var backgroundLeveltheme;
@@ -278,6 +280,26 @@ class Powerup extends AbstractElement {
     }
 }
 
+class World{
+    constructor(name, rank, levels, colors, images){
+        this.name = name;
+        this.rank = rank;
+        this.path = WORLDBASEPATH+this.rank+"_"+this.name +"/";
+        this.levels = levels;
+        this.colors = colors;
+        this.images = images;
+        //TODO Boss
+    }
+
+    countLevel(){
+        return this.levels.length;
+    }
+
+    getLevelPath(level){
+        return this.path + "level" + level + ".json";
+    }
+}
+
 //Helperfunctions Design #################################################################################
 
     //Images
@@ -354,6 +376,14 @@ class Powerup extends AbstractElement {
                                         object.lifes, object.mass, object.color, object.special));
             });
             return bricks;
+        }
+
+        function createWorldsViaObjects(jsonWorlds){
+            var worlds = [];
+            jsonWorlds.forEach(function(world){
+                worlds.push(new World(world.name, world.rank, world.levels, world.colors, world.images));
+            })
+            return worlds;
         }
 
         function createBricksWholeField() {
@@ -728,18 +758,20 @@ class Powerup extends AbstractElement {
         //Load Levels
         async function loadLevelFromUrl(){
             if(glWorlds === undefined){
-                glWorlds = await loadJson("level/worlds.json");
+                //define worlds
+                let jsonWorlds = await loadJson(WORLDJSONPATH);
+                glWorlds = createWorldsViaObjects(jsonWorlds);
                 preloadImageAssets(glCurrentWorld);
             }else{
                 preloadImageAssets(glCurrentLevel);
             }
-            document.title = glWorlds.worlds[glCurrentWorld] + " LEVEL:" + glCurrentLevel;
-            loadLevelFromJson("level/"+(glWorlds.worlds[glCurrentWorld])+"/level"+glCurrentLevel+".json");
+            document.title = glWorlds.worlds[glCurrentWorld].name;
+            loadLevelFromJson(glWorlds.worlds[glCurrentWorld].getLevelPath(glCurrentLevel));
         }
 
         function loadNextLevel(){
             glCurrentLevel = parseInt(glCurrentLevel);
-            if(glCurrentLevel + 1 > MAXLEVELPROWORLD){
+            if(glCurrentLevel + 1 > glWorlds[glCurrentWorld].countLevel()){
                 glCurrentWorld = parseInt(glCurrentWorld)+1;
                 glCurrentLevel = 0;
             }
