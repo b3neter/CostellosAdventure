@@ -47,7 +47,7 @@
 
     //GameAssets bzw. Pfade
     const ASSETSPATH = "../assets/";
-    const IMAGESPATH = ASSETSPATH +"images/default/";
+    const IMAGESPATH = ASSETSPATH +"images/";
     const WORLDJSONPATH = "level/world.json"
     const WORLDBASEPATH = "level/world"
     
@@ -288,15 +288,23 @@ class World{
         this.levels = levels;
         this.colors = colors;
         this.images = images;
-        //TODO Boss
+        //TODO Boss, Music
     }
 
     countLevel(){
         return this.levels.length;
     }
 
+    countImages(){
+        return this.images.length;
+    }
+
     getLevelPath(level){
-        return this.path + "level" + level + ".json";
+        return this.path + this.levels[level] + ".json";
+    }
+
+    getImagesPath(BRICKTYPE){
+        return IMAGESPATH + this.images[BRICKTYPE] + "png";
     }
 }
 
@@ -332,9 +340,9 @@ class World{
             }
 
             //Load DefaultImages
-            imgCostelloBall = addImage("costelloball.png");
-            imgHeart = addImage("heart.png");
-            imgLevelBackground = addImage("bg_forest.png");
+            imgCostelloBall = addImage("default/costelloball.png");
+            imgHeart = addImage("default/heart.png");
+            imgLevelBackground = addImage("default/bg_forest.png");
             imgRECTAL = addImage("bricks/brickdefault.png");
     
             var checkResources = function () {
@@ -365,6 +373,14 @@ class World{
         //TODOScore?
 
     //Create Objects 
+        function createWorldsViaObjects(jsonWorlds){
+            var worlds = [];
+            jsonWorlds.forEach(function(world){
+                worlds.push(new World(world.name, world.rank, world.levels, world.colors, world.images));
+            })
+            return worlds;
+        }
+    
         //Bricks
         function createBricksViaObjects(objects){
             var bricks = [];
@@ -376,14 +392,6 @@ class World{
                                         object.lifes, object.mass, object.color, object.special));
             });
             return bricks;
-        }
-
-        function createWorldsViaObjects(jsonWorlds){
-            var worlds = [];
-            jsonWorlds.forEach(function(world){
-                worlds.push(new World(world.name, world.rank, world.levels, world.colors, world.images));
-            })
-            return worlds;
         }
 
         function createBricksWholeField() {
@@ -746,7 +754,7 @@ class World{
             for(var r = 0; r < positions.length; r++){
                 for(var c = 0; c < positions[0].length; c++){
                     let type = positions[r][c];
-                        prebricks.push( new Object ({"rowId": r,"columnId":c,"lifes": type,"mass" : 1, }));
+                    prebricks.push( new Object ({"rowId": r,"columnId":c,"lifes": type,"mass" : 1, }));
                 }
             }
             bricks = createBricksViaObjects(prebricks);
