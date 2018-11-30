@@ -80,7 +80,7 @@
         glDefault_BrickColumnCount,glDefault_BrickRowCount, glDefault_BrickWidth, glDefault_BrickHeight, 
         glDefault_BrickSegementWidth, glDefault_BrickSegementStartX, glDefault_BrickSegementHeight, glDefault_BrickSegementStartY,
         glDefault_BrickLifes, glDefaultBrickMass,
-        glDefault_imgSize,
+        glDefault_imgSize, glDefault_HeightFraction,
         glDefault_ButtonWidth, glDefault_ButtonHeight, glDefault_PauseButtonX, glDefault_PauseButtonY;
 
     const glDefault_BallLifes = 1, glDefault_PaddleLifes = 1;;
@@ -102,24 +102,12 @@
         //In welchem Anteil des Canvas sollen Bricks erzeugt werden
         let heightAreaNumerator = 4;
         let heightAreaDenominator = 7;
-        let heightFraction = heightAreaNumerator/heightAreaDenominator;
-
-        //BrickCreationDefaults
-        glDefault_BrickColumnCount = 13;                                
-        glDefault_BrickRowCount = 8;
-        glDefault_BrickSegementWidth= glWidth / glDefault_BrickColumnCount;
-        glDefault_BrickWidth = glDefault_BrickSegementWidth * 0.9;
-        glDefault_BrickSegementStartX = glDefault_BrickSegementWidth * 0.05;
-        glDefault_BrickSegementHeight = (glHeight/glDefault_BrickRowCount) * heightFraction;
-        glDefault_BrickHeight = glDefault_BrickSegementHeight * 0.8;
-        glDefault_BrickSegementStartY = glDefault_BrickSegementHeight * 0.1;
-        glDefault_BrickLifes = 1; 
-        glDefaultBrickMass = 1;
+        glDefault_HeightFraction = heightAreaNumerator/heightAreaDenominator;
 
         //Paddle & Ball
         glDefault_PaddleWidth = glWidth / 6.5;
         let suggestedPaddleHeight = 18;
-        glDefault_PaddleHeight = (glHeight * (1-heightFraction)/6 > suggestedPaddleHeight) ? suggestedPaddleHeight: suggestedPaddleHeight * heightFraction;
+        glDefault_PaddleHeight = (glHeight * (1-glDefault_HeightFraction)/6 > suggestedPaddleHeight) ? suggestedPaddleHeight: suggestedPaddleHeight * glDefault_HeightFraction;
         glDefault_PaddleX = glCenterX - (glDefault_PaddleWidth/2);
         glDefault_PaddleY= percentageGlHeight(90) - (glDefault_PaddleHeight/2);
         glDefault_PaddleDistractionMax = 2;
@@ -127,10 +115,12 @@
         glPaddleareaReflectColor = "#497F71";
         glDefault_BallDx = 0.00156 * glWidth; //0.00156 ; 0.00104
         glDefault_BallDx = (Math.random() >= 0.5) ? -glDefault_BallDx : glDefault_BallDx;
+        glDefault_BallDx = 0;
         glDefault_BallDy = 0.0068 * glHeight * - 1; //0.0068 ; 0.00454
         glDefault_BallMass = 1;
-        glDefault_BallRadius = ((glDefault_PaddleWidth * 0.08) > 14) ? glDefault_PaddleWidth * 0.08 : 14;
-        glDefault_imgSize = ((glDefault_PaddleWidth * 0.08) > 14) ? glDefault_PaddleWidth * 0.08 * 2 : 14 * 2;
+        glDefaul_minCostelloRadius = 8;
+        glDefault_BallRadius = glDefault_PaddleWidth * 0.08;
+        glDefault_imgSize = ((glDefault_PaddleWidth * 0.08) > (glDefaul_minCostelloRadius) ) ? glDefault_PaddleWidth * 0.08 * 2 : glDefaul_minCostelloRadius * 2;
         glDefault_PlayerLifes = 3;
 
         //Buttons
@@ -138,6 +128,20 @@
         glDefault_ButtonHeight= glDefault_PaddleHeight;
         glDefault_PauseButtonX= glWidth - glDefault_ButtonWidth - 5;
         glDefault_PauseButtonY= glHeight - glDefault_ButtonHeight - 5;
+    }
+
+    function recalculateBrickDefaults(columns, rows){
+        //BrickCreationDefaults
+        glDefault_BrickColumnCount = columns;                                
+        glDefault_BrickRowCount = rows;
+        glDefault_BrickSegementWidth= glWidth / glDefault_BrickColumnCount;
+        glDefault_BrickWidth = glDefault_BrickSegementWidth * 0.9;
+        glDefault_BrickSegementStartX = glDefault_BrickSegementWidth * 0.05;
+        glDefault_BrickSegementHeight = (glHeight/glDefault_BrickRowCount) * glDefault_HeightFraction;
+        glDefault_BrickHeight = glDefault_BrickSegementHeight * 0.8;
+        glDefault_BrickSegementStartY = glDefault_BrickSegementHeight * 0.1;
+        glDefault_BrickLifes = 1; 
+        glDefaultBrickMass = 1;
     }
 
 //Classes ##############################################################################################
@@ -218,11 +222,32 @@ class Brick extends AbstractElement {
         ctx.closePath();
         ctx.drawImage(this.img, this.x,this.y,this.width,this.height);
     }
+
+    //Is not in use because of performance aspecst... even if it is kinda cool
+    drawGradientRect(){
+        let withDivider = 6;
+        let heightDivider = 4;
+        let rectPart = { width:(this.width / withDivider), height: (this.height / heightDivider)};
+
+        for(var c = 0; c < this.width; c += rectPart.width){
+            let percentwidth = c / this.width;
+            for(var r = 0; r < this.height; r += rectPart.height){
+                let percentheight = r / this.height;
+                let percent = ((percentwidth + percentheight) / 2 ) * 1.5 -0.75;
+                ctx.beginPath();
+                ctx.rect(this.x + c, this.y + r, rectPart.width, rectPart.height);
+                ctx.fillStyle = shadeColor2(this.color, percent);
+                ctx.fill();
+                ctx.closePath();
+                ctx.drawImage(this.img, this.x,this.y,this.width,this.height);
+            }
+        }
+    }
 }
 
 class Ball extends AbstractElement {
-    constructor(x, y, dx, dy, radius, mass) {
-        super(ELEMENTTYPE.BALL, x, y, glDefault_BallLifes);
+    constructor(x, y, dx, dy, radius, mass, color = "#c0701f") {
+        super(ELEMENTTYPE.BALL, x, y, glDefault_BallLifes, color);
         this.dx = dx;
         this.dy = dy;
         this.radius = radius;
@@ -244,7 +269,12 @@ class Ball extends AbstractElement {
             this.x += this.dx;
             this.y += this.dy;
         }
-        this.drawCostello();
+
+        if(this.radius > glDefaul_minCostelloRadius){
+            this.drawCostello();
+        }else{
+            this.draw();
+        }
     }
 
     drawCostello(){
@@ -261,6 +291,8 @@ class Ball extends AbstractElement {
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
+        ctx.strokeStyle = "#000";
+        ctx.stroke();
         ctx.closePath();
     }
 }
@@ -419,6 +451,12 @@ class World{
             for(var i = 0; i<glPlayerLifes; i++){
                 ctx.drawImage(imgHeart,i*(difX+glDefault_imgSize)+2 ,difY, glDefault_imgSize, glDefault_imgSize);
             }
+        }
+
+        //helps to darken or to lighten a color
+        function shadeColor2(color, percent) {
+            var f = parseInt(color.slice(1), 16), t = percent < 0 ? 0 : 255, p = percent < 0 ? percent * -1 : percent, R = f >> 16, G = f >> 8 & 0x00FF, B = f & 0x0000FF;
+            return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
         }
 
         //TODOScore?
@@ -807,7 +845,7 @@ class World{
             let bricks;
             let positions = json.positions;
             //TODO hier muss eine neue recalculateDefaultsBricks() hin die infos aus positions.length und positions[0].length holt und in die default reihe und column speichert
-
+            recalculateBrickDefaults(positions[0].length, positions.length);
             let prebricks = [];
             for(var r = 0; r < positions.length; r++){
                 for(var c = 0; c < positions[0].length; c++){
@@ -815,9 +853,9 @@ class World{
                     if(type > 0){
                         let maxlifes = glWorlds[glCurrentWorld].countImages();
                         let lifes = (type % maxlifes === 0)? maxlifes : type % maxlifes; 
-                        let color = (glWorlds[glCurrentWorld].countColors() >= type)? 
-                                        glWorlds[glCurrentWorld].getColor(type) 
-                                        : glWorlds[glCurrentWorld].getColor(1);
+                        let color = (type % glWorlds[glCurrentWorld].countColors() === 0)? 
+                                        glWorlds[glCurrentWorld].getColor(0) 
+                                        : glWorlds[glCurrentWorld].getColor(type % glWorlds[glCurrentWorld].countColors());
                         let img = glWorlds[glCurrentWorld].getImage(lifes);
                         prebricks.push( new Object ({"rowId": r,"columnId":c, "lifes":lifes, "mass" : 1, "color": color, "img":img }));
                     }

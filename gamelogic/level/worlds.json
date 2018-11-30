@@ -1,7 +1,7 @@
 {
     "worlds": [
         { "name": "garden_customs" , "rank": 0 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#ea3033","#ee7b11","#f2ef0c","#00a655","#484f93","#9324c6","#ffd248"], "imageNames": ["garden_customs1", "garden_customs2", "garden_customs3", "brickdefault"]  },  
-        { "name": "forest" , "rank": 1 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#818c3c", "#25591f", "#19270d", "#72601b", "#593a0e","#19270d","#b86d2e"], "imageNames": ["brickdefault", "forest1", "forest2", "forest3"]  },
+        { "name": "forest" , "rank": 1 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#818c3c", "#25591f", "#667F51", "#72601b", "#593a0e","#19270d","#b86d2e"], "imageNames": ["brickdefault", "forest1", "forest2", "forest3"]  },
         { "name": "desert" , "rank": 2 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#f2c59f","#d88b4a","#b8860b","#cd9b1d","#2493b4","#001cb3","#280067"], "imageNames": ["brickdefault", "desert1", "desert2", "desert3"]  },
         { "name": "water" , "rank": 3 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#1b7183","#0038ff","#17324f","#175053","#217650","#eef2a6","#001cb3"], "imageNames": ["brickdefault", "water1", "water2", "water3"]  },
         { "name": "snowy" , "rank": 4 , "levels": [ "level1", "level2", "level3", "level4", "level5", "level6"], "colors": ["#f4f4f4","#eff8ff","#b1e2ff","#a4ceee","#3b0054","#fdfeff","#b5b6b5"], "imageNames": ["brickdefault", "snowy1", "snowy2", "snowy3"]  },
