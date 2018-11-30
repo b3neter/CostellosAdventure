@@ -28,7 +28,6 @@
         var glWorlds;
         var glCurrentWorld;
         var glCurrentLevel;
-        const MAXLEVELPROWORLD = 6;
         var glPlayerLifes;
     
 
@@ -57,7 +56,6 @@
         var glBolImagesLoaded;
         var imgCostelloBall;
         var imgHeart;
-        var imgRECTAL;
         var imgLevelBackground;
 
     //Keycodes (https://keycode.info/)
@@ -687,7 +685,7 @@ class World{
         switch(direction){
             case DIRECTION.NW:  //Max distraction of the ball with direction to the left
                                 resetBallToTop(ball, paddle); 
-                                ball.dx = (glDefault_BallDx + glDefault_PaddleDistractionMax)*-1 ;
+                                ball.dx = (Math.abs(glDefault_BallDx) + Math.abs(glDefault_PaddleDistractionMax))*-1 ;
                                 ball.dy *= -1; break;
             case DIRECTION.N :  //CertainPercentage doesnt just reflect with default dx and acts like NW or NO with less distraction visual: [#####_reflective middle_######]
                                 resetBallToTop(ball, paddle);
@@ -701,7 +699,7 @@ class World{
                                 ball.dy *= -1; break;
             case DIRECTION.NO:  //Max distraction of the ball with direction to the right
                                 resetBallToTop(ball, paddle);
-                                ball.dx = (glDefault_BallDx + glDefault_PaddleDistractionMax);
+                                ball.dx = (Math.abs(glDefault_BallDx) + Math.abs(glDefault_PaddleDistractionMax));
                                 ball.dy *= -1; break; 
             case DIRECTION.O :  //Max distraction of the ball with direction to the right
                                 resetBallToTop(ball, paddle);
@@ -808,6 +806,8 @@ class World{
         async function createBricksFromJSON(json){
             let bricks;
             let positions = json.positions;
+            //TODO hier muss eine neue recalculateDefaultsBricks() hin die infos aus positions.length und positions[0].length holt und in die default reihe und column speichert
+
             let prebricks = [];
             for(var r = 0; r < positions.length; r++){
                 for(var c = 0; c < positions[0].length; c++){
