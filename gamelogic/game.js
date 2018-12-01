@@ -36,7 +36,8 @@
                                             "SNOW": 2});
 
         //Bricktypes
-        const POWERUPTYPE = Object.freeze({ "GROWINGPADDLE": 1,
+        const POWERUPTYPE = Object.freeze({ "FOOD": 0,
+                                    "GROWINGPADDLE": 1,
                                     "SHRINKINGPADDLE": 2,
                                     "FASTERBALL": 3,
                                     "SLOWERBALL": 4,
@@ -57,6 +58,7 @@
         var imgCostelloBall;
         var imgHeart;
         var imgLevelBackground;
+        var imgFood;
 
     //Keycodes (https://keycode.info/)
     const KEYCODE = Object.freeze({ "ESC": 27, "P": 80, "SPACE": 32, "Enter": 13,
@@ -208,6 +210,9 @@ class Brick extends AbstractElement {
     resolveBeingHit(){
         this.lifes -= 1;
         this.img = glWorlds[glCurrentWorld].getImage(this.lifes);
+        if(this.lifes === 0){
+            createPowerUp(this.x + this.width/2, this.y + this.height/2);
+        }
     }
 
     update() {
@@ -298,25 +303,30 @@ class Ball extends AbstractElement {
 }
 
 class Powerup extends AbstractElement {
-    constructor(x, y, dy, radius, lifes, POWERUPTYPE) {
+    constructor(x, y, dy, radius, lifes, POWERUPTYPE, imgProperties = undefined) {
         super(ELEMENTTYPE.POWERUP, x, y, lifes);
-     // no dx, always falling down
         this.dy = dy;
         this.radius = radius;
         this.effect = POWERUPTYPE;
+        this.imgprop = imgProperties;
     }
 
     update() {
-        this.y += this.dy;
+        if(glGamestate !== GAMESTATE.INITIAL && glGamestate != GAMESTATE.PAUSE){
+            this.y += this.dy;
+        }
         this.draw();
     }
 
     draw() {
+        let destX = this.x - this.radius;
+        let destY = this.y - this.radius;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.closePath();
+        ctx.drawImage(this.imgprop.sprite, this.imgprop.sourceX, this.imgprop.sourceY, this.imgprop.sourceWidth, this.imgprop.sourceHeight, destX, destY, this.radius * 2, this.radius * 2);
     }
 }
 
@@ -418,6 +428,7 @@ class World{
             //Load DefaultImages
             imgCostelloBall = addImage("default/costelloball.png");
             imgHeart = addImage("default/heart.png");
+            imgFood = addImage("powerups/foodtransparent.png")
             imgLevelBackground = addImage("backgrounds/bg_world"+glWorlds[glCurrentWorld].rank+"_"+glWorlds[glCurrentWorld].name+".png");
             
             //load Worlds images
@@ -495,6 +506,34 @@ class World{
                 }
             }
             return bricks;
+        }
+
+        //Powerup
+        function createPowerUp(x,y){
+            let defaultdy = 2;
+            let defaultlifes = 1;
+            let defaultPowerUpType = POWERUPTYPE.FOOD;
+            glElements.push(new Powerup(x, y, defaultdy, glDefault_imgSize / 2, defaultlifes, defaultPowerUpType, getCoordinatesForARandomFood()));
+        };
+
+        function getCoordinatesForARandomFood(){
+            let sprite = imgFood;
+            let divider = 10;
+            let sourceX = 0;
+            let sourceY = 0;
+            let sourceWidth = 50;
+            let sourceHeight = 50;
+
+            let randomvalue1 = Math.floor(Math.random() * 10); 
+            let randomvalue2 = Math.floor(Math.random() * 10);
+
+            let facColumn = Math.floor(randomvalue1 % divider) ;
+            let facRow = Math.floor(randomvalue2 % divider);
+
+            sourceX = (facColumn * sourceWidth) + sourceX;
+            sourceY = (facRow * sourceHeight) + sourceY;
+
+            return food = new Object({"sprite":sprite, "sourceX":sourceX, "sourceY":sourceY, "sourceWidth":sourceWidth, "sourceHeight":sourceHeight});
         }
 
         //Balls
@@ -632,23 +671,34 @@ class World{
         if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BALL && element !== other){
             if(distanceBalls(element, other) <= element.radius +other.radius){
                 resolveCollision_BallBall(element,other);
+                return;
             }
         }
         if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.BRICK){
             let direction = checkCircleInRectangle(element,other)
             if(direction !== false){
                 resolveCollision_BallBrick(element,other,direction);
+                return;
             }
         }
         if(element.type === ELEMENTTYPE.BALL && other.type === ELEMENTTYPE.PADDLE){
             let direction = checkCircleInRectangle(element,other)
             if(direction !== false){
                 resolveCollision_BallPaddle(element,other,direction);
+                return;
+            }
+        }
+        if(element.type === ELEMENTTYPE.POWERUP && other.type === ELEMENTTYPE.PADDLE){
+            let direction = checkCircleInRectangle(element,other)
+            if(direction !== false){
+                resolveCollision_PowerupPaddle(element,other);
+                return;
             }
         }
     }
 
     function checkWallCollision(ball){
+        let beyondBottom = false;
         if (ball.x - ball.radius + ball.dx < 0 ||
             ball.x + ball.radius + ball.dx > glWidth) {
             //left and right
@@ -661,7 +711,7 @@ class World{
         if (ball.y - ball.radius > glHeight) {
             //bottom
             ball.lifes = 0;
-            handleBallLoss(ball);
+            beyondBottom = true;
         }
         if (ball.y - ball.radius < 0) {
             //top set ballposition in canvas
@@ -675,6 +725,7 @@ class World{
             //left set ballposition in canvas
             ball.x = ball.radius;
         }
+        return beyondBottom;
     }
 
     //resolve Collision Ball & Ball
@@ -751,6 +802,10 @@ class World{
                                 ball.dy *= -1; break;
             default: break;
         }
+    }
+
+    function resolveCollision_PowerupPaddle(powerup, paddle){
+        powerup.lifes--;
     }
 
     //resolve Collision Paddle & Powerup
@@ -908,6 +963,7 @@ class World{
     function initGlElements(){
         setGamestatus(GAMESTATE.INITIAL);
         recalculateDefaults();
+        recalculateBrickDefaults(glDefault_BrickColumnCount, glDefault_BrickRowCount);
         glElements = [];
             //Create Mainpaddle
             mainpaddle = new Paddle(glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleWidth, glDefault_PaddleHeight, "#33BB97" );
@@ -968,6 +1024,11 @@ class World{
 
             //Create Startball
             glElements.push(createBallAbovePaddle());
+
+            //Remove Existing Powerups
+            glElements = glElements.filter(function(value, index, arr){
+                return value.type !== ELEMENTTYPE.POWERUP;
+            });
         }
     }
 
@@ -1015,10 +1076,17 @@ class World{
             glElements.forEach(function (element){
                 glElements.forEach(function (other){
                     checkCollision(element, other);
+                    if(element.type === ELEMENTTYPE.BALL){
+                        if(checkWallCollision(element)){
+                            handleBallLoss(element);
+                        }
+                    }
+                    if(element.type === ELEMENTTYPE.POWERUP){
+                        if(checkWallCollision(element)){
+                            element.lifes--;
+                        }
+                    }
                 })
-                if(element.type === ELEMENTTYPE.BALL){
-                    checkWallCollision(element);
-                }
             });
         }
 
