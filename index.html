@@ -70,7 +70,7 @@
             y() {
                 return this.y
             }
-            undraw(){
+            undraw() {
                 this.x = 0;
                 this.y = 0;
                 this.width = 0;
@@ -104,7 +104,7 @@
             levelbutton = addImage("assets/images/mainmenu/levelbutton.png");
             creditsbutton = addImage("assets/images/mainmenu/creditsbutton.png");
             manualbutton = addImage("assets/images/mainmenu/manualbutton.png");
-            mainmenubutton = addImage("assets(images/mainmenu/mainmenubutton.png");
+            mainmenubutton = addImage("assets/images/mainmenu/mainmenubutton.png");
 
 
             var checkResources = function () {
@@ -149,23 +149,32 @@
         }
 
         function drawButtons() {
-            
-                //                  image        x             y              width         height(=width)
-                start = new Button(startbutton, glWidth / 3, glHeight / 10, glWidth / 20, glWidth / 20, 1);
-                level = new Button(levelbutton, glWidth / 3, glHeight / 5, glWidth / 20, glWidth / 20, 1);
-                manual = new Button(manualbutton, glWidth / 3, glHeight / 3.5, glWidth / 20, glWidth / 20, 1);
-                credits = new Button(creditsbutton, glWidth / 3, glHeight / 2.6, glWidth / 20, glWidth / 20, 1);
-                mainmenu  = new Button(mainmenubutton, 0, 0, 0, 0, 0);
-               
-            
-            
-                start.draw();
-                level.draw();
-                manual.draw();
-                credits.draw();
-                mainmenu.draw();
-            
-      
+
+            var buttonsize = 0;
+            var startheight  = glHeight/10;
+            // min size
+            if (glWidth > 959) {
+                buttonsize = 64 ;
+                console.log("IF", glWidth);
+            }
+            else { buttonsize = 32;
+                console.log("ELSE",glWidth)};
+
+
+            //                  image        x             y              width         height(=width)
+            start = new Button(startbutton, glWidth / 3, startheight, buttonsize, buttonsize, 1);
+            level = new Button(levelbutton, glWidth / 3, startheight+buttonsize*1.5, buttonsize, buttonsize, 1);
+            manual = new Button(manualbutton, glWidth / 3, startheight+buttonsize*3, buttonsize, buttonsize, 1);
+            credits = new Button(creditsbutton, glWidth / 3, startheight+buttonsize*4.5, buttonsize, buttonsize, 1);
+            mainmenu = new Button(mainmenubutton, 0, 0, 0, 0, 0);
+
+            start.draw();
+            level.draw();
+            manual.draw();
+            credits.draw();
+            mainmenu.draw();
+
+
 
         }
 
@@ -218,15 +227,15 @@
                 event.y > level.y &&
                 event.y < level.y + level.height
             ) {
-                //window.open("./levelselect.html", "_self");
-                console.log = (start.x,event.x);
-                start.x = 0;
-                start.y = 0;
-                mainmenu.x = glWidth / 3;
-                mainmenu.y= glHeight / 2.6;
-                mainmenu.width = glWidth / 20;
-                mainmenu.height = glWidth / 20;
-                console.log = (start.x); 
+                window.open("./levelselect.html", "_self");
+                /*  console.log = (start.x,event.x);
+                 start.x = 0;
+                 start.y = 0;
+                 mainmenu.x = glWidth / 3;
+                 mainmenu.y= glHeight / 2.6;
+                 mainmenu.width = buttonsize;
+                 mainmenu.height = buttonsize;
+                 console.log = (start.x);  */
             };
             if ( //Manuals
                 event.x > manual.x &&

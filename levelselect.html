@@ -22,157 +22,32 @@
 </head>
 
 <body>
-
-    <canvas id="levelSelectorCanvas"></canvas>
+ 
     <audio autoplay loop>
         <source src="./assets/audio/music/a05_windbluffs.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
-    <script>
+ <img src="assets/images/mainmenu/map.png" usemap="#image-map">
 
-        //Basierend auf
-        //https://www.quora.com/JavaScript-Can-I-put-a-button-inside-a-canvas
-        //Demo aus der Vorlesung
-        var levelSelectorCanvas = document.getElementById('levelSelectorCanvas');
-        var ctx = levelSelectorCanvas.getContext("2d");
-        var bg;
-        var bird;
-        var returnbutton;
-        var level;
-        var glWidth = window.innerWidth;
-        var glHeight = window.innerHeight;
-        levelSelectorCanvas.width = glWidth;
-        levelSelectorCanvas.height = glHeight;
-        var canvasPos = getPosition(canvas);
-        var mouseX = 0;
-        var mouseY = 0;
+<map name="image-map">
+    <area target="_self" alt="Forrest" title="Forest" href="./gamelogic/game.html?world=1&amp;level=1"         coords="354,162,405,180" shape="rect">
+    <area target="_self" alt="Village" title="Village" href="./gamelogic/game.html?world=8&amp;level=1"         coords="478,166,531,188" shape="0">
+    <area target="_self" alt="Desert" title="Desert" href="./gamelogic/game.html?world=2&amp;level=1"           coords="548,215,602,240" shape="0">
+    <area target="_self" alt="Mountain" title="Mountain" href="./gamelogic/game.html?world=5&amp;level=1"       coords="763,215,691,190" shape="0">
+    <area target="_self" alt="Snowy" title="Snowy" href="./gamelogic/game.html?world=4&amp;level=1"             coords="780,230,831,252" shape="0">
+    <area target="_self" alt="Underwater" title="Underwater" href="./gamelogic/game.html?world=3&amp;level=1"   coords="107,271,194,291" shape="0">
+    <area target="_self" alt="Vulcan" title="Vulcan" href="./gamelogic/game.html?world=7&amp;level=1"           coords="207,301,262,317" shape="0">
+    <area target="_self" alt="Universe" title="Universe" href="./gamelogic/game.html?world=10&amp;level=1"      coords="128,323,195,349" shape="0">
+    <area target="_self" alt="Heaven" title="Heaven" href="./gamelogic/game.html?world=6&amp;level=1"           coords="368,365,432,397" shape="0">
+    <area target="_self" alt="Castle" title="Castle" href="./gamelogic/game.html?world=9&amp;level=1"           coords="488,418,550,458" shape="0">
+    <area target="_self" alt="The Unknown Land" title="The Unknown Land" href="./gamelogic/game.html?world=0"   coords="531,334,670,351" shape="0">  <!-- Absprung load level-->
 
 
+ <img src="map.png" usemap="#image-map">
 
 
-
-        preloadAssets();
-        // Preload
-        function preloadAssets() {
-            var _toPreload = 0;
-
-            var addImage = function (src) {
-
-                var img = new Image();
-                img.src = src;
-                _toPreload++;
-
-                img.addEventListener('load', function () {
-                    _toPreload--;
-                }, false);
-                return img;
-            }
-            bg = addImage("assets/images/mainmenu/bg-menu.png");
-            bird = addImage("assets/images/mainmenu/costelloball.png");
-            returnbutton = addImage("assets/images/mainmenu/mainmenubutton.png");
-
-            var checkResources = function () {
-                if (_toPreload == 0)
-                    draw(); //6
-                else
-                    setTimeout(checkResources, 200);
-            }
-            checkResources();
-        }
-
-        // Get Position https://www.kirupa.com/canvas/follow_mouse_cursor.htm
-        function getPosition(el) {
-            var xPosition = 0;
-            var yPosition = 0;
-
-            while (el) {
-                xPosition += (el.offsetLeft - el.scrollLeft + el.clientLeft);
-                yPosition += (el.offsetTop - el.scrollTop + el.clientTop);
-                el = el.offsetParent;
-            }
-            return {
-                x: xPosition,
-                y: yPosition
-            };
-        }
-
-
-        // Get canvas element and its context
-        var canvas = document.getElementById('levelSelectorCanvas')
-        var ctx = canvas.getContext('2d');
-
-        // Button position and dimensions hard coded, to be resizeable
-        var returnbuttonX = (glWidth / 2);
-        var returnbuttonY = 100;
-        var returnbuttonW = 200;
-        var returnbuttonH = 90;
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawBackground();
-            drawButtons();
-            drawbird();
-            requestAnimationFrame(draw);
-        }
-
-        function drawButtons() {
-            ctx.drawImage(returnbutton, returnbuttonX, returnbuttonY, returnbuttonW, returnbuttonH);
-        }
-
-        function drawBackground() {
-            ctx.drawImage(bg, 0, 0, glWidth, glHeight);
-        }
-
-        function drawbird() {
-            ctx.drawImage(bird, mouseX-30, mouseY-30, 30, 30);
-        }
-
-
-
-        // Draw
-
-        draw();
-
-
-        //resize
-        function onResize(event) {
-            glWidth = window.innerWidth;
-            glHeight = window.innerHeight;
-            levelSelectorCanvas.width = glWidth;
-            levelSelectorCanvas.height = glHeight;
-
-        }
-        // Add event listener to canvas element
-        canvas.addEventListener("mousemove", function (event) {
-            mouseX = event.clientX - canvasPos.x;
-            mouseY = event.clientY - canvasPos.y;
-        });
-        window.addEventListener('resize', function (event) { onResize(event) }, false);
-        canvas.addEventListener('click', function (event) {
-                // Control that click event occurred within position of button
-                // NOTE: This assumes canvas is positioned at top left corner 
-
-                if (  //Return
-                    event.x > returnbuttonX &&
-                    event.x < returnbuttonX + returnbuttonW &&
-                    event.y > returnbuttonY &&
-                    event.y < returnbuttonY + returnbuttonH
-                ) {
-                    window.open("./index.html", "_self");
-                    };
-                if ( //Levelselect
-                    event.x > startbuttonX &&
-                    event.x < startbuttonX + startbuttonW &&
-                    event.y > levelbuttonY &&
-                    event.y < levelbuttonY + startbuttonH
-                ){
-                    window.open("./levelselect.html", "_self");
-                }; 
-                
-            });
-
-    </script>
-</body>
+</map> 
+</body >
 
 </html>
