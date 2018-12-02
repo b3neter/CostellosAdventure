@@ -46,12 +46,22 @@
 
     //GameAssets bzw. Pfade
     const ASSETSPATH = "../assets/";
+    const SOUNDPATH = ASSETSPATH +"audio/sounds/";
+    const MUSICPATH = ASSETSPATH +"audio/music/";
     const IMAGESPATH = ASSETSPATH +"images/";
     const WORLDJSONPATH = "level/worlds.json"
     const WORLDBASEPATH = "level/world"
     
         //TODO Music
-        var backgroundLeveltheme;
+        var glBackgroundmusic = new Audio();
+        var soundBallHitsPaddle = new Audio();
+        var soundLifeLost = new Audio();
+        var soundHitWall = new Audio();
+        var soundBrickCracks = new Audio();
+        var soundPowerupReceived = new Audio();
+        var soundFoodReceived = new Audio();
+        var soundGameOver = new Audio();
+        var soundVictory = new Audio();
 
         //Images
         var glBolImagesLoaded;
@@ -79,6 +89,7 @@
         glDecimalPercentOfPaddleWhichReflects, glPaddleareaReflectColor,
         glDefault_BallDx, glDefault_BallDy, glDefault_BallRadius, glDefault_BallMass,
         glDefault_PlayerLifes,
+        glDefault_PowerupDy, glDefault_PowerupLifes,
         glDefault_BrickColumnCount,glDefault_BrickRowCount, glDefault_BrickWidth, glDefault_BrickHeight, 
         glDefault_BrickSegementWidth, glDefault_BrickSegementStartX, glDefault_BrickSegementHeight, glDefault_BrickSegementStartY,
         glDefault_BrickLifes, glDefaultBrickMass,
@@ -117,13 +128,16 @@
         glPaddleareaReflectColor = "#497F71";
         glDefault_BallDx = 0.00156 * glWidth; //0.00156 ; 0.00104
         glDefault_BallDx = (Math.random() >= 0.5) ? -glDefault_BallDx : glDefault_BallDx;
-        glDefault_BallDx = 0;
         glDefault_BallDy = 0.0068 * glHeight * - 1; //0.0068 ; 0.00454
         glDefault_BallMass = 1;
         glDefaul_minCostelloRadius = 8;
         glDefault_BallRadius = glDefault_PaddleWidth * 0.08;
         glDefault_imgSize = ((glDefault_PaddleWidth * 0.08) > (glDefaul_minCostelloRadius) ) ? glDefault_PaddleWidth * 0.08 * 2 : glDefaul_minCostelloRadius * 2;
         glDefault_PlayerLifes = 3;
+
+        //Powerup
+        glDefault_PowerupDy = Math.abs(glDefault_BallDy * 0.5);
+        glDefault_PowerupLifes = 1;
 
         //Buttons
         glDefault_ButtonWidth = glWidth / 16;
@@ -211,7 +225,7 @@ class Brick extends AbstractElement {
         this.lifes -= 1;
         this.img = glWorlds[glCurrentWorld].getImage(this.lifes);
         if(this.lifes === 0){
-            createPowerUp(this.x + this.width/2, this.y + this.height/2);
+            createFoodPowerup(this.x + this.width/2, this.y + this.height/2);
         }
     }
 
@@ -321,11 +335,11 @@ class Powerup extends AbstractElement {
     draw() {
         let destX = this.x - this.radius;
         let destY = this.y - this.radius;
-        ctx.beginPath();
+        /*ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.closePath();
+        ctx.closePath();*/
         ctx.drawImage(this.imgprop.sprite, this.imgprop.sourceX, this.imgprop.sourceY, this.imgprop.sourceWidth, this.imgprop.sourceHeight, destX, destY, this.radius * 2, this.radius * 2);
     }
 }
@@ -351,11 +365,12 @@ class Button extends AbstractElement {
 }
 
 class World{
-    constructor(name, rank, levels, colors, imageNames){
+    constructor(name, rank, levels, bgmusic, colors, imageNames){
         this.name = name;
         this.rank = rank;
         this.path = WORLDBASEPATH+this.rank+"_"+this.name +"/";
         this.levels = levels;
+        this.bgmusic = bgmusic;
         this.colors = colors;
         this.imageNames = imageNames;
         this.imageFiles;
@@ -451,7 +466,44 @@ class World{
         //TODO sprite next frame on framerate
 
     //Music Loading, pause, restart
-    //TODO
+        //load music
+        function loadSounds(){
+            soundBallHitsPaddle.src = SOUNDPATH + "bird.mp3";
+            soundLifeLost.src = SOUNDPATH + "lifelost.mp3";
+            soundHitWall.src = SOUNDPATH + "hit.mp3";
+            soundBrickCracks.src = SOUNDPATH + "hit2.mp3";
+            soundPowerupReceived.src = SOUNDPATH + "gotItem.mp3";
+            soundFoodReceived.src = SOUNDPATH +"gained.mp3";
+            soundVictory.src = SOUNDPATH + "victory.mp3";
+            soundGameOver.src = SOUNDPATH + "gameover.mp3";
+        }
+
+        function loadBackgroundMusic(){
+            glBackgroundmusic.src = MUSICPATH + glWorlds[glCurrentWorld].bgmusic + ".mp3";
+            glBackgroundmusic.volume = 0.5;
+            glBackgroundmusic.loop = true;
+        }
+
+        function playBackgroundMusicDependingOnGameState(){
+            if(glGamestate === GAMESTATE.PAUSE){
+                glBackgroundmusic.pause();
+            }else{
+                let promise = glBackgroundmusic.play();
+                if (promise !== undefined) {
+                    promise.then(_ => {
+                      // Autoplay started!
+                    }).catch(error => {
+                      console.log("User has to interact with the document to play Audio", error)
+                    });
+                  }
+
+            }
+        }
+
+        function playSound(audio){
+            audio.currentTime = 0;
+            audio.play();
+        }
 
     //Drawing
         //Lifes
@@ -462,6 +514,11 @@ class World{
             for(var i = 0; i<glPlayerLifes; i++){
                 ctx.drawImage(imgHeart,i*(difX+glDefault_imgSize)+2 ,difY, glDefault_imgSize, glDefault_imgSize);
             }
+        }
+
+        //Background
+        function drawBackground() {
+            ctx.drawImage(imgLevelBackground, 0, 0, glWidth, glHeight);
         }
 
         //helps to darken or to lighten a color
@@ -476,7 +533,7 @@ class World{
         function createWorldsViaObjects(jsonWorlds){
             var worlds = [];
             jsonWorlds.forEach(function(world){
-                worlds.push(new World(world.name, world.rank, world.levels, world.colors, world.imageNames));
+                worlds.push(new World(world.name, world.rank, world.levels, world.bgmusic, world.colors, world.imageNames));
             })
             return worlds;
         }
@@ -509,11 +566,8 @@ class World{
         }
 
         //Powerup
-        function createPowerUp(x,y){
-            let defaultdy = 2;
-            let defaultlifes = 1;
-            let defaultPowerUpType = POWERUPTYPE.FOOD;
-            glElements.push(new Powerup(x, y, defaultdy, glDefault_imgSize / 2, defaultlifes, defaultPowerUpType, getCoordinatesForARandomFood()));
+        function createFoodPowerup(x,y){
+            glElements.push(new Powerup(x, y, glDefault_PowerupDy, glDefault_imgSize / 2, glDefault_PowerupLifes, POWERUPTYPE.FOOD, getCoordinatesForARandomFood()));
         };
 
         function getCoordinatesForARandomFood(){
@@ -678,6 +732,7 @@ class World{
             let direction = checkCircleInRectangle(element,other)
             if(direction !== false){
                 resolveCollision_BallBrick(element,other,direction);
+                playSound(soundBrickCracks);
                 return;
             }
         }
@@ -685,6 +740,7 @@ class World{
             let direction = checkCircleInRectangle(element,other)
             if(direction !== false){
                 resolveCollision_BallPaddle(element,other,direction);
+                playSound(soundBallHitsPaddle);
                 return;
             }
         }
@@ -692,19 +748,27 @@ class World{
             let direction = checkCircleInRectangle(element,other)
             if(direction !== false){
                 resolveCollision_PowerupPaddle(element,other);
+                if(element.effect === POWERUPTYPE.FOOD){
+                    playSound(soundFoodReceived);
+                }else{
+                    playSound(soundPowerupReceived);
+                }
                 return;
             }
         }
     }
 
     function checkWallCollision(ball){
+        let hitWall = false;
         let beyondBottom = false;
         if (ball.x - ball.radius + ball.dx < 0 ||
             ball.x + ball.radius + ball.dx > glWidth) {
+            hitWall = true;
             //left and right
             ball.dx *= -1;
         }
         if (ball.y - ball.radius + ball.dy < 0) {
+            hitWall = true;
             //top
             ball.dy *= -1;
         }
@@ -724,6 +788,9 @@ class World{
         if (ball.x - ball.radius < 0) {
             //left set ballposition in canvas
             ball.x = ball.radius;
+        }
+        if(hitWall){
+            playSound(soundHitWall);
         }
         return beyondBottom;
     }
@@ -932,7 +999,10 @@ class World{
             }else{
                 preloadImageAssets(glCurrentLevel);
             }
-            document.title = glWorlds[glCurrentWorld].name;
+            if(glBackgroundmusic.src === ""){
+                loadBackgroundMusic();
+            }
+            document.title = glWorlds[glCurrentWorld].name + " " + glWorlds[glCurrentWorld].levels[glCurrentLevel-1];
             loadLevelFromJson(glWorlds[glCurrentWorld].getLevelPath(glCurrentLevel));
         }
 
@@ -941,6 +1011,7 @@ class World{
             if(glCurrentLevel + 1 > glWorlds[glCurrentWorld].countLevel()){
                 glCurrentWorld = parseInt(glCurrentWorld)+1;
                 glCurrentLevel = 0;
+                loadBackgroundMusic();
             }
             glCurrentLevel = parseInt(glCurrentLevel)+1;
             loadLevelFromUrl();
@@ -964,6 +1035,7 @@ class World{
         setGamestatus(GAMESTATE.INITIAL);
         recalculateDefaults();
         recalculateBrickDefaults(glDefault_BrickColumnCount, glDefault_BrickRowCount);
+        loadSounds();
         glElements = [];
             //Create Mainpaddle
             mainpaddle = new Paddle(glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleWidth, glDefault_PaddleHeight, "#33BB97" );
@@ -1003,51 +1075,63 @@ class World{
         });
     }
 
+    //Create a new Ball if there are no existing Balls and decrease the players life by one
     function initOnZeroBallsLevel(){
-        let balls = glElements.filter(function(value, index, arr){
-            return value.type === ELEMENTTYPE.BALL;
+        //Change Gamestate
+        setGamestatus(GAMESTATE.INITIAL);
+
+        glPlayerLifes--;
+        playSound(soundLifeLost);
+
+        //Create Startball
+        glElements.push(createBallAbovePaddle());
+
+        //Remove Existing Powerups
+        glElements = glElements.filter(function(value, index, arr){
+            return value.type !== ELEMENTTYPE.POWERUP;
         });
-        
-        let newBallneeded = true;
-        balls.forEach(function(ball){
-            if(ball.lifes > 0){
-                newBallneeded = false;
-            }
-        })
-        
-        //Create a new Ball if there are no existing Balls and decrease the players life by one
-        if(newBallneeded){
-            //Change Gamestate
-            setGamestatus(GAMESTATE.INITIAL);
-
-            glPlayerLifes--;
-
-            //Create Startball
-            glElements.push(createBallAbovePaddle());
-
-            //Remove Existing Powerups
-            glElements = glElements.filter(function(value, index, arr){
-                return value.type !== ELEMENTTYPE.POWERUP;
-            });
-        }
     }
 
     //Handle Ball Off & GameOver
     function handleBallLoss(){
         if(glPlayerLifes>1){
-            initOnZeroBallsLevel();
+            let balls = glElements.filter(function(value, index, arr){
+                return value.type === ELEMENTTYPE.BALL;
+            });
+            
+            let newBallneeded = true;
+            balls.forEach(function(ball){
+                if(ball.lifes > 0){
+                    newBallneeded = false;
+                }
+            })
+
+            if(newBallneeded){
+                initOnZeroBallsLevel();
+            }
         }else{
-            let restart = confirm("Restart");
-            if(restart){ initOnStartOfGame()};
+            handleGameOver();
         }
     }
-    
-    function drawBackground() {
-        ctx.drawImage(imgLevelBackground, 0, 0, glWidth, glHeight);
+
+    function handlePowerupLoss(powerup){
+        powerup.lifes--;
     }
 
-    //MAIN-Gameloop
+    function handleGameOver(){
+        playSound(soundGameOver);
+        let restart = confirm("Restart");
+        if(restart){ 
+            initOnStartOfGame();
+        }
+    }
+
+    function handleVictory(){
+        playSound(soundVictory);
+        initOnStartOfLevel();
+    }
     
+    //MAIN-Gameloop
     function animate() {
         requestAnimationFrame(animate);
         
@@ -1076,17 +1160,17 @@ class World{
             glElements.forEach(function (element){
                 glElements.forEach(function (other){
                     checkCollision(element, other);
-                    if(element.type === ELEMENTTYPE.BALL){
-                        if(checkWallCollision(element)){
-                            handleBallLoss(element);
-                        }
-                    }
-                    if(element.type === ELEMENTTYPE.POWERUP){
-                        if(checkWallCollision(element)){
-                            element.lifes--;
-                        }
-                    }
                 })
+                if(element.type === ELEMENTTYPE.BALL){
+                    if(checkWallCollision(element)){
+                        handleBallLoss(element);
+                    }
+                }
+                if(element.type === ELEMENTTYPE.POWERUP){
+                    if(checkWallCollision(element)){
+                        handlePowerupLoss(element);
+                    }
+                }
             });
         }
 
@@ -1097,7 +1181,9 @@ class World{
         });
         glElements = existingElements;
 
-        
+        //BackgroundMusic
+        playBackgroundMusicDependingOnGameState();
+
         //Drawing
         if(glBolImagesLoaded){
             //Draw LevelSpecific Images
@@ -1119,11 +1205,11 @@ class World{
         }    
             
         //Check Victory
-        let bricks = glElements.filter(function(value, index, arr){
-            return value.type === ELEMENTTYPE.BRICK;
+        let bricksAndPowerups = glElements.filter(function(value, index, arr){
+            return value.type === ELEMENTTYPE.BRICK || value.type === ELEMENTTYPE.POWERUP;
         });
-        if((bricks.length === 0 || bricks === undefined) && glGamestate !== GAMESTATE.INITIAL){
-            initOnStartOfLevel();
+        if((bricksAndPowerups.length === 0 || bricksAndPowerups === undefined) && glGamestate !== GAMESTATE.INITIAL){
+            handleVictory();
         }
     }
     
