@@ -32,17 +32,29 @@
         var glPlayerLifes;
         var glScore;
 
-        //Bricktypes
+        //POWERUPS
+        var magmaballactivated = false;
+
         const POWERUPTYPE = Object.freeze({ "FOOD": 0,
-                                    "GROWINGPADDLE": 1,
-                                    "SHRINKINGPADDLE": 2,
+                                    "PADDLEINCREASER": 1,
+                                    "PADDLEDECREASER": 2,
                                     "FASTERBALL": 3,
                                     "SLOWERBALL": 4,
                                     "LIFEINCREASER": 5,
-                                    "LIFEDECREASER": 6});
+                                    "LIFEDECREASER": 6,
+                                    "ADDBALL": 7,
+                                    "MAGMABALL": 8});
 
-        const POWERUPTYPEBYNAME = new Map([ ["increasepotion", POWERUPTYPE.LIFEINCREASER],
-                                            ["decreasepotion", POWERUPTYPE.LIFEDECREASER]]);
+        const POWERUPTYPEBYNAME = new Map([ ["foodtransparent", POWERUPTYPE.FOOD],
+                                            ["increasesize", POWERUPTYPE.PADDLEINCREASER],
+                                            ["decreasesize", POWERUPTYPE.PADDLEDECREASER],
+                                            ["increasespeed", POWERUPTYPE.FASTERBALL],
+                                            ["decreasespeed", POWERUPTYPE.SLOWERBALL],
+                                            ["increaselife", POWERUPTYPE.LIFEINCREASER],
+                                            ["decreaselife", POWERUPTYPE.LIFEDECREASER],
+                                            ["addball", POWERUPTYPE.ADDBALL],
+                                            ["magmaball", POWERUPTYPE.MAGMABALL]]);
+
 
     //GameAssets bzw. Pfade
     const ASSETSPATH = "../assets/";
@@ -60,6 +72,7 @@
         var soundBrickCracks = new Audio();
         var soundPowerupReceived = new Audio();
         var soundFoodReceived = new Audio();
+        var soundExplosion = new Audio();
         var soundGameOver = new Audio();
         var soundVictory = new Audio();
 
@@ -149,9 +162,9 @@
         glDefault_PowerupLifes = 1;
         glDefault_PowerupPointsFood = 50;
         glDefault_PowerupPointsNonFood = 0;
-        glPowerupProbability = 0.95;
-        glDefault_PowerupWidth = 16;
-        glDefault_PowerupHeight = 16;
+        glPowerupProbability = 0.12;
+        glDefault_PowerupWidth = 32;
+        glDefault_PowerupHeight = 32;
 
         //Buttons
         glDefault_ButtonWidth = glWidth / 16;
@@ -238,7 +251,7 @@ class Brick extends AbstractElement {
     resolveBeingHit(){
         this.lifes -= 1;
         this.img = glWorlds[glCurrentWorld].getBrickImage(this.lifes);
-        if(Math.random()<= glPowerupProbability){
+        if(Math.random()<= glPowerupProbability && !magmaballactivated){
             createRandomPowerup(this.x + this.width/2 * 0.5, this.y + this.height/2 * 0.5);
         }
         if(this.lifes === 0){
@@ -358,7 +371,11 @@ class Powerup extends AbstractElement {
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.closePath();*/
-        ctx.drawImage(this.imgprop.sprite, this.imgprop.sourceX, this.imgprop.sourceY, this.imgprop.sourceWidth, this.imgprop.sourceHeight, destX, destY, this.radius * 2, this.radius * 2);
+        let widthAndHeight = this.radius * 2;
+        if(this.type !== POWERUPTYPE.FOOD){
+            widthAndHeight *= 0.75;
+        }
+        ctx.drawImage(this.imgprop.sprite, this.imgprop.sourceX, this.imgprop.sourceY, this.imgprop.sourceWidth, this.imgprop.sourceHeight, destX, destY, widthAndHeight, widthAndHeight);
     }
 }
 
@@ -523,6 +540,7 @@ class World{
             soundBrickCracks.src = SOUNDPATH + "hit2.mp3";
             soundPowerupReceived.src = SOUNDPATH + "gotItem.mp3";
             soundFoodReceived.src = SOUNDPATH +"gained.mp3";
+            soundExplosion.src = SOUNDPATH +"explosion.mp3";
             soundVictory.src = SOUNDPATH + "victory.mp3";
             soundGameOver.src = SOUNDPATH + "gameover.mp3";
         }
@@ -826,11 +844,6 @@ class World{
             let direction = checkCircleInRectangle(element,other)
             if(direction !== false){
                 resolveCollision_PowerupPaddle(element,other);
-                if(element.poweruptype === POWERUPTYPE.FOOD){
-                    playSound(soundFoodReceived);
-                }else{
-                    playSound(soundPowerupReceived);
-                }
                 return;
             }
         }
@@ -897,16 +910,18 @@ class World{
     //resolve Collision Ball & Brick
     function resolveCollision_BallBrick(ball, brick, direction){
         brick.resolveBeingHit();
-        switch(direction){
-            case DIRECTION.N : ball.dy *= -1; resetBallToTop(ball, brick); break;
-            case DIRECTION.S : ball.dy *= -1; resetBallToBottom(ball, brick); break;
-            case DIRECTION.O : ball.dx *= -1; resetBallToRight(ball, brick); break;
-            case DIRECTION.W : ball.dx *= -1; resetBallToLeft(ball, brick); break;
-            case DIRECTION.NW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy)*-1; resetBallToLeft(ball, brick); resetBallToTop(ball, brick); break; 
-            case DIRECTION.SW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy); resetBallToLeft(ball, brick); resetBallToBottom(ball, brick); break;
-            case DIRECTION.SO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy); resetBallToRight(ball, brick); resetBallToBottom(ball, brick); break;
-            case DIRECTION.NO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy)*-1; resetBallToRight(ball, brick); resetBallToTop(ball, brick); break;
-            default: break;
+        if(!magmaballactivated){
+            switch(direction){
+                case DIRECTION.N : ball.dy *= -1; resetBallToTop(ball, brick); break;
+                case DIRECTION.S : ball.dy *= -1; resetBallToBottom(ball, brick); break;
+                case DIRECTION.O : ball.dx *= -1; resetBallToRight(ball, brick); break;
+                case DIRECTION.W : ball.dx *= -1; resetBallToLeft(ball, brick); break;
+                case DIRECTION.NW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy)*-1; resetBallToLeft(ball, brick); resetBallToTop(ball, brick); break; 
+                case DIRECTION.SW: ball.dx = Math.abs(ball.dx)*-1 ; ball.dy = Math.abs(ball.dy); resetBallToLeft(ball, brick); resetBallToBottom(ball, brick); break;
+                case DIRECTION.SO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy); resetBallToRight(ball, brick); resetBallToBottom(ball, brick); break;
+                case DIRECTION.NO: ball.dx = Math.abs(ball.dx); ball.dy = Math.abs(ball.dy)*-1; resetBallToRight(ball, brick); resetBallToTop(ball, brick); break;
+                default: break;
+            }
         }
     }
 
@@ -930,7 +945,7 @@ class World{
                                 }else{
                                     ball.dx = (ball.dx < 0)? Math.abs(glDefault_BallDx)*-1 :Math.abs(glDefault_BallDx);
                                 }
-                                ball.dy *= -1; break;
+                                ball.dy = -1 * Math.abs(glDefault_BallDy); break;
             case DIRECTION.NO:  //Max distraction of the ball with direction to the right
                                 resetBallToTop(ball, paddle);
                                 ball.dx = (Math.abs(glDefault_BallDx) + Math.abs(glDefault_PaddleDistractionMax));
@@ -952,19 +967,61 @@ class World{
     function resolveCollision_PowerupPaddle(powerup, paddle){
         powerup.lifes--;
         switch (powerup.poweruptype){
-            case POWERUPTYPE.FOOD: handlePowerupFood(powerup); break;
-            case POWERUPTYPE.FASTERBALL: console.log ("Schneller Ball"); break;
-            case POWERUPTYPE.GROWINGPADDLE: console.log ("Groesseres Paddle"); break;
-            case POWERUPTYPE.LIFEINCREASER: handlePowerupLifeIncreaser(powerup); break;
-            case POWERUPTYPE.LIFEDECREASER: handlePowerupLifeDecreaser(powerup); break;
-            case POWERUPTYPE.SHRINKINGPADDLE: console.log ("Kleineres Paddle"); break;
-            case POWERUPTYPE.SLOWERBALL: console.log ("Langsamer Ball"); break;
+            case POWERUPTYPE.FOOD: handlePowerupFood(powerup); playSound(soundFoodReceived); playSound(soundFoodReceived); break;
+            case POWERUPTYPE.PADDLEINCREASER: handlePowerupPaddleIncreaser(powerup); playSound(soundPowerupReceived); break;
+            case POWERUPTYPE.PADDLEDECREASER: handlePowerupPaddleDecreaser(powerup) ; playSound(soundPowerupReceived); break;
+            case POWERUPTYPE.FASTERBALL: handlePowerupFasterBall(powerup) ; playSound(soundPowerupReceived); break;
+            case POWERUPTYPE.SLOWERBALL: handlePowerupSlowerBall(powerup) ; playSound(soundPowerupReceived); break;
+            case POWERUPTYPE.LIFEINCREASER: handlePowerupLifeIncreaser(powerup); playSound(soundPowerupReceived); break;
+            case POWERUPTYPE.LIFEDECREASER: handlePowerupLifeDecreaser(powerup); playSound(soundExplosion); break;
+            case POWERUPTYPE.ADDBALL: handlePowerupAddBall(powerup); playSound(soundPowerupReceived); break;
+            case POWERUPTYPE.MAGMABALL: handlePowerupMagmaBall(powerup); playSound(soundPowerupReceived); break;
         } 
     }
 
 //PowerupHandling#######################################################################################
     function handlePowerupFood(powerup){
         glScore+= powerup.points;
+    }
+
+    function handlePowerupPaddleIncreaser(powerup){
+        paddles = glElements.filter(function(value, index, arr){
+            return value.type === ELEMENTTYPE.PADDLE;
+        });
+
+        paddles.forEach(function(paddle){
+            paddle.width *= (paddle.width > glDefault_PaddleWidth * 2)? 1.05 : 1.25;
+        })
+    }
+
+    function handlePowerupPaddleDecreaser(powerup){
+        paddles = glElements.filter(function(value, index, arr){
+            return value.type === ELEMENTTYPE.PADDLE;
+        });
+
+        paddles.forEach(function(paddle){
+            paddle.width *= (paddle.width < glDefault_PaddleWidth/2)? 0.95 : 0.75;
+        })
+    }
+
+    function handlePowerupFasterBall(powerup){
+        balls = glElements.filter(function(value, index, arr){
+            return value.type === ELEMENTTYPE.BALL;
+        });
+
+        balls.forEach(function(ball){
+            ball.dy *= ( ball.dy > glDefault_BallDy*2.5) ? 1.1 : 1.6;
+        })
+    }
+
+    function handlePowerupSlowerBall(powerup){
+        balls = glElements.filter(function(value, index, arr){
+            return value.type === ELEMENTTYPE.BALL;
+        });
+
+        balls.forEach(function(ball){
+            ball.dy *= ( ball.dy < glDefault_BallDy/2) ? 0.9 : 0.6;
+        })
     }
 
     function handlePowerupLifeIncreaser(powerup){
@@ -978,6 +1035,15 @@ class World{
             handleGameOver();
         }
         glPlayerLifes -= 1;
+    }
+
+    function handlePowerupAddBall(powerup){
+        setTimeout(function(){ glElements.push(createBallAbovePaddle());}, 750)
+    }
+
+    function handlePowerupMagmaBall(powerup){
+        magmaballactivated = true;
+        setTimeout(function(){ magmaballactivated = false;}, 3000);
     }
 
 //PauseMenu related things #############################################################################
@@ -1032,8 +1098,19 @@ class World{
     function onKeyDown(event){
         switch (event.keyCode) {
             case KEYCODE.P: pause(); break;
-            case KEYCODE.SPACE: setGamestatus(GAMESTATE.RUNNING);
+            case KEYCODE.ESC: handleEscape(); break;
+            case KEYCODE.SPACE: setGamestatus(GAMESTATE.RUNNING); break;
             default: break;
+        }
+    }
+
+    function handleEscape(){
+        pause();
+        let wannaquit = confirm("Do you want to leave the Level and return to the game menu?");
+        if(wannaquit){
+            window.open("../index.html", "_self");
+        }else{
+            pause();
         }
     }
 
