@@ -43,7 +43,6 @@
         var levelbutton;
         var creditsbutton;
         var manualsbutton;
-        var mainmenubutton;
         var glWidth = window.innerWidth;
         var glHeight = window.innerHeight;
         indexCanvas.width = glWidth;
@@ -53,13 +52,12 @@
         var mouseY = 0;
 
         class Button {
-            constructor(image, x, y, width, height, life) {
+            constructor(image, x, y, width, height) {
                 this.image = image;
                 this.x = x;
                 this.y = y;
                 this.width = width;
                 this.height = height;
-                this.life = life;
             }
             draw() {
                 ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
@@ -70,13 +68,7 @@
             y() {
                 return this.y
             }
-            undraw() {
-                this.x = 0;
-                this.y = 0;
-                this.width = 0;
-                this.height = 0;
-                this.life = 0;
-            }
+            
 
         }
 
@@ -104,7 +96,6 @@
             levelbutton = addImage("assets/images/mainmenu/levelbutton.png");
             creditsbutton = addImage("assets/images/mainmenu/creditsbutton.png");
             manualbutton = addImage("assets/images/mainmenu/manualbutton.png");
-            mainmenubutton = addImage("assets/images/mainmenu/mainmenubutton.png");
 
 
             var checkResources = function () {
@@ -150,30 +141,31 @@
 
         function drawButtons() {
 
-            var buttonsize = 0;
-            var startheight  = glHeight/10;
+            var buttonheight = 0;
+            var buttonwidth = 0;
+            var starty  = glHeight/10;
             // min size
             if (glWidth > 959) {
-                buttonsize = 64 ;
-                console.log("IF", glWidth);
+                buttonheight = 64 ;
+                buttonwidth = 128; 
             }
-            else { buttonsize = 32;
-                console.log("ELSE",glWidth)};
+            else { buttonheight = 32;
+                    buttonwidth = 64;}
 
 
-            //                  image        x             y              width         height(=width)
-            start = new Button(startbutton, glWidth / 3, startheight, buttonsize, buttonsize, 1);
-            level = new Button(levelbutton, glWidth / 3, startheight+buttonsize*1.5, buttonsize, buttonsize, 1);
-            manual = new Button(manualbutton, glWidth / 3, startheight+buttonsize*3, buttonsize, buttonsize, 1);
-            credits = new Button(creditsbutton, glWidth / 3, startheight+buttonsize*4.5, buttonsize, buttonsize, 1);
-            mainmenu = new Button(mainmenubutton, 0, 0, 0, 0, 0);
+
+            //                           image           x             y                         width        height
+            start =     new Button(startbutton,     glWidth / 3, starty,                    buttonwidth, buttonheight);
+            level =     new Button(levelbutton,     glWidth / 3, starty+buttonheight*1.5,   buttonwidth, buttonheight);
+            manual =    new Button(manualbutton,    glWidth / 3, starty+buttonheight*3,     buttonwidth, buttonheight);
+            credits =   new Button(creditsbutton,   glWidth / 3, starty+buttonheight*4.5,   buttonwidth, buttonheight);
+            
 
             start.draw();
             level.draw();
             manual.draw();
             credits.draw();
-            mainmenu.draw();
-
+            
 
 
         }
@@ -228,14 +220,6 @@
                 event.y < level.y + level.height
             ) {
                 window.open("./levelselect.html", "_self");
-                /*  console.log = (start.x,event.x);
-                 start.x = 0;
-                 start.y = 0;
-                 mainmenu.x = glWidth / 3;
-                 mainmenu.y= glHeight / 2.6;
-                 mainmenu.width = buttonsize;
-                 mainmenu.height = buttonsize;
-                 console.log = (start.x);  */
             };
             if ( //Manuals
                 event.x > manual.x &&
