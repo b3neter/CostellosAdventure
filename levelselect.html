@@ -8,16 +8,7 @@
     <title>Costellos Adventure Level select</title>
 
     <style>
-        #levelSelectorCanvas{
-            margin:0; padding:0; 
-            position:absolute; 
-            top:0; left:0;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -webkit-crisp-edges;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-            border: "red 1px solid";
-        }
+       
         body {background-image: url("assets/images/mainmenu/mapbg.png");
 } 
     </style>
@@ -30,7 +21,7 @@
         Your browser does not support the audio element.
     </audio>
 
- <img src="assets/images/mainmenu/map.png" usemap="#image-map">
+ <img id="img_id" src="assets/images/mainmenu/map.png"  onmouseover="document.getElementById('img_id').style.cursor='';"  usemap="#image-map">
 
 <map name="image-map">
     <area target="_self" alt="Forrest" title="Forest" href="./gamelogic/game.html?world=1&amp;level=1"         coords="354,162,405,180" shape="rect">
@@ -38,18 +29,19 @@
     <area target="_self" alt="Desert" title="Desert" href="./gamelogic/game.html?world=2&amp;level=1"           coords="548,215,602,240" shape="0">
     <area target="_self" alt="Mountain" title="Mountain" href="./gamelogic/game.html?world=5&amp;level=1"       coords="763,215,691,190" shape="0">
     <area target="_self" alt="Snowy" title="Snowy" href="./gamelogic/game.html?world=4&amp;level=1"             coords="780,230,831,252" shape="0">
-    <area target="_self" alt="Underwater" title="Underwater" href="./gamelogic/game.html?world=3&amp;level=1"   coords="107,271,194,291" shape="0">
+    <area target="_self" alt="Underwater" title="Underwater" href="./gamelogic/game.html?world=3&amp;level=1"  onmouseover="document.getElementById('img_id').style.cursor='url(assets/images/mainmenu/submarine.cur),auto';"  coords="107,271,194,291" shape="0">
     <area target="_self" alt="Vulcan" title="Vulcan" href="./gamelogic/game.html?world=7&amp;level=1"           coords="207,301,262,317" shape="0">
-    <area target="_self" alt="Universe" title="Universe" href="./gamelogic/game.html?world=10&amp;level=1"      coords="128,323,195,349" shape="0">
-    <area target="_self" alt="Heaven" title="Heaven" href="./gamelogic/game.html?world=6&amp;level=1"           coords="368,365,432,397" shape="0">
+    <area target="_self" alt="Universe" title="Universe" href="./gamelogic/game.html?world=10&amp;level=1"   onmouseover="document.getElementById('img_id').style.cursor='url(assets/images/mainmenu/shuttle.cur),auto';"    coords="128,323,195,349" shape="0">
+    <area target="_self" alt="Heaven"  title="Heaven" href="./gamelogic/game.html?world=6&amp;level=1"        onmouseover="document.getElementById('img_id').style.cursor='url(assets/images/mainmenu/plane.cur),auto';"     coords="368,365,432,397" shape="0">
     <area target="_self" alt="Castle" title="Castle" href="./gamelogic/game.html?world=9&amp;level=1"           coords="488,418,550,458" shape="0">
-    <area target="_self" alt="The Unknown Land" title="The Unknown Land" href="./gamelogic/game.html?world=0"   coords="531,334,670,351" shape="0">  <!-- Absprung load level-->
+  
+    <area target="_self" alt="The Unknown Land" title="The Unknown Land" href="./gamelogic/game.html?world=0&amp;level=1"   coords="531,334,670,351" shape="0">  <!-- Absprung load level-->
+   
     <area target="_self" alt="Back" title="Back" href="./index.html" type="image" scr="/assets/images/mainmenu/backbutton.png"  coords="0,0,100,100" shape="rect">  <!-- Absprung main-->
 
 
 
 
-</map> 
 </body >
 
 </html>
