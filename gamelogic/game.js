@@ -52,9 +52,11 @@
         var glPlayerLifes;
         var glScore;
 
-        //POWERUPS
+        //GameRelated Bools
+        
         var magmaballactivated = false;
-
+        
+        //POWERUPS
         const POWERUPTYPE = Object.freeze({ "FOOD": 0,
                                     "PADDLEINCREASER": 1,
                                     "PADDLEDECREASER": 2,
@@ -100,6 +102,9 @@
         var glBolImagesLoaded;
         var imgCostelloBall;
         var imgHeart;
+        var imgCrown;
+        var imgFireworks;
+        var imgPauseButton;
         var imgLevelBackground;
         var imgLevelStaticBackground;
         var imgFood;
@@ -174,8 +179,7 @@
         glPlayerMaxLifes = 6;
 
         //Text
-        glDefault_fontsizeScore = glDefault_imgSize * 0.6;
-        glDefault_fontsizePoints = glDefault_imgSize * 0.4;
+        glDefault_fontSize = Math.floor(glHeight * 0.03);
 
         //Powerup
         glDefault_PowerupFoodDy = Math.abs(glDefault_BallDy * 0.5);
@@ -519,6 +523,9 @@ class World{
             //Load DefaultImages
             imgCostelloBall = addImage("default/costelloball.png");
             imgHeart = addImage("default/heart.png");
+            imgCrown = addImage("default/crown.png");
+            imgFireworks = addImage("default/fireworks.png");
+            imgPauseButton = addImage("default/pausebutton.png");
             imgFood = addImage("powerups/foodtransparent.png")
             
             //load Worlds images
@@ -574,7 +581,7 @@ class World{
         }
 
         function playBackgroundMusicDependingOnGameState(){
-            if(glGamestate === GAMESTATE.PAUSE){
+            if(glGamestate === GAMESTATE.PAUSE || glGamestate === GAMESTATE.VICTORY || glGamestate === GAMESTATE.GAMEOVER){
                 glBackgroundmusic.pause();
             }else{
                 let promise = glBackgroundmusic.play();
@@ -607,8 +614,6 @@ class World{
 
         //Background
         function drawBackgroundOnBgCanvas() {
-            bgctx.clearRect(bgCanvas.x,bgCanvas.y,bgCanvas.width,bgCanvas.height);
-
             //Difference on one side
             let difCanvasesWidth = (bgCanvas.width - glWidth)/2; 
             let difCanvasesHeight= (bgCanvas.height - glHeight)/2; 
@@ -621,19 +626,23 @@ class World{
                     return value.type === ELEMENTTYPE.BALL;
                 });
                 
-                let br = balls[0].radius;
-                let bx = balls[0].x;
-                let by = balls[0].y;
-
-                let distBallCenterX = glCenterX - bx;
-                let distBallCenterY = glCenterY - by;
-
-                let percentX = distBallCenterX / (glCenterX - br);
-                let percentY = distBallCenterY / (glCenterY - br);
-
-                let canvx = startx + (difCanvasesWidth * percentX);
-                let canvy = starty + (difCanvasesHeight * percentY);
-                bgctx.drawImage(imgLevelBackground, canvx, canvy, bgCanvas.width, bgCanvas.height);
+                if(balls[0] !== undefined){
+                    let br = balls[0].radius;
+                    let bx = balls[0].x;
+                    let by = balls[0].y;
+    
+                    let distBallCenterX = glCenterX - bx;
+                    let distBallCenterY = glCenterY - by;
+    
+                    let percentX = distBallCenterX / (glCenterX - br);
+                    let percentY = distBallCenterY / (glCenterY - br);
+    
+                    let canvx = startx + (difCanvasesWidth * percentX);
+                    let canvy = starty + (difCanvasesHeight * percentY);
+                    bgctx.drawImage(imgLevelBackground, canvx, canvy, bgCanvas.width, bgCanvas.height);
+                }else{
+                    bgctx.drawImage(imgLevelBackground, startx, starty, bgCanvas.width, bgCanvas.height);
+                }
             }
         }
 
@@ -643,12 +652,63 @@ class World{
 
         //Score
         function drawScore(){
-            ctx.font = glDefault_fontsizeScore + "px Arial";
             ctx.textAlign= "left";
             ctx.textBaseline = "top";
-            ctx.fillStyle = "#F1F1F1";
-            ctx.fillText("Score "+glScore, 0, 0);
+            drawText("Score "+glScore, 0, 0);
         }
+        
+        //Text related
+        function drawText(text, x, y){
+            let fontString = glDefault_fontSize + 'px "Press Start 2P"';
+            ctx.font= fontString;
+            ctx.fillStyle = "#F1F1F1";
+            ctx.fillText(text, x , y);
+            ctx.strokeStyle = "#000";
+            ctx.strokeText(text, x , y);
+        }
+
+        function drawTextInCenter(text){
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            drawText(text, glCenterX , glCenterY);
+        }
+
+        function drawCurrentLevelOnScreen(){
+            drawTextInCenter("Level " + glCurrentLevel);
+        }
+
+        //GameOver
+        function drawGameOver(){
+            drawTextInCenter("Game Over");
+        }
+        
+        //Victory related
+        function drawVictory(){
+            drawTextInCenter("Level " + glCurrentLevel + " completed");
+            drawCrown();
+        }
+
+        function drawCrown(){
+            balls = glElements.filter(function(value, index, arr){
+                return value.type === ELEMENTTYPE.BALL;
+            });
+
+            balls.forEach(function(ball){
+                ball.dx = 0;
+                ball.dy = -1;
+                ball.drawCostello();
+                ctx.drawImage(imgCrown, ball.x - ball.radius , ball.y - ball.radius*2, glDefault_imgSize,glDefault_imgSize);
+            });
+        }
+
+        function drawFireworks(){
+            let width = 514;
+            let height = 720;
+            let randomX = Math.random()*(glWidth-width);
+            let randomY = Math.random()*(glHeight-height);
+            ctx.drawImage(imgFireworks, randomX , randomY, width, height);
+        }
+
 
         //helps to darken or to lighten a color
         function shadeColor2(color, percent) {
@@ -1120,8 +1180,10 @@ class World{
     }
 
     function onMouseDown(event){
-        setGamestatus(GAMESTATE.RUNNING);
-        checkButtons(event);
+        if(glGamestate !== GAMESTATE.VICTORY && glGamestate !== GAMESTATE.GAMEOVER){
+            setGamestatus(GAMESTATE.RUNNING);
+            checkButtons(event);
+        }
     }
 
     function checkButtons(event){
@@ -1360,89 +1422,113 @@ class World{
     }
 
     function handleGameOver(){
+        setGamestatus(GAMESTATE.GAMEOVER);
+        playBackgroundMusicDependingOnGameState();
         playSound(soundGameOver);
-        let restart = confirm("Restart");
-        if(restart){ 
-            initOnStartOfGame();
-        }
+        drawGameOver();
+        setTimeout(function(){
+            let restart = confirm("Restart");
+            if(restart){ 
+                initOnStartOfGame();
+            }
+        }, 3000);
     }
 
     function handleVictory(){
+        setGamestatus(GAMESTATE.VICTORY);
+        drawVictory()
+        playBackgroundMusicDependingOnGameState();
         playSound(soundVictory);
-        initOnStartOfLevel();
+        setTimeout(function(){
+            drawFireworks();
+        }, 500);
+        setTimeout(function(){
+            drawFireworks();
+        }, 1500);
+        setTimeout(function(){
+            drawFireworks();
+        }, 2500);
+        setTimeout(function(){
+            initOnStartOfLevel();
+        }, 3000);
     }
     
     //MAIN-Gameloop
     function animate() {
         requestAnimationFrame(animate);
-    
-        //Clear Canvas
-        ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-    
-        //Increase Frame
-        glFrame += 1;
-
-        //Pause /Initial Handling
-        if(glGamestate !== GAMESTATE.PAUSE && glGamestate !== GAMESTATE.INITIAL){
-
-            //setPaddlelocation (here and not onResize() because of Collision checking)
-            if(glMouse.x !== undefined && mainpaddle.getCenterX() !== glMouse.x){
-                if(glMouse.x > glX && glMouse.x <= mainpaddle.getCenterX()){
-                    mainpaddle.x = glX;
-                }else if(glMouse.x < glWidth && glMouse.x >= (glWidth - mainpaddle.width)){
-                    mainpaddle.x = glWidth - mainpaddle.width;
+        
+        if(glGamestate !== GAMESTATE.VICTORY && glGamestate !== GAMESTATE.GAMEOVER){
+            //Clear Canvas
+            ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            bgctx.clearRect(bgCanvas.x,bgCanvas.y,bgCanvas.width,bgCanvas.height);
+            sbgctx.clearRect(sbgCanvas.x,sbgCanvas.y,sbgCanvas.width,sbgCanvas.height);
+            
+            //Increase Frame
+            glFrame += 1;
+            
+            //Pause /Initial Handling
+            if(glGamestate !== GAMESTATE.PAUSE && glGamestate !== GAMESTATE.INITIAL){
+                
+                //setPaddlelocation (here and not onResize() because of Collision checking)
+                if(glMouse.x !== undefined && mainpaddle.getCenterX() !== glMouse.x){
+                    if(glMouse.x > glX && glMouse.x <= mainpaddle.getCenterX()){
+                        mainpaddle.x = glX;
+                    }else if(glMouse.x < glWidth && glMouse.x >= (glWidth - mainpaddle.width)){
+                        mainpaddle.x = glWidth - mainpaddle.width;
+                    }else{
+                        mainpaddle.x = glMouse.x;
+                    }
                 }else{
-                    mainpaddle.x = glMouse.x;
+                    mainpaddle.x = glDefault_PaddleX;
+                    mainpaddle.y = glDefault_PaddleY;
                 }
+                
+                
+                //Resolve Collision
+                glElements.forEach(function (element){
+                    glElements.forEach(function (other){
+                        checkCollision(element, other);
+                    })
+                    if(element.type === ELEMENTTYPE.BALL){
+                        if(checkWallCollision(element)){
+                            handleBallLoss(element);
+                        }
+                    }
+                    if(element.type === ELEMENTTYPE.POWERUP){
+                        if(checkWallCollision(element)){
+                            handlePowerupLoss(element);
+                        }
+                    }
+                });
             }else{
-                mainpaddle.x = glDefault_PaddleX;
-                mainpaddle.y = glDefault_PaddleY;
-            }
-            
-            
-            //Resolve Collision
-            glElements.forEach(function (element){
-                glElements.forEach(function (other){
-                    checkCollision(element, other);
-                })
-                if(element.type === ELEMENTTYPE.BALL){
-                    if(checkWallCollision(element)){
-                        handleBallLoss(element);
-                    }
-                }
-                if(element.type === ELEMENTTYPE.POWERUP){
-                    if(checkWallCollision(element)){
-                        handlePowerupLoss(element);
-                    }
-                }
-            });
+            drawCurrentLevelOnScreen();
         }
-            
+        
         //Remove Elements {Brick, Ball, Powerup} with zero or less life
         var existingElements = glElements.filter(function(value, index, arr){
             return value.lifes > 0;
         });
         glElements = existingElements;
-
+        
         //BackgroundMusic
         playBackgroundMusicDependingOnGameState();
-
-        //Drawing
+        
+        //Images and other drawing Drawing 
         if(glBolImagesLoaded){
             //Draw LevelSpecific Images
             drawBackgroundOnBgCanvas();
             drawStaticBackgroundOnSbgCanvas();
-
+            
             //Draw lifes of the player
             drawPlayersLifes();
-
-            //Draw Scor
-            drawScore();
-
+            
             //Update each Element
             glElements.forEach(function (element) {
                 element.update()
             });
+            
+            //Draw Score
+            drawScore();
         }else{
             ctx.beginPath();
             ctx.rect(0, 0, gameCanvas.width, gameCanvas.height);
@@ -1450,7 +1536,7 @@ class World{
             ctx.fill();
             ctx.closePath();
         }    
-            
+        
         //Check Victory
         let bricksAndPowerups = glElements.filter(function(value, index, arr){
             return value.type === ELEMENTTYPE.BRICK || value.type === ELEMENTTYPE.POWERUP;
@@ -1459,6 +1545,7 @@ class World{
             handleVictory();
         }
     }
+}
     
 initOnStartOfGame();
 animate();
