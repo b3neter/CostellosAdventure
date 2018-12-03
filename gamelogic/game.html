@@ -9,9 +9,13 @@
 
     <!--script src="classes/..."></script>
     <script src="..."></script>-->
+    <!--@import url('https://fonts.googleapis.com/css?family=Press+Start+2P');-->
     
     <style>
-        #gameCanvas{
+        *{
+            overflow: hidden;
+        }
+        canvas{
             margin:0; padding:0; 
             position:absolute; 
             top:0; left:0;
@@ -24,6 +28,8 @@
 </head>
 
 <body>
+    <canvas id="bgCanvas"></canvas>
+    <canvas id="sbgCanvas"></canvas>
     <canvas id="gameCanvas"></canvas>
     <script src="game.js"></script>
 </body>

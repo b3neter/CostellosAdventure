@@ -8,6 +8,26 @@
     gameCanvas.width = glWidth;
     gameCanvas.height = glHeight;
 
+        //Canvas Layers
+        var bgCanvas = document.getElementById('bgCanvas');
+        var bgctx = bgCanvas.getContext("2d");
+        var bgWidthFac = 1.2;
+        var bgHeightFac = 1.05;
+        function setBgCanvasSize(){
+            bgCanvas.width = glWidth * bgWidthFac;
+            bgCanvas.height = glHeight * bgHeightFac;
+        }
+        setBgCanvasSize();
+
+        var sbgCanvas = document.getElementById('sbgCanvas');
+        var sbgctx = sbgCanvas.getContext("2d");
+        function setSbgCanvasSize(){
+            sbgCanvas.width = glWidth + 10;
+            sbgCanvas.height = glHeight + 10;
+        }
+        setSbgCanvasSize();
+
+
     //Gamestate
     const GAMESTATE = Object.freeze({ "INITIAL": 0, "RUNNING": 1, "PAUSE": 2, "GAMEOVER": 3, "VICTORY": 4 })
     var glGamestate;
@@ -81,6 +101,7 @@
         var imgCostelloBall;
         var imgHeart;
         var imgLevelBackground;
+        var imgLevelStaticBackground;
         var imgFood;
 
     //Keycodes (https://keycode.info/)
@@ -503,7 +524,8 @@ class World{
             //load Worlds images
                 //Background    
                 imgLevelBackground = addImage("backgrounds/bg_world"+glWorlds[glCurrentWorld].rank+"_"+glWorlds[glCurrentWorld].name+".png");
-            
+                imgLevelStaticBackground = addImage("backgrounds/sbg_world"+glWorlds[glCurrentWorld].rank+"_"+glWorlds[glCurrentWorld].name+".png");
+
                 //Bricks
                 let brickimages = [];
                 glWorlds[glCurrentWorld].brickImgNames.forEach(function(brickImg){
@@ -584,8 +606,39 @@ class World{
         }
 
         //Background
-        function drawBackground() {
-            ctx.drawImage(imgLevelBackground, 0, 0, glWidth, glHeight);
+        function drawBackgroundOnBgCanvas() {
+            bgctx.clearRect(bgCanvas.x,bgCanvas.y,bgCanvas.width,bgCanvas.height);
+
+            //Difference on one side
+            let difCanvasesWidth = (bgCanvas.width - glWidth)/2; 
+            let difCanvasesHeight= (bgCanvas.height - glHeight)/2; 
+            let startx = -difCanvasesWidth;
+            let starty = -difCanvasesHeight;
+            if(glGamestate === GAMESTATE.INITIAL){
+                bgctx.drawImage(imgLevelBackground, startx, starty, bgCanvas.width, bgCanvas.height);
+            }else{
+                balls = glElements.filter(function(value, index, arr){
+                    return value.type === ELEMENTTYPE.BALL;
+                });
+                
+                let br = balls[0].radius;
+                let bx = balls[0].x;
+                let by = balls[0].y;
+
+                let distBallCenterX = glCenterX - bx;
+                let distBallCenterY = glCenterY - by;
+
+                let percentX = distBallCenterX / (glCenterX - br);
+                let percentY = distBallCenterY / (glCenterY - br);
+
+                let canvx = startx + (difCanvasesWidth * percentX);
+                let canvy = starty + (difCanvasesHeight * percentY);
+                bgctx.drawImage(imgLevelBackground, canvx, canvy, bgCanvas.width, bgCanvas.height);
+            }
+        }
+
+        function drawStaticBackgroundOnSbgCanvas(){
+            sbgctx.drawImage(imgLevelStaticBackground, 0, 0, sbgCanvas.width, sbgCanvas.height);
         }
 
         //Score
@@ -1089,8 +1142,15 @@ class World{
         glWidth = window.innerWidth;
         glHeight = window.innerHeight;
 
+        //GameCanvas
         gameCanvas.width = glWidth;
         gameCanvas.height = glHeight;
+
+        //Canvas Layers
+        setBgCanvasSize();
+
+        setSbgCanvasSize();
+
         initOnResizeOfLevel();
     }
 
@@ -1370,8 +1430,9 @@ class World{
         //Drawing
         if(glBolImagesLoaded){
             //Draw LevelSpecific Images
-            drawBackground();
-            
+            drawBackgroundOnBgCanvas();
+            drawStaticBackgroundOnSbgCanvas();
+
             //Draw lifes of the player
             drawPlayersLifes();
 
