@@ -192,8 +192,8 @@
         glDefault_PowerupHeight = 32;
 
         //Buttons
-        glDefault_ButtonWidth = glWidth / 16;
-        glDefault_ButtonHeight= glDefault_PaddleHeight;
+        glDefault_ButtonWidth = 2 * glDefault_imgSize;
+        glDefault_ButtonHeight= glDefault_imgSize;
         glDefault_PauseButtonX= glWidth - glDefault_ButtonWidth - 5;
         glDefault_PauseButtonY= glHeight - glDefault_ButtonHeight - 5;
     }
@@ -416,11 +416,13 @@ class Button extends AbstractElement {
     }
 
     draw() {
+        /*
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.closePath();
+        ctx.closePath();*/
+        ctx.drawImage(imgPauseButton, this.x, this.y, this.width, this.height);
     }
 }
 
