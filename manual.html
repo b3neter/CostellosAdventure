@@ -6,17 +6,15 @@
    <title>Manual</title>
 
    <style>
-      body,
-      html {
-         height: 100%;
-      }
+   
 
       .bg {
          background-image: url("assets/images/mainmenu/bg-menu.png");
-         height: 100%;
+        
          background-position: center;
-         background-repeat: no-repeat;
-         background-size: cover;
+         background-repeat:repeat;
+         background-size:cover;
+         background-attachment: fixed;
 
       }
 
@@ -76,7 +74,14 @@
 </head>
 
 <body>
+
+      <audio autoplay loop>
+            <source src="./assets/audio/music/b01_welcomeplayer.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>  
+
    <div class="bg">
+         <a href=./index.html><img src="assets/images/mainmenu/backbutton.png"></a>
       <div class="table-users">
          <div class="header">How to play</div>
 
@@ -100,7 +105,7 @@
             </tr>
 
             <tr>
-               <td><img src="assets/images/mainmenu/P.png" alt="" /></td>
+               <td>P</td>
                <td>P</td>
                <td>Hit P to pause the Game.</td>
             </tr>
@@ -144,34 +149,34 @@
             <tr>
                <td><img src="assets/images/powerups/increaselife.png" alt="" /></td>
                <td>Life + </td>
-               <td>Double the fun with Costello-Clone!</td>
+               <td>Gets you an extra Heart</td>
             </tr>
 
             <tr>
                <td><img src="assets/images/powerups/increasesize.png" alt="" /></td>
-               <td>Clone-Power</td>
-               <td>Double the fun with Costello-Clone!</td>
+               <td>Big Paddle</td>
+               <td>The bigger the better!</td>
             </tr>
 
             <tr>
                <td><img src="assets/images/powerups/increasespeed.png" alt="" /></td>
-               <td>Clone-Power</td>
-               <td>Double the fun with Costello-Clone!</td>
+               <td>Speed-Power</td>
+               <td>Costello, hurry up!</td>
             </tr>
             <tr>
                <td><img src="assets/images/powerups/decreaselife.png" alt="" /></td>
-               <td>Clone-Power</td>
-               <td>Double the fun with Costello-Clone!</td>
+               <td>Life -</td>
+               <td>Be Careful! Don't risk your life(s).</td>
             </tr>
             <tr>
                <td><img src="assets/images/powerups/decreasesize.png" alt="" /></td>
-               <td>Clone-Power</td>
-               <td>Double the fun with Costello-Clone!</td>
+               <td>Small Paddle</td>
+               <td>Oh no! Don't miss it now!</td>
             </tr>
             <tr>
                <td><img src="assets/images/powerups/decreasespeed.png" alt="" /></td>
-               <td>Clone-Power</td>
-               <td>Double the fun with Costello-Clone!</td>
+               <td>Slow-Motion</td>
+               <td>Take your time, Costello!</td>
             </tr>
          </table>
       </div>
