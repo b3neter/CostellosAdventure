@@ -23,37 +23,33 @@ The Game was tested in:
 
 ## Authors
 * **Benedikt Egenter** - *Initial work* - [b3neter](https://github.com/b3neter)
--gamelogic:
--game.js
---collision management
---classes
-
--assets:
---/images
----backgrounds [several]
----default
----sprites
---/audio
----sound
+- gamelogic:
+- - game.html
+- - game.js
+- assets:
+- - images
+- - - backgrounds
+- - - default
+- - - sprites
+- - audio
+- - - sound
 
 * **Max Gummersbach** - *Initial work* - [117agu](https://github.com/117agu)
-gamelogic:
--game.js
---powerups class
---gradiant [not in use]
--index.html
--levelselect.html
--manual.html
-
-
--assets:
---/images/backgrounds [several]
----backgrounds
----mainmenu
---/audio
----/music
-
--Pitchslide.pptx
+- gamelogic:
+- - game.js:
+- - - powerups class
+- - - gradiant [not in use]
+- - mute
+- index.html
+- levelselect.html
+- manual.html
+- assets:
+- - images/backgrounds
+- - - backgrounds
+- - - mainmenu
+- - audio
+- - - music
+- Pitchslide.pptx
 
 
 
