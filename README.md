@@ -23,37 +23,33 @@ The Game was tested in:
 
 ## Authors
 * **Benedikt Egenter** - *Initial work* - [b3neter](https://github.com/b3neter)
--gamelogic:
--game.js
---collision management
---classes
-
--assets:
---/images
----backgrounds [several]
----default
----sprites
---/audio
----sound
+- gamelogic:
+  - game.html
+  - game.js [exept the parts mentioned below]
+- assets:
+  - images
+    - backgrounds[parts]
+    - default
+    - sprites
+  - audio
+    - sound
 
 * **Max Gummersbach** - *Initial work* - [117agu](https://github.com/117agu)
-gamelogic:
--game.js
---powerups class
---gradiant [not in use]
--index.html
--levelselect.html
--manual.html
-
-
--assets:
---/images/backgrounds [several]
----backgrounds
----mainmenu
---/audio
----/music
-
--Pitchslide.pptx
+- gamelogic:
+  - game.js:
+    - powerups class
+    - gradiant [not in use]
+    - mute
+- index.html
+- levelselect.html
+- manual.html
+- assets:
+  - images/backgrounds
+    - backgrounds[parts]
+    - mainmenu
+  - audio
+    - music
+- Pitchslide.pptx
 
 
 
@@ -62,16 +58,15 @@ gamelogic:
 This project is licensed under the MIT License - see the license [LICENSE.md](LICENSE.md) file for details
 
 ### Images
-- [bg-menu.png](/assets/images/mainmenu/bg-menu.png) adapted from an image created by [Ansimuz.com](Ansimuz.com) on [pixelgameart.org [1]](https://pixelgameart.org/web/portfolio/country-side-platfformer/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode) 
-combined with [pixelgameart.org [2]](https://pixelgameart.org/web/portfolio/magic-cliffs-environment) by [Ansimuz.com](Ansimuz.com) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode) 
+- [bg-menu.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/bg-menu.png) adapted from an image created by [Ansimuz.com](Ansimuz.com) on [pixelgameart.org](https://pixelgameart.org/web/portfolio/country-side-platfformer/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode) 
 
-- [map.png](/assets/images/mainmenu/map.png) and [mapbg.png](/assets/images/mainmenu/mapbg.png) created with [Azgaar's Fantasy Map Generator](https://azgaar.github.io/Fantasy-Map-Generator) 
+- [map.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/map.png) and [mapbg.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/mapbg.png) created with [Azgaar's Fantasy Map Generator](https://azgaar.github.io/Fantasy-Map-Generator) 
 
-- [mouse.png](/assets/images/mainmenu/mouse.png) from [4vector.com](https://4vector.com/free-vector/mouse-clip-art-117133)
+- [mouse.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/mouse.png) from [4vector.com](https://4vector.com/free-vector/mouse-clip-art-117133)
 
-- [plane.cur](/assets/images/mainmenu/plan.cur) based on an image created by **Nick** on [opengameart.org](https://opengameart.org/content/fighter-planes-ww2-theme) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
+- [plane.cur](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/plan.cur) based on an image created by **Nick** on [opengameart.org](https://opengameart.org/content/fighter-planes-ww2-theme) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
 
-- [shuttle.cur](/assets/images/mainmenu/plan.cur) based on an imange created by [Xevin](https://opengameart.org/users/xevin) on [opengameart.org](https://opengameart.org/content/simple-spaceship) under  the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+- [shuttle.cur](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/plan.cur) based on an imange created by [Xevin](https://opengameart.org/users/xevin) on [opengameart.org](https://opengameart.org/content/simple-spaceship) under  the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
 - [bg_world0_garden_customs.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/bg_world0_garden_customs.png) created by [Tama66](https://pixabay.com/de/users/Tama66-1032521/) on [pixabay](https://pixabay.com/de/garten-park-schlo%C3%9F-kunst-2040714/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 - [bg_world1_forest.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/bg_world1_forest.png) created by [valiunic](https://pixabay.com/de/users/valiunic-172074o4/) on [pixabay](https://pixabay.com/de/gr%C3%BCn-park-saison-natur-im-freien-1072828/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
@@ -94,27 +89,27 @@ combined with [pixelgameart.org [2]](https://pixelgameart.org/web/portfolio/magi
 - [explosions](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/sprites/) created by [ansimuz](https://itch.io/profile/ansimuz) on [itch.io](https://ansimuz.itch.io/explosion-animations-pack) under the license [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode)
 
 ### Sounds
-- [bird.mp3](/assets/sounds/bird.mp3) created by [tec_studio](https://freesound.org/people/tec_studio/) on [freesound.org](https://freesound.org/people/tec_studio/sounds/353210/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
+- [bird.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/bird.mp3) created by [tec_studio](https://freesound.org/people/tec_studio/) on [freesound.org](https://freesound.org/people/tec_studio/sounds/353210/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
 
-- [explosion.mp3](/assets/sounds/explosion.mp3) created by [Prof.Mudkip](https://freesound.org/people/Prof.Mudkip/) on [freesound.org](https://freesound.org/people/Prof.Mudkip/sounds/386862/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
+- [explosion.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/explosion.mp3) created by [Prof.Mudkip](https://freesound.org/people/Prof.Mudkip/) on [freesound.org](https://freesound.org/people/Prof.Mudkip/sounds/386862/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
 
-- [gained.mp3](/assets/sounds/gained.mp3) created by [fins](https://freesound.org/people/fins) on [freesound.org](https://freesound.org/people/fins/sounds/171583/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+- [gained.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/gained.mp3) created by [fins](https://freesound.org/people/fins) on [freesound.org](https://freesound.org/people/fins/sounds/171583/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
-- [gameover.mp3](/assets/sounds/gameover.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/113988/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+- [gameover.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/gameover.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/113988/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
-- [gotItem.mp3](/assets/sounds/gotItem.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162476/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+- [gotItem.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/gotItem.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162476/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
-- [hit.mp3](/assets/sounds/hit.mp3) created by [sagitaurius](https://freesound.org/people/sagitaurius) on [freesound.org](https://freesound.org/people/sagitaurius/sounds/93550/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
+- [hit.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/hit.mp3) created by [sagitaurius](https://freesound.org/people/sagitaurius) on [freesound.org](https://freesound.org/people/sagitaurius/sounds/93550/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
 
-- [hit2.mp3](/assets/sounds/hit2.mp3) created by [Anthousai](https://freesound.org/people/Anthousai) on [freesound.org](https://freesound.org/people/Anthousai/sounds/406266/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+- [hit2.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/hit2.mp3) created by [Anthousai](https://freesound.org/people/Anthousai) on [freesound.org](https://freesound.org/people/Anthousai/sounds/406266/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
-- [lifelost.mp3](/assets/sounds/lifelost.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162465/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+- [lifelost.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/lifelost.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162465/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
-- [victory.mp3](/assets/sounds/victory.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162458/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+- [victory.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/victory.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162458/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
 ### Music
 
-- [Background music](/assets/music) created by [Visagar](https://freesound.org/people/Kastenfrosch) on [freemusicarchive.org [1]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World) and [freemusicarchive.org [2]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World_2) under [CC4](https://creativecommons.org/licenses/by/4.0/legalcode)
+- [Background music](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/music) created by [Visagar](https://freesound.org/people/Kastenfrosch) on [freemusicarchive.org [1]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World) and [freemusicarchive.org [2]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World_2) under [CC4](https://creativecommons.org/licenses/by/4.0/legalcode)
 
 
 ### Fonts
