@@ -9,7 +9,8 @@ You only need to download a copy of the project to a local folder or a folder on
 
 ### Prerequisites
 
-You only need a functional browser. We don't gurantee that it will work in every browser when you use it on your filesystem. It turns out that actually Edge works very well if you want to do so. But it is recommended to start the game on a server. Here is a perk: If you set up a server, you can also play the game on your mobile devices browser. :musical-note:
+You only need a functional browser. We don't gurantee that it will work in every browser when you use it on your filesystem. It turns out that actually Edge works very well if you want to do so. But it is recommended to start the game on a server. Here is a perk: If you set up a server, you can also play the game on your mobile devices browser. 
+:musical_note
 
 ### Testing
 
@@ -29,6 +30,7 @@ The Game was tested in:
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 ### Images
+- [path/nameofasset](link to folder) created by [Author](link to profile) on [origin](link to origin) under the [license](link to license )
 
 ### Sounds
 
