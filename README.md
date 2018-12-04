@@ -3,7 +3,7 @@ Costello is a nice, sweet and fluffy bird. But not when it comes to his natural 
 
 It is also quite simple to add some levels, designs, or even worlds to the game!
 
-![pitchslide](https://github.com/b3neter/CostellosAdventure/Pitchslide.png)
+![pitchslide](https://github.com/b3neter/CostellosAdventure/tree/master/pitchslide.png)
 
 ## Getting Started / Installing
 
