@@ -125,6 +125,41 @@ combined with [pixelgameart.org [2]](https://pixelgameart.org/web/portfolio/magi
 
 - **Press Start P2** a [google font](https://fonts.google.com/specimen/Press+Start+2P) on [google fonts](https://fonts.google.com/) under the license [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web)
 
+##Costumization
+If you want to customize this game, we have good news for you. Everything is exchangeable. You just have to change the [worlds.json](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/worlds.json).
+
+### Add a Level
+Make sure you have a `level.json` in one of the [world folders](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/). :warning: please name the level consecutive starting with level1 till level9999+ and further on :warning: 
+
+to make it accessible just choose a world and add your level in the `levels` array.  
+
+```
+{
+    "worlds": [
+        { "name": "garden_customs" , "rank": 0 , "levels": [ "level1", "level2", "level3"], ... },
+        ....
+}
+```
+
+your level is accessible by typing `/gamelogic/game.html?world=RANKOFYOURWORLD?level=NUMBEROFYOURLEVEL`
+
+### Add a World 
+Just add a new Folder in the [world folders](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/). :warning: also here obey the syntax. It is `"world"+ consecutive number+"_"+WORLDNAME` :warning:
+
+now just add the world as new Array in the [worlds.json](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/worlds.json). And add your Levels like above in your Folder for your World
+
+```
+{
+    "worlds": [
+        ....
+        { "name": "YOURWORLDSNAME" , "rank": YOURWORLDSNUMBER , "levels": [ "level1", "level2", "level3"], ... },
+        ....
+}
+```
+
+### Customize Worlds
+All the things in your [worlds.json](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/worlds.json) make the game costumizable. Just change the `bgmusic` for example there is plenty of music in the [music folder](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/music/).
+
 ## Acknowledgments 
 
 * this game was inspired and developed within a course at the license [FHDW](https://www.fhdw.de/) university of applied science located in Bergisch Gladbach, GERMANY
