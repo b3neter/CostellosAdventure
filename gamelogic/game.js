@@ -38,7 +38,7 @@
         }
     
     //Level & Element related
-    const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "ENEMY": 5, "BOSS": 6, "BUTTON":7})
+    const ELEMENTTYPE = Object.freeze({ "BALL": 1, "PADDLE": 2, "BRICK": 3, "POWERUP": 4, "SPRITE": 5, "BOSS": 6, "BUTTON":7})
     var glElements = [];
     
     var glMouse = {
@@ -52,8 +52,10 @@
         var glPlayerLifes;
         var glScore;
 
+        //Sprites
+        var glSprites;
+
         //GameRelated Bools
-        
         var magmaballactivated = false;
         
         //POWERUPS
@@ -108,6 +110,7 @@
         var imgLevelBackground;
         var imgLevelStaticBackground;
         var imgFood;
+        var imgDefaultExplosion;
 
     //Keycodes (https://keycode.info/)
     const KEYCODE = Object.freeze({ "ESC": 27, "P": 80, "SPACE": 32, "Enter": 13,
@@ -133,7 +136,8 @@
         glDefault_BrickSegementWidth, glDefault_BrickSegementStartX, glDefault_BrickSegementHeight, glDefault_BrickSegementStartY,
         glDefault_BrickLifes, glDefaultBrickMass,
         glDefault_imgSize, glDefault_HeightFraction,
-        glDefault_ButtonWidth, glDefault_ButtonHeight, glDefault_PauseButtonX, glDefault_PauseButtonY;
+        glDefault_ButtonWidth, glDefault_ButtonHeight, glDefault_PauseButtonX, glDefault_PauseButtonY,
+        glDefault_SpriteKeyframeSize, glDefault_SpriteSpeed;
 
     const glDefault_BallLifes = 1, glDefault_PaddleLifes = 1;;
     
@@ -196,6 +200,10 @@
         glDefault_ButtonHeight= glDefault_imgSize;
         glDefault_PauseButtonX= glWidth - glDefault_ButtonWidth - 5;
         glDefault_PauseButtonY= glHeight - glDefault_ButtonHeight - 5;
+
+        //Sprites
+        glDefault_SpriteKeyframeSize = 32;
+        glDefault_SpriteSpeed = 7;
     }
 
     function recalculateBrickDefaults(columns, rows){
@@ -371,6 +379,7 @@ class Ball extends AbstractElement {
     }
 }
 
+/**is treated as circle*/
 class Powerup extends AbstractElement {
     constructor(x, y, dy, radius, lifes, POWERUPTYPE, points, imgProperties = undefined) {
         super(ELEMENTTYPE.POWERUP, x, y, lifes);
@@ -416,12 +425,6 @@ class Button extends AbstractElement {
     }
 
     draw() {
-        /*
-        ctx.beginPath();
-        ctx.rect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        ctx.closePath();*/
         ctx.drawImage(imgPauseButton, this.x, this.y, this.width, this.height);
     }
 }
@@ -491,6 +494,43 @@ class World{
     }
 }
 
+/** Only for Drawing a Sprite, therefore doesn't have an effect on the game
+Sprites are treated as a circle like Powerups are*/
+class Sprite extends AbstractElement{
+    constructor( x, y, keyframesize, speed, img, wholeImgWidth, wholeImgHeight) {
+        super(ELEMENTTYPE.SPRITE, x, y, 1);
+        this.lastFrame = glFrame;
+        this.speed = speed;
+        this.img = img;
+        this.keyframesize = keyframesize;
+        this.wholeImgWidth = wholeImgWidth;
+        this.wholeImgHeight = wholeImgHeight;
+        this.sourceX = 0;
+        this.sourceY = 0;
+    }
+
+    update(frame) {
+        this.draw(frame);
+    }
+
+    draw(frame) {
+        ctx.drawImage(this.img, this.sourceX, this.sourceY, this.keyframesize, this.keyframesize, this.x - (this.keyframesize/2), this.y - (this.keyframesize/2), glDefault_imgSize, glDefault_imgSize);
+        if(frame - this.speed > this.lastFrame){
+            this.lastFrame = frame;
+            this.sourceX += this.keyframesize;
+            if(this.sourceX >= this.wholeImgWidth){
+                if(this.sourceY < this.wholeImgHeight){
+                    this.sourceY += this.keyframesize;
+                    this.sourceX = 0;
+                }else{
+                    //animation was played
+                    this.lifes--;
+                }
+            }
+        }
+    }
+}
+
 //Helperfunctions Design #################################################################################
 
     //Images
@@ -529,6 +569,7 @@ class World{
             imgFireworks = addImage("default/fireworks.png");
             imgPauseButton = addImage("default/pausebutton.png");
             imgFood = addImage("powerups/foodtransparent.png")
+            imgDefaultExplosion = addImage("sprites/explosion-1.png");
             
             //load Worlds images
                 //Background    
@@ -704,8 +745,8 @@ class World{
         }
 
         function drawFireworks(){
-            let width = 514;
-            let height = 720;
+            let width = imgFireworks.naturalWidth;
+            let height = imgFireworks.naturalHeight;
             let randomX = Math.random()*(glWidth-width);
             let randomY = Math.random()*(glHeight-height);
             ctx.drawImage(imgFireworks, randomX , randomY, width, height);
@@ -808,6 +849,11 @@ class World{
                                         glDefault_BallDx,glDefault_BallDy,glDefault_BallRadius,glDefault_BallMass);
                                         
             }
+        }
+
+        //Sprites 
+        function createDefaultExplosionSprite(object){
+            return new Sprite(object.x, object.y, glDefault_SpriteKeyframeSize, glDefault_SpriteSpeed, imgDefaultExplosion, glDefault_SpriteKeyframeSize * 8, glDefault_SpriteKeyframeSize);
         }
 
 //Collision ############################################################################################
@@ -1149,6 +1195,7 @@ class World{
         if(isGameOver()){
             handleGameOver();
         }
+        glSprites.push(createDefaultExplosionSprite(powerup));
         glPlayerLifes -= 1;
     }
 
@@ -1329,6 +1376,7 @@ class World{
         recalculateBrickDefaults(glDefault_BrickColumnCount, glDefault_BrickRowCount);
         loadSounds();
         glElements = [];
+        glSprites = [];
             //Create Mainpaddle
             mainpaddle = new Paddle(glDefault_PaddleX, glDefault_PaddleY, glDefault_PaddleWidth, glDefault_PaddleHeight, "#33BB97" );
             glElements.push(mainpaddle);
@@ -1430,7 +1478,8 @@ class World{
         drawGameOver();
         setTimeout(function(){
             let restart = confirm("Restart");
-            if(restart){ 
+            if(restart){
+                playSound(glBackgroundmusic);
                 initOnStartOfGame();
             }
         }, 3000);
@@ -1462,14 +1511,13 @@ class World{
         if(glGamestate !== GAMESTATE.VICTORY && glGamestate !== GAMESTATE.GAMEOVER){
             //Clear Canvas
             ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-            bgctx.clearRect(bgCanvas.x,bgCanvas.y,bgCanvas.width,bgCanvas.height);
-            sbgctx.clearRect(sbgCanvas.x,sbgCanvas.y,sbgCanvas.width,sbgCanvas.height);
-            
-            //Increase Frame
-            glFrame += 1;
+            bgctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            sbgctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
             
             //Pause /Initial Handling
             if(glGamestate !== GAMESTATE.PAUSE && glGamestate !== GAMESTATE.INITIAL){
+                //Increase Frame
+                glFrame += 1;
                 
                 //setPaddlelocation (here and not onResize() because of Collision checking)
                 if(glMouse.x !== undefined && mainpaddle.getCenterX() !== glMouse.x){
@@ -1511,6 +1559,12 @@ class World{
             return value.lifes > 0;
         });
         glElements = existingElements;
+
+        //Remove Sprites with zero or less life
+        var existingSprites = glSprites.filter(function(value, index, arr){
+            return value.lifes > 0;
+        });
+        glSprites = existingSprites;
         
         //BackgroundMusic
         playBackgroundMusicDependingOnGameState();
@@ -1527,6 +1581,11 @@ class World{
             //Update each Element
             glElements.forEach(function (element) {
                 element.update()
+            });
+            
+            //Update each Sprite Animation
+            glSprites.forEach(function(sprite){
+                sprite.update(glFrame);
             });
             
             //Draw Score
