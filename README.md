@@ -30,6 +30,11 @@ The Game was tested in:
 This project is licensed under the MIT License - see the license [LICENSE.md](LICENSE.md) file for details
 
 ### Images
+- [bg-menu.png](/assets/images/mainmenu/bg-menu.png) adapted from an image created by [Ansimuz.com](Ansimuz.com) on [pixelgameart.org [1]](https://pixelgameart.org/web/portfolio/country-side-platfformer/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode) 
+combined with [pixelgameart.org [2]](https://pixelgameart.org/web/portfolio/magic-cliffs-environment) by [Ansimuz.com](Ansimuz.com) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode) 
+
+- [map.png](/assets/images/mainmenu/map.png) and [mapbg.png](/assets/images/mainmenu/mapbg.png) created with [Azgaar's Fantasy Map Generator](https://azgaar.github.io/Fantasy-Map-Generator) 
+
 
 
 - [bg_world0_garden_customs.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/bg_world0_garden_customs.png) created by [Tama66](https://pixabay.com/de/users/Tama66-1032521/) on [pixabay](https://pixabay.com/de/garten-park-schlo%C3%9F-kunst-2040714/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
@@ -73,7 +78,7 @@ This project is licensed under the MIT License - see the license [LICENSE.md](LI
 
 ### Music
 
-- [Background music](/assets/music) created by [Visagar](https://freesound.org/people/Kastenfrosch) on [freemusicarchive.org [1]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World) and [freemusicarchive.org [2]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World_2) under [CC4](https://creativecommons.org/licenses/by/3.0/legalcode)
+- [Background music](/assets/music) created by [Visagar](https://freesound.org/people/Kastenfrosch) on [freemusicarchive.org [1]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World) and [freemusicarchive.org [2]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World_2) under [CC4](https://creativecommons.org/licenses/by/4.0/legalcode)
 
 
 ### Fonts
