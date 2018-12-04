@@ -192,7 +192,7 @@
         glDefault_PowerupLifes = 1;
         glDefault_PowerupPointsFood = 50;
         glDefault_PowerupPointsNonFood = 0;
-        glPowerupProbability = 0.12;
+        glPowerupProbability = 0.2;
         glDefault_PowerupWidth = 32;
         glDefault_PowerupHeight = 32;
 
