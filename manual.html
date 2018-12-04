@@ -5,16 +5,17 @@
    <meta charset="UTF-8">
    <title>Manual</title>
 
-   <style>
-   
+
+<style>
+      @import url('https://fonts.googleapis.com/css?family=Press+Start+2P');
 
       body {
          background-image: url("assets/images/mainmenu/bg-menu.png");
-        
          background-position: center;
          background-repeat:repeat;
          background-size:cover;
          background-attachment: fixed;
+        
 
       }
 
@@ -22,6 +23,7 @@
          background-color: #327a81;
          color: white;
          font-size: 1.5em;
+         font-family: 'Press Start 2P';font-size: 22px;
          padding: 1rem;
          text-align: center;
          text-transform: uppercase;
@@ -75,13 +77,13 @@
 
 <body>
 
-      <audio autoplay loop>
-            <source src="./assets/audio/music/b01_welcomeplayer.mp3" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>  
+   <audio autoplay loop>
+      <source src="./assets/audio/music/b01_welcomeplayer.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+   </audio>
 
    <div>
-         <a href=./index.html><img src="assets/images/mainmenu/backbutton.png"></a>
+      <a href=./index.html> <img src="assets/images/mainmenu/backbutton.png"></a>
       <div class="table-users">
          <div class="header">How to play</div>
 
@@ -99,15 +101,21 @@
             </tr>
 
             <tr>
-               <td><img src="assets/images/mainmenu/spacebar.png" alt="" /></td>
+               <td>[_______]</td>
                <td>Spacebar</td>
                <td>Use Spacebar as well, to release Costello.</td>
             </tr>
 
             <tr>
-               <td>P</td>
+               <td>[P]</td>
                <td>P</td>
                <td>Hit P to pause the Game.</td>
+            </tr>
+
+            <tr>
+               <td>[ESC]</td>
+               <td>ESC</td>
+               <td>Within the Game, hit ESC to return to the Mainmenu.</td>
             </tr>
 
          </table>
@@ -138,7 +146,7 @@
             <tr>
                <td><img src="assets/images/powerups/foodexample.png" alt="" /></td>
                <td>Food</td>
-               <td>Broken Bricks will drop some delicius food! </td>
+               <td>Broken Bricks will drop some delicius food! Catch it, and your score will increase.</td>
             </tr>
             <tr>
                <td><img src="assets/images/powerups/addball.png" alt="" /></td>
