@@ -3,6 +3,8 @@ Costello is a nice, sweet and fluffy bird. But not when it comes to his natural 
 
 It is also quite simple to add some levels, designs, or even worlds to the game!
 
+![pitchslide](https://github.com/b3neter/CostellosAdventure/Pitchslide.png)
+
 ## Getting Started / Installing
 
 You only need to download a copy of the project to a local folder or a folder on your server. Just navigate to the index.html on your folders basepath. It is as simple as that!
@@ -51,23 +53,16 @@ The Game was tested in:
     - music
 - Pitchslide.pptx
 
-
-
 ## License
-
 This project is licensed under the MIT License - see the license [LICENSE.md](LICENSE.md) file for details
 
 ### Images
+- most of the pixel images are pixelated with [pixelator](http://pixelatorapp.com/) under a private license [CC BY-NC 4.0](http://pixelatorapp.com/buy_license_personal.html)
 - [bg-menu.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/bg-menu.png) adapted from an image created by [Ansimuz.com](Ansimuz.com) on [pixelgameart.org](https://pixelgameart.org/web/portfolio/country-side-platfformer/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode) 
-
 - [map.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/map.png) and [mapbg.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/mapbg.png) created with [Azgaar's Fantasy Map Generator](https://azgaar.github.io/Fantasy-Map-Generator) 
-
 - [mouse.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/mouse.png) from [4vector.com](https://4vector.com/free-vector/mouse-clip-art-117133)
-
 - [plane.cur](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/plan.cur) based on an image created by **Nick** on [opengameart.org](https://opengameart.org/content/fighter-planes-ww2-theme) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
-
 - [shuttle.cur](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/mainmenu/plan.cur) based on an imange created by [Xevin](https://opengameart.org/users/xevin) on [opengameart.org](https://opengameart.org/content/simple-spaceship) under  the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [bg_world0_garden_customs.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/bg_world0_garden_customs.png) created by [Tama66](https://pixabay.com/de/users/Tama66-1032521/) on [pixabay](https://pixabay.com/de/garten-park-schlo%C3%9F-kunst-2040714/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 - [bg_world1_forest.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/bg_world1_forest.png) created by [valiunic](https://pixabay.com/de/users/valiunic-172074o4/) on [pixabay](https://pixabay.com/de/gr%C3%BCn-park-saison-natur-im-freien-1072828/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 - [bg_world2_desert.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/bg_world2_desert.png) created by [Free Photos](https://pixabay.com/de/users/Free-Photos-242387/) on [pixabay](https://pixabay.com/de/w%C3%BCste-sand-trocken-hei%C3%9F-landschaft-1246282/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
@@ -90,21 +85,13 @@ This project is licensed under the MIT License - see the license [LICENSE.md](LI
 
 ### Sounds
 - [bird.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/bird.mp3) created by [tec_studio](https://freesound.org/people/tec_studio/) on [freesound.org](https://freesound.org/people/tec_studio/sounds/353210/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
-
 - [explosion.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/explosion.mp3) created by [Prof.Mudkip](https://freesound.org/people/Prof.Mudkip/) on [freesound.org](https://freesound.org/people/Prof.Mudkip/sounds/386862/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
-
 - [gained.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/gained.mp3) created by [fins](https://freesound.org/people/fins) on [freesound.org](https://freesound.org/people/fins/sounds/171583/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [gameover.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/gameover.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/113988/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [gotItem.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/gotItem.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162476/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [hit.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/hit.mp3) created by [sagitaurius](https://freesound.org/people/sagitaurius) on [freesound.org](https://freesound.org/people/sagitaurius/sounds/93550/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
-
 - [hit2.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/hit2.mp3) created by [Anthousai](https://freesound.org/people/Anthousai) on [freesound.org](https://freesound.org/people/Anthousai/sounds/406266/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [lifelost.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/lifelost.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162465/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [victory.mp3](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/sounds/victory.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162458/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
 ### Music
@@ -160,3 +147,4 @@ All the things in your [worlds.json](https://github.com/b3neter/CostellosAdventu
 ## Acknowledgments 
 
 * this game was inspired and developed within a course at the license [FHDW](https://www.fhdw.de/) university of applied science located in Bergisch Gladbach, GERMANY
+* created with :heart:
