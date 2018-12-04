@@ -36,7 +36,6 @@ combined with [pixelgameart.org [2]](https://pixelgameart.org/web/portfolio/magi
 - [map.png](/assets/images/mainmenu/map.png) and [mapbg.png](/assets/images/mainmenu/mapbg.png) created with [Azgaar's Fantasy Map Generator](https://azgaar.github.io/Fantasy-Map-Generator) 
 
 
-
 - [bg_world0_garden_customs.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/bg_world0_garden_customs.png) created by [Tama66](https://pixabay.com/de/users/Tama66-1032521/) on [pixabay](https://pixabay.com/de/garten-park-schlo%C3%9F-kunst-2040714/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 - [bg_world1_forest.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/bg_world1_forest.png) created by [valiunic](https://pixabay.com/de/users/valiunic-172074o4/) on [pixabay](https://pixabay.com/de/gr%C3%BCn-park-saison-natur-im-freien-1072828/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 - [bg_world2_desert.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/bg_world2_desert.png) created by [Free Photos](https://pixabay.com/de/users/Free-Photos-242387/) on [pixabay](https://pixabay.com/de/w%C3%BCste-sand-trocken-hei%C3%9F-landschaft-1246282/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
@@ -54,26 +53,19 @@ combined with [pixelgameart.org [2]](https://pixelgameart.org/web/portfolio/magi
 - [sbg_world6_heaven.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/sbg_world6_heaven.png) created by [lizzyliz](https://pixabay.com/de/users/lizzyliz-46925/) on [pixabay](https://pixabay.com/de/heissluftbaloone-fliegen-baloons-216280/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 - [fireworks.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/default/fireworks.png) created by [mariaisabela](https://pixabay.com/de/users/mariaisabela-241286/) on [pixabay](https://pixabay.com/de/feuerwerk-sterne-feier-788799/) under the license [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 - [heart.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/default/heart.png) created by [DontMind8](dontmind8.blogspot.com) on [pixabay](http://www.dontmind8.win/2018/03/heart-pixel-art.html) under the license [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-- [food.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/powerups/food.png) created by [@JUSTIN_CYR](https://twitter.com/JUSTIN_CYR) on [twitter](https://twitter.com/JUSTIN_CYR/status/634546317713391616), in an adaption the background was made transparent [foodtransparent.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/powerups/foodtransparent.png)
+- [food.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/powerups/food.png) created by [@JUSTIN_CYR](https://twitter.com/JUSTIN_CYR) on [twitter] (https://twitter.com/JUSTIN_CYR/status/634546317713391616), in an adaption the background was made transparent [foodtransparent.png](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/powerups/foodtransparent.png)
 - [explosions](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/sprites/) created by [ansimuz](https://itch.io/profile/ansimuz) on [itch.io](https://ansimuz.itch.io/explosion-animations-pack) under the license [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode)
 
 ### Sounds
+
 - [bird.mp3](/assets/sounds/bird.mp3) created by [tec_studio](https://freesound.org/people/tec_studio/) on [freesound.org](https://freesound.org/people/tec_studio/sounds/353210/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
-
 - [explosion.mp3](/assets/sounds/explosion.mp3) created by [Prof.Mudkip](https://freesound.org/people/Prof.Mudkip/) on [freesound.org](https://freesound.org/people/Prof.Mudkip/sounds/386862/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
-
 - [gained.mp3](/assets/sounds/gained.mp3) created by [fins](https://freesound.org/people/fins) on [freesound.org](https://freesound.org/people/fins/sounds/171583/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [gameover.mp3](/assets/sounds/gameover.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/113988/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [gotItem.mp3](/assets/sounds/gotItem.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162476/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [hit.mp3](/assets/sounds/hit.mp3) created by [sagitaurius](https://freesound.org/people/sagitaurius) on [freesound.org](https://freesound.org/people/sagitaurius/sounds/93550/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
-
 - [hit2.mp3](/assets/sounds/hit2.mp3) created by [Anthousai](https://freesound.org/people/Anthousai) on [freesound.org](https://freesound.org/people/Anthousai/sounds/406266/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [lifelost.mp3](/assets/sounds/lifelost.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162465/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
 - [victory.mp3](/assets/sounds/victory.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162458/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
 ### Music
@@ -84,9 +76,8 @@ combined with [pixelgameart.org [2]](https://pixelgameart.org/web/portfolio/magi
 ### Fonts
 
 - **Painting With Chocolate** created by [mooze.nl](https://mooze.nl) on [1001fonts.com](https://www.1001fonts.com/painting-with-chocolate-font.html) under [FFC](https://www.1001fonts.com/licenses/ffc.html)
-
 - **Granit** created by [creatype](https://creativemarket.com/creatype) on [dafont.com](https://www.dafont.com/granite.font) free for Personal Use
-
+- **Press Start P2** a [google font](https://fonts.google.com/specimen/Press+Start+2P) on [google fonts](https://fonts.google.com/) under the license [OFL](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web)
 
 ## Acknowledgments 
 
