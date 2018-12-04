@@ -3,8 +3,6 @@ Costello is a nice, sweet and fluffy bird. But not when it comes to his natural 
 
 It is also quite simple to add some levels, designs, or even worlds to the game!
 
-![pitchslide](https://github.com/b3neter/CostellosAdventure/tree/master/Pitchslide.png)
-
 ## Getting Started / Installing
 
 You only need to download a copy of the project to a local folder or a folder on your server. Just navigate to the index.html on your folders basepath. It is as simple as that!
