@@ -33,9 +33,32 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 - [path/nameofasset](link to folder) created by [Author](link to profile) on [origin](link to origin) under the [license](link to license )
 
 ### Sounds
+- [bird.mp3](/assets/sounds/bird.mp3) created by [tec_studio](https://freesound.org/people/tec_studio/) on [freesound.org](https://freesound.org/people/tec_studio/sounds/353210/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
+
+- [explosion.mp3](/assets/sounds/explosion.mp3) created by [Prof.Mudkip](https://freesound.org/people/Prof.Mudkip/) on [freesound.org](https://freesound.org/people/Prof.Mudkip/sounds/386862/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
+
+- [gained.mp3](/assets/sounds/gained.mp3) created by [fins](https://freesound.org/people/fins) on [freesound.org](https://freesound.org/people/fins/sounds/171583/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+
+- [gameover.mp3](/assets/sounds/gameover.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/113988/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+
+- [gotItem.mp3](/assets/sounds/gotItem.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162476/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+
+- [hit.mp3](/assets/sounds/hit.mp3) created by [sagitaurius](https://freesound.org/people/sagitaurius) on [freesound.org](https://freesound.org/people/sagitaurius/sounds/93550/) under [CC3](https://creativecommons.org/licenses/by/3.0/legalcode)
+
+- [hit2.mp3](/assets/sounds/hit2.mp3) created by [Anthousai](https://freesound.org/people/Anthousai) on [freesound.org](https://freesound.org/people/Anthousai/sounds/406266/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+
+- [lifelost.mp3](/assets/sounds/lifelost.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162465/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
+
+- [victory.mp3](/assets/sounds/victory.mp3) created by [Kastenfrosch](https://freesound.org/people/Kastenfrosch) on [freesound.org](https://freesound.org/people/Kastenfrosch/sounds/162458/) under [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
 ### Music
 
+- [Background music](/assets/music) created by [Visagar](https://freesound.org/people/Kastenfrosch) on [freemusicarchive.org [1]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World) and [freemusicarchive.org [2]](http://freemusicarchive.org/music/Visager/Songs_From_An_Unmade_World_2) under [CC4](https://creativecommons.org/licenses/by/3.0/legalcode)
+
+
+### Fonts
+
+- Painting With Chocolate created by [mooze.nl](https://mooze.nl) on [1001fonts.com](https://www.1001fonts.com/painting-with-chocolate-font.html) under [FFC](https://www.1001fonts.com/licenses/ffc.html)
 
 
 ## Acknowledgments
