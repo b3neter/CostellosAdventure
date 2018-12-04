@@ -141,7 +141,7 @@ your level is accessible by typing `/gamelogic/game.html?world=RANKOFYOURWORLD?l
 ### Add a World 
 Just add a new Folder in the [world folders](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/). :warning: also here obey the syntax. It is `"world"+ consecutive number+"_"+WORLDNAME` :warning:
 
-now just add the world as new Array in the [worlds.json](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/worlds.json). And add your Levels like above in your Folder for your World
+now just add the world as new Array in the [worlds.json](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/worlds.json). And add your Levels like above in your Folder for your World.
 
 ```
 {
@@ -152,8 +152,10 @@ now just add the world as new Array in the [worlds.json](https://github.com/b3ne
 }
 ```
 
+Also you have to set 2 new images in the [backgrounds folder](https://github.com/b3neter/CostellosAdventure/tree/master/assets/images/backgrounds/). One which will be dynamic and one which will be a layer above and static.
+
 ### Customize Worlds
-All the things in your [worlds.json](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/worlds.json) make the game costumizable. Just change the `bgmusic` for example there is plenty of music in the [music folder](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/music/).
+All the things in your [worlds.json](https://github.com/b3neter/CostellosAdventure/tree/master/gamelogic/level/worlds.json) make the game costumizable. Just change the `bgmusic` for example there is plenty of music in the [music folder](https://github.com/b3neter/CostellosAdventure/tree/master/assets/audio/music/) for this purpose. Colors, images etc can be changed too by that;
 
 ## Acknowledgments 
 
