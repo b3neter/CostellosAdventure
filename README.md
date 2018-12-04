@@ -144,5 +144,5 @@ All the things in your [worlds.json](https://github.com/b3neter/CostellosAdventu
 
 ## Acknowledgments 
 
-* this game was inspired and developed within a course at the license [FHDW](https://www.fhdw.de/) university of applied science located in Bergisch Gladbach, GERMANY
+* this game was inspired and developed within a course at the [FHDW](https://www.fhdw.de/) university of applied science located in Bergisch Gladbach, GERMANY
 * created with :heart:
