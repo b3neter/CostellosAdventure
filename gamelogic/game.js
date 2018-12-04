@@ -88,7 +88,7 @@
     const WORLDJSONPATH = "level/worlds.json"
     const WORLDBASEPATH = "level/world"
     
-        //TODO Music
+        // Music
         var glBackgroundmusic = new Audio();
         var soundBallHitsPaddle = new Audio();
         var soundLifeLost = new Audio();
@@ -118,6 +118,7 @@
                                     "LEFT": 37, "A":65,
                                     "DOWN": 40, "S": 83,
                                     "RIGHT": 39, "D": 68,
+                                    "M": 77,
                                     "PLUS": 187, "MINUS": 189});
 
     //Default Variables and functions(TODO needs to change on resize)
@@ -604,6 +605,29 @@ class Sprite extends AbstractElement{
         //TODO sprite next frame on framerate
 
     //Music Loading, pause, restart
+        // mute music
+
+        function changemutestate(sound){
+            if(sound.muted){
+                sound.muted = false;
+            }else{
+                sound.muted = true;
+            }
+        }
+
+        function handlemute(){
+            changemutestate(glBackgroundmusic);
+            changemutestate(soundBallHitsPaddle);
+            changemutestate(soundLifeLost);
+            changemutestate(soundHitWall);
+            changemutestate(soundBrickCracks);
+            changemutestate(soundPowerupReceived);
+            changemutestate(soundFoodReceived);
+            changemutestate(soundExplosion);
+            changemutestate(soundGameOver);
+            changemutestate(soundVictory);
+        }
+
         //load music
         function loadSounds(){
             soundBallHitsPaddle.src = SOUNDPATH + "bird.mp3";
@@ -1271,6 +1295,7 @@ class Sprite extends AbstractElement{
             case KEYCODE.P: pause(); break;
             case KEYCODE.ESC: handleEscape(); break;
             case KEYCODE.SPACE: setGamestatus(GAMESTATE.RUNNING); break;
+            case KEYCODE.M: handlemute(); break;
             default: break;
         }
     }
